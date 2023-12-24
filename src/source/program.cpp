@@ -53,6 +53,8 @@ void organisation::program::mutate(data &source)
 
 std::string organisation::program::run(int start, data &source, history *destination)
 {
+    return std::string("");
+    /*
     std::vector<int> result;
 
     int x = (_width / 2) - start;
@@ -107,6 +109,7 @@ std::string organisation::program::run(int start, data &source, history *destina
     };
     
     return source.get(result);
+    */
 }
 
 int organisation::program::count()
@@ -140,7 +143,7 @@ void organisation::program::set(vector input, vector output, int magnitude, int 
 
     int index = (z * _width * _height) + (y * _width) + x;
 
-    cells[index].set(input, output, magnitude);
+    //cells[index].set(input, output, magnitude);
 }
 
 bool organisation::program::validate(data &source)
@@ -229,6 +232,7 @@ void organisation::program::cross(program &a, program &b, int middle)
 
 void organisation::program::save(std::string filename)
 {
+    /*
      std::fstream output(filename, std::fstream::out | std::fstream::binary);
 
     if(output.is_open())
@@ -277,10 +281,12 @@ void organisation::program::save(std::string filename)
 
         output.close();
     }   
+    */
 }
 
 void organisation::program::load(std::string filename)
 {
+    /*
     std::ifstream source(filename);
     if(source.is_open())
     {
@@ -371,6 +377,7 @@ void organisation::program::load(std::string filename)
 
         source.close();
     }
+    */
 }
     
 void organisation::program::makeNull()

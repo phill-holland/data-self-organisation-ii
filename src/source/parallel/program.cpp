@@ -16,6 +16,7 @@ void organisation::parallel::program::reset(::parallel::device &dev, parameters 
     deviceValues = sycl::malloc_device<int>(length, q);
     if(deviceValues == NULL) return;
     
+    /*
     deviceInGates = sycl::malloc_device<int>(settings.size() * settings.in * clients, q);
     if(deviceInGates == NULL) return;
 
@@ -24,12 +25,13 @@ void organisation::parallel::program::reset(::parallel::device &dev, parameters 
 
     deviceMagnitudes = sycl::malloc_device<int>(settings.size() * settings.in * settings.out * clients, q);
     if(deviceMagnitudes == NULL) return;
-
+    */
     // ***
 
     hostValues = sycl::malloc_host<int>(settings.size() * HOST_BUFFER, q);
     if(hostValues == NULL) return;
     
+    /*
     hostInGates = sycl::malloc_host<int>(HOST_BUFFER * settings.size() * settings.in, q);
     if(hostInGates == NULL) return;
 
@@ -38,7 +40,7 @@ void organisation::parallel::program::reset(::parallel::device &dev, parameters 
 
     hostMagnitudes = sycl::malloc_host<int>(HOST_BUFFER * settings.size() * settings.in * settings.out, q);
     if(hostMagnitudes == NULL) return;
-
+    */
     // ***
 
     deviceOutput = sycl::malloc_device<int>(length, q);
@@ -116,11 +118,7 @@ void organisation::parallel::program::clear(::parallel::queue *q)
     msF.wait();
     msG.wait();
     msH.wait();
-    msI.wait();
-    
-    //qt.memset(deviceInGates, -1, sizeof(int) * params.size() * params.in * clients).wait();
-    //qt.memset(deviceOutGates, -1, sizeof(int) * params.size() * params.in * params.out * clients).wait();    
-    //qt.memset(deviceMagnitudes, -1, sizeof(int) * params.size() * params.in * params.out * clients).wait();    
+    msI.wait();    
 }
 
 void organisation::parallel::program::run(::parallel::queue *q)

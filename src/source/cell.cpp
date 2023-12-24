@@ -7,7 +7,7 @@ std::mt19937_64 organisation::cell::generator(std::random_device{}());
 void organisation::cell::clear()
 {
     value = -1;
-    routes.clear();
+    //routes.clear();
 }
 
 void organisation::cell::generate(int value)
@@ -15,7 +15,7 @@ void organisation::cell::generate(int value)
     clear();
 
     this->value = value;
-    routes.generate();
+    //routes.generate();
 }
 
 void organisation::cell::mutate(int max)
@@ -29,10 +29,12 @@ void organisation::cell::mutate(int max)
     }
     else if (j == 2)
     {
-        routes.mutate();        
+        #warning fix me
+        //routes.mutate();        
     }
 }
 
+/*
 bool organisation::cell::is_input(vector source)
 {
     int tx = source.x + 1;
@@ -49,7 +51,8 @@ std::vector<organisation::vector> organisation::cell::outputs(vector input)
     int in = map(input);
     return routes.outputs(in);
 }
-
+*/
+/*
 void organisation::cell::set(vector input, vector output, int magnitude)
 {
     int s1 = map(input);
@@ -57,22 +60,25 @@ void organisation::cell::set(vector input, vector output, int magnitude)
 
     routes.set(s1, s2, gate(magnitude));
 }
-
+*/
 std::tuple<bool,bool> organisation::cell::validate(int max)
 {
+    return std::tuple<bool,bool>(false, false);
+    /*
     int in = 0;
 
     if(!routes.validate(in)) return std::tuple<bool, bool>(false,in <= gates::IN);
     if((value < -1)||(value > max)) return std::tuple<bool, bool>(false,in <= gates::IN);
 
     return std::tuple<bool, bool>(true, in <= gates::IN);
+    */
 }
 
 bool organisation::cell::equals(const cell &source)
 {
     if(value != source.value) return false;
     
-    return routes.equals(source.routes);
+    //return routes.equals(source.routes);
 
     return true;
 
@@ -83,7 +89,7 @@ void organisation::cell::copy(const cell &source)
     clear();
 
     value = source.value;
-    routes.copy(source.routes);
+    //routes.copy(source.routes);
 }
 
 int organisation::cell::map(vector source)

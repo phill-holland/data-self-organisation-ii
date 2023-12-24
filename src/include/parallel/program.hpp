@@ -60,14 +60,14 @@ namespace organisation
             ::parallel::device *dev;
 
             int *deviceValues;
-            int *deviceInGates;
-            int *deviceOutGates;
-            int *deviceMagnitudes;
+            //int *deviceInGates;
+            //int *deviceOutGates;
+            //int *deviceMagnitudes;
 
             int *hostValues;
-            int *hostInGates;
-            int *hostOutGates;
-            int *hostMagnitudes;
+            //int *hostInGates;
+            //int *hostOutGates;
+            //int *hostMagnitudes;
 
             int *deviceOutput;
             int *deviceOutputIteration;
