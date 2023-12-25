@@ -15,10 +15,6 @@ void organisation::program::reset(int w, int h, int d)
     _width = w; _height = h; _depth = d;
     length = _width * _height * _depth;
 
-    cells.resize(length);
-    //cells = new cell[length];
-    //if(cells == NULL) return;
-
     clear();
 
     init = true;
@@ -26,29 +22,89 @@ void organisation::program::reset(int w, int h, int d)
 
 void organisation::program::clear()
 {    
-    for(int i = 0; i < length; ++i)
-    {
-        cells[i].clear();
-    }
+    cache.clear();
+    movements.clear();
+    collisions.clear();
 }
 
 void organisation::program::generate(data &source)
 {
     clear();
 
-    for(int i = 0; i < length; ++i)
+    const int max_repeats = 2;
+    const int max_cache = source.maximum();
+
+    std::vector<int> raw = source.all();
+    std::unordered_map<int,point> points;
+
+    for(auto &it: raw)
     {
-        //int k = (std::uniform_int_distribution<int>{1, source.maximum()})(generator);
-        int k = (std::uniform_int_distribution<int>{0, source.maximum() - 1})(generator);
-        cells[i].generate(k);
+        int n = (std::uniform_int_distribution<int>{0, max_repeats})(generator);
+        for(int i = 0; i < n; ++i)
+        {
+            point p1;
+            p1.generate(_width, _height, _depth);
+            int index = ((_width * _height) * p1.z) + ((p1.y * _width) + p1.x);
+            if(points.find(index) == points.end())
+            {
+                cache.push_back(std::tuple<int,point>(it,p1));
+                if(cache.size() >= max_cache) return;
+            }
+        }
+    }
+
+    const int max_duplicate_insert = 2;
+    int n = (std::uniform_int_distribution<int>{1, max_duplicate_insert})(generator);
+    for(int i = 0; i <= n; ++i)
+    {
+        movement m1;
+        m1.generate(_width, _height, _depth);
+        movements.push_back(m1);
+    }
+
+    for(int i = 0; i <= 27; ++i)
+    {
+        int value = (std::uniform_int_distribution<int>{0, 27})(generator);
+        collisions.push_back(value);
     }
 }
 
 void organisation::program::mutate(data &source)
-{
-    int j = (std::uniform_int_distribution<int>{0, length - 1})(generator);
+{    
+    std::vector<int> lengths = { (int)cache.size(), (int)movements.size(), (int)collisions.size() };
+    int total = 0;
+    for(int i = 0; i < lengths.size(); ++i)
+    {
+        total += lengths[i];
+    }
 
-    cells[j].mutate(source.maximum());
+    int j = (std::uniform_int_distribution<int>{0, total - 1})(generator);
+    int index = 0;
+    int running = lengths[0];
+    for(int i = 1; i < lengths.size(); ++i)
+    {
+        if(j < running) break;
+        ++index;
+        running += lengths[i];
+    }
+
+    int offset = j - running;
+
+    if(index == 0)
+    {
+        // remove element
+        // or mutate position
+        // or change value
+    }
+    else if(index == 1)
+    {
+        movements[offset].mutate(_width, _height, _depth);
+    }
+    else if(index == 2)
+    {
+        int value = (std::uniform_int_distribution<int>{0, 27})(generator);
+        collisions[offset] = value;
+    }
 }
 
 std::string organisation::program::run(int start, data &source, history *destination)
@@ -116,14 +172,16 @@ int organisation::program::count()
 {
     int result = 0;
 
+/*
     for(int i = 0; i < length; ++i)
     {
         if(cells[i].value > -1) ++result;
     }
-
+*/
     return result;
 }
 
+/*
 void organisation::program::set(int value, int x, int y, int z)
 {
     if ((x < 0)||(x >= _width)) return;
@@ -145,9 +203,11 @@ void organisation::program::set(vector input, vector output, int magnitude, int 
 
     //cells[index].set(input, output, magnitude);
 }
+*/
 
 bool organisation::program::validate(data &source)
 {
+    /*
     if(count() <= 0) 
         return false;
 
@@ -161,13 +221,13 @@ bool organisation::program::validate(data &source)
 
     if(gates <= 0) 
         return false;
-
+    */
     return true;
 }
 
 void organisation::program::copy(const program &source)
-{
-    cells.assign(source.cells.begin(), source.cells.end());
+{    
+    //cells.assign(source.cells.begin(), source.cells.end());
     _width = source._width;
     _height = source._height;
     _depth = source._depth;
@@ -176,11 +236,12 @@ void organisation::program::copy(const program &source)
 
 bool organisation::program::equals(const program &source)
 {
+    /*
     for(int i = 0; i < length; ++i)
     {
         if(!cells[i].equals(source.cells[i])) return false;
     }
-
+    */
     return true;
 }
 

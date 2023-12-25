@@ -1,6 +1,9 @@
 #include "cell.h"
 #include "data.h"
+#include "point.h"
 #include "history.h"
+#include "movement.h"
+#include "vector.h"
 #include <string>
 #include <random>
 #include <vector>
@@ -16,7 +19,7 @@ namespace organisation
     {
         class program;
     };
-    
+        
     class program
     {      
         friend class parallel::program;
@@ -25,7 +28,10 @@ namespace organisation
 
         int _width, _height, _depth;
 
-        std::vector<cell> cells;
+        std::vector<std::tuple<int,point>> cache;
+        std::vector<movement> movements;
+        std::vector<int> collisions; // 27
+
         int length;
 
         bool init;
@@ -47,8 +53,8 @@ namespace organisation
 
         int count();
 
-        void set(int value, int x, int y, int z);
-        void set(vector input, vector output, int magnitude, int x, int y, int z);
+        //void set(int value, int x, int y, int z);
+        //void set(vector input, vector output, int magnitude, int x, int y, int z);
 
         bool validate(data &source);
 

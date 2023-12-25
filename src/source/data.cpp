@@ -58,6 +58,18 @@ std::string organisation::data::get(std::vector<int> &source)
     return result;
 }
 
+std::vector<int> organisation::data::all()
+{
+    std::vector<int> result;
+
+    for(auto &r: reverse)
+    {
+        result.push_back(r.first);
+    }
+
+    return result;
+}
+
 void organisation::data::copy(const data &source)
 {
     clear();
