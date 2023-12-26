@@ -3,6 +3,9 @@
 #include "point.h"
 #include "history.h"
 #include "movement.h"
+#include "movements.h"
+#include "cache.h"
+#include "collisions.h"
 #include "vector.h"
 #include <string>
 #include <random>
@@ -28,9 +31,14 @@ namespace organisation
 
         int _width, _height, _depth;
 
-        std::vector<std::tuple<int,point>> cache;
-        std::vector<movement> movements;
-        std::vector<int> collisions; // 27
+        std::unordered_map<int,point> points;
+
+        organisation::cache caches;
+        organisation::movements movements;
+        organisation::collisions collisions;
+        //std::vector<std::tuple<int,point>> cache;
+        //std::vector<movement> movements;
+        //std::vector<int> collisions; // 27
 
         int length;
 

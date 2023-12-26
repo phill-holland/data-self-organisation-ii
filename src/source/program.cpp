@@ -22,9 +22,10 @@ void organisation::program::reset(int w, int h, int d)
 
 void organisation::program::clear()
 {    
-    cache.clear();
+    caches.clear();
     movements.clear();
     collisions.clear();
+    points.clear();
 }
 
 void organisation::program::generate(data &source)
@@ -35,8 +36,7 @@ void organisation::program::generate(data &source)
     const int max_cache = source.maximum();
 
     std::vector<int> raw = source.all();
-    std::unordered_map<int,point> points;
-
+    
     for(auto &it: raw)
     {
         int n = (std::uniform_int_distribution<int>{0, max_repeats})(generator);
@@ -92,9 +92,17 @@ void organisation::program::mutate(data &source)
 
     if(index == 0)
     {
-        // remove element
-        // or mutate position
-        // or change value
+        int value = std::get<0>(cache[offset]);
+        point p1;
+
+        p1.generate(_width, _height, _depth);
+        int index = ((_width * _height) * p1.z) + ((p1.y * _width) + p1.x);
+
+        if(points.find(index) != points.end()) p1 = std::get<1>(cache[offset]);
+
+        std::vector<int> all = source.all();
+        int t1 = (std::uniform_int_distribution<int>{0, (int)(all.size() - 1)})(generator);
+        value = all[t1];
     }
     else if(index == 1)
     {
@@ -247,6 +255,27 @@ bool organisation::program::equals(const program &source)
 
 void organisation::program::cross(program &a, program &b, int middle)
 {
+    clear();
+
+    std::vector<int> lengths1;// = { (int)cache.size(), (int)movements.size(), (int)collisions.size() };
+    std::vector<int> lengths2;
+    
+    /*
+    lengths1.push_back(a.cache.size());    
+    for(auto &it:a.movements)
+    {
+        lengths1.push_back(it.directions.size() + 1);
+    }
+    lengths1.push_back(a.collisions.size());
+
+    lengths2.push_back(b.cache.size());    
+    for(auto &it: b.movements)
+    {
+        lengths2.push_back(it.directions.size() + 1);
+    }
+    lengths2.push_back(b.collisions.size());
+    */
+    /*
     if((a.length != b.length)||(length != a.length)) return;
 
     int a1 = 0, b1 = 0;
@@ -288,7 +317,8 @@ void organisation::program::cross(program &a, program &b, int middle)
     {
         cells[index].copy(a.cells[i]);
         ++index;
-    }    
+    } 
+    */   
 }
 
 void organisation::program::save(std::string filename)

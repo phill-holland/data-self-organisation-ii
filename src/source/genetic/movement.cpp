@@ -1,8 +1,8 @@
-#include "movement.h"
+#include "genetic/movement.h"
 
-std::mt19937_64 organisation::movement::generator(std::random_device{}());
+std::mt19937_64 organisation::genetic::movement::generator(std::random_device{}());
 
-void organisation::movement::generate(int width, int height, int depth)
+void organisation::genetic::movement::generate(int width, int height, int depth)
 {
     starting.generate(width, height, depth);
 
@@ -20,7 +20,7 @@ void organisation::movement::generate(int width, int height, int depth)
     }
 }
 
-void organisation::movement::mutate(int width, int height, int depth)
+void organisation::genetic::movement::mutate(int width, int height, int depth)
 {
     int s1 = (std::uniform_int_distribution<int>{0, (int)directions.size()})(generator);
     int n = (std::uniform_int_distribution<int>{0, (int)directions.size()})(generator);
