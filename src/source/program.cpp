@@ -1,4 +1,5 @@
 #include "program.h"
+#include "genetic/templates/genetic.h"
 #include <stack>
 #include <unordered_map>
 #include <iostream>
@@ -32,6 +33,19 @@ void organisation::program::generate(data &source)
 {
     clear();
 
+    const templates::genetic genes*[] = 
+    { 
+        &caches,
+        &movements,
+        &collisions
+    }; 
+
+    const int components = 3;
+    for(int i = 0; i < components; ++i)
+    {
+        genes[i]->generate(source);
+    }
+/*
     const int max_repeats = 2;
     const int max_cache = source.maximum();
 
@@ -67,10 +81,25 @@ void organisation::program::generate(data &source)
         int value = (std::uniform_int_distribution<int>{0, 27})(generator);
         collisions.push_back(value);
     }
+*/
 }
 
 void organisation::program::mutate(data &source)
 {    
+    const templates::genetic genes*[] = 
+    { 
+        &caches,
+        &movements,
+        &collisions
+    }; 
+
+    const int components = 3;
+
+    const int idx = (std::uniform_int_distribution<int>{0, components - 1})(generator);
+    genes[idx]->mutate(source);
+
+
+    /*
     std::vector<int> lengths = { (int)cache.size(), (int)movements.size(), (int)collisions.size() };
     int total = 0;
     for(int i = 0; i < lengths.size(); ++i)
@@ -113,6 +142,7 @@ void organisation::program::mutate(data &source)
         int value = (std::uniform_int_distribution<int>{0, 27})(generator);
         collisions[offset] = value;
     }
+    */
 }
 
 std::string organisation::program::run(int start, data &source, history *destination)
@@ -257,8 +287,75 @@ void organisation::program::cross(program &a, program &b, int middle)
 {
     clear();
 
-    std::vector<int> lengths1;// = { (int)cache.size(), (int)movements.size(), (int)collisions.size() };
-    std::vector<int> lengths2;
+    const templates::genetic ag*[] = 
+    { 
+        &a.caches,
+        &a.movements,
+        &a.collisions
+    }; 
+
+    const templates::genetic bg*[] = 
+    { 
+        &b.caches,
+        &b.movements,
+        &b.collisions
+    }; 
+
+    const templates::genetic dest*[] = 
+    { 
+        &caches,
+        &movements,
+        &collisions
+    }; 
+
+    const int components = 3;
+    
+    for(int i = 0; i < components; ++i)
+    {
+        int length = ag[i]->size() - 1;
+
+        int sa = 0, ea = 0;
+
+        do
+        {
+            sa = (std::uniform_int_distribution<int>{ 0, length })(generator);
+            ea = (std::uniform_int_distribution<int>{ 0, length })(generator);
+        } while(sa == ea);
+        
+        if(ea < sa) 
+        {
+            int temp = ea;
+            ea = sa;
+            sa = temp;
+        }
+
+        // ***
+
+        length = bg[i]->size() - 1;
+
+        int sb = 0, eb = 0;
+
+        do
+        {
+            sb = (std::uniform_int_distribution<int>{ 0, length })(generator);
+            eb = (std::uniform_int_distribution<int>{ 0, length })(generator);
+        } while(sb == eb);
+        
+        if(eb < sb) 
+        {
+            int temp = eb;
+            eb = sb;
+            sb = temp;
+        }
+
+        // ***
+
+        dest[i]->copy(ag[i], 0, sa, 0); // dest idx, start = 0, len = sa        
+        dest[i]->copy(bg[i], sb, eb, sa); // dest idx, start = sa, len - eb -sb
+        dest[i]->copy(ag[i], e1, ag[i]->size(), (eb - sb) + sa); //(eb-sb) + sa, len, ag[i] - 
+    }
+    //std::vector<int> lengths1;// = { (int)cache.size(), (int)movements.size(), (int)collisions.size() };
+    //std::vector<int> lengths2;
     
     /*
     lengths1.push_back(a.cache.size());    
