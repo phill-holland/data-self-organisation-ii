@@ -26,14 +26,13 @@ void organisation::program::clear()
     caches.clear();
     movement.clear();
     collisions.clear();
-    points.clear();
 }
 
 void organisation::program::generate(data &source)
 {
     clear();
 
-    const templates::genetic genes*[] = 
+    templates::genetic *genes[] = 
     { 
         &caches,
         &movement,
@@ -86,7 +85,7 @@ void organisation::program::generate(data &source)
 
 void organisation::program::mutate(data &source)
 {    
-    const templates::genetic genes*[] = 
+    templates::genetic *genes[] = 
     { 
         &caches,
         &movement,
@@ -287,21 +286,21 @@ void organisation::program::cross(program &a, program &b, int middle)
 {
     clear();
 
-    const templates::genetic ag*[] = 
+    templates::genetic *ag[] = 
     { 
         &a.caches,
         &a.movement,
         &a.collisions
     }; 
 
-    const templates::genetic bg*[] = 
+    templates::genetic *bg[] = 
     { 
         &b.caches,
         &b.movement,
         &b.collisions
     }; 
 
-    const templates::genetic dest*[] = 
+    templates::genetic *dest[] = 
     { 
         &caches,
         &movement,
@@ -352,7 +351,7 @@ void organisation::program::cross(program &a, program &b, int middle)
 
         dest[i]->copy(ag[i], 0, sa, 0); // dest idx, start = 0, len = sa        
         dest[i]->copy(bg[i], sb, eb, sa); // dest idx, start = sa, len - eb -sb
-        dest[i]->copy(ag[i], e1, ag[i]->size(), (eb - sb) + sa); //(eb-sb) + sa, len, ag[i] - 
+        dest[i]->copy(ag[i], eb, ag[i]->size(), (eb - sb) + sa); //(eb-sb) + sa, len, ag[i] - 
     }
     //std::vector<int> lengths1;// = { (int)cache.size(), (int)movements.size(), (int)collisions.size() };
     //std::vector<int> lengths2;

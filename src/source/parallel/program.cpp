@@ -97,6 +97,7 @@ void organisation::parallel::program::reset(::parallel::device &dev, parameters 
 
 void organisation::parallel::program::clear(::parallel::queue *q)
 {
+    /*
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, q);
 
     auto msA = qt.memset(deviceOutputEndPtr, 0, sizeof(int) * clients);
@@ -119,10 +120,11 @@ void organisation::parallel::program::clear(::parallel::queue *q)
     msG.wait();
     msH.wait();
     msI.wait();    
+    */
 }
 
 void organisation::parallel::program::run(::parallel::queue *q)
-{
+{/*
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, q);
     sycl::range num_items{(size_t)length};
 
@@ -274,10 +276,12 @@ void organisation::parallel::program::run(::parallel::queue *q)
         destinationEpoch = sourceEpoch;
         sourceEpoch = tempEpoch;
     };
+    */
 }
 
 void organisation::parallel::program::set(std::vector<sycl::float4> positions, ::parallel::queue *q)
 {
+    /*
     if(positions.size() > params.epochs) { std::cout << "set fail\r\n"; return; }
 
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, q);
@@ -307,12 +311,13 @@ void organisation::parallel::program::set(std::vector<sycl::float4> positions, :
             _readPositionsEndPtr[i] = _epochs;
         });
     }).wait();
+    */
 }
 
 std::vector<organisation::parallel::output> organisation::parallel::program::get(organisation::data &mappings, ::parallel::queue *q)
-{
+{    
     std::vector<output> results(clients);
-
+/*
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, q);
 
     auto mcA = qt.memcpy(hostOutput, deviceOutput, sizeof(int) * length);
@@ -359,12 +364,13 @@ std::vector<organisation::parallel::output> organisation::parallel::program::get
             results[i].values.push_back(out);
         }
     }
-
+*/
     return results;
 }
 
 void organisation::parallel::program::copy(::organisation::schema **source, int source_size, ::parallel::queue *q)
 {
+    /*
     memset(hostValues, -1, sizeof(int) * params.size() * HOST_BUFFER);
     memset(hostInGates, -1, sizeof(int) * params.size() * params.in * HOST_BUFFER);
     memset(hostOutGates, -1, sizeof(int) * params.size() * params.in * params.out * HOST_BUFFER);
@@ -456,6 +462,7 @@ void organisation::parallel::program::copy(::organisation::schema **source, int 
         mcC.wait();
         mcD.wait();
     }
+    */
 }
 
 void organisation::parallel::program::outputarb(int *source, int length)
@@ -528,6 +535,7 @@ void organisation::parallel::program::outputarb(sycl::float4 *source, int length
 
 void organisation::parallel::program::makeNull()
 {
+    /*
     dev = NULL;
 
     deviceValues = NULL;
@@ -558,10 +566,12 @@ void organisation::parallel::program::makeNull()
     hostOutputIteration = NULL;
     hostOutputEpoch = NULL;
     hostOutputEndPtr = NULL; 
+    */
 }
 
 void organisation::parallel::program::cleanup()
 {
+    /*
     if(dev != NULL) 
     {   
         sycl::queue q = ::parallel::queue(*dev).get();
@@ -595,4 +605,5 @@ void organisation::parallel::program::cleanup()
         if (deviceInGates != NULL) sycl::free(deviceInGates, q);
         if (deviceValues != NULL) sycl::free(deviceValues, q);
     }
+    */
 }

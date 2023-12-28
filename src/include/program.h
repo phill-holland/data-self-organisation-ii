@@ -1,10 +1,9 @@
-#include "cell.h"
 #include "data.h"
 #include "point.h"
 #include "history.h"
-#include "movement.h"
-#include "cache.h"
-#include "collisions.h"
+#include "genetic/movement.h"
+#include "genetic/cache.h"
+#include "genetic/collisions.h"
 #include "vector.h"
 #include <string>
 #include <random>
@@ -32,9 +31,9 @@ namespace organisation
 
         //std::unordered_map<int,point> points;
 
-        organisation::cache caches;
-        organisation::movement movement;
-        organisation::collisions collisions;
+        genetic::cache caches;
+        genetic::movement movement;
+        genetic::collisions collisions;
         //std::vector<std::tuple<int,point>> cache;
         //std::vector<movement> movements;
         //std::vector<int> collisions; // 27
@@ -44,8 +43,17 @@ namespace organisation
         bool init;
         
     public:
-        program(int w, int h, int d) { makeNull(); reset(w,h,d); }
-        program(const program &source) { copy(source); }
+        program(int w, int h, int d) 
+        : caches(w,h,d), movement(w,h,d)
+        { 
+            makeNull(); 
+            reset(w,h,d); 
+        }
+        /*program(const program &source)
+        : caches(w,h,d), movement(w,h,d) 
+        { 
+            copy(source); 
+        }*/
         ~program() { cleanup(); }
 
         bool initalised() { return init; }

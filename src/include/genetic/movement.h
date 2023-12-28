@@ -1,4 +1,4 @@
-#include "genetic/templates/generic.h"
+#include "genetic/templates/genetic.h"
 #include "point.h"
 #include "vector.h"
 #include "data.h"
@@ -22,7 +22,7 @@ namespace organisation
             point starting;
             std::vector<organisation::vector> directions;
 
-        public:
+    public:
             movement(int width, int height, int depth)
             {
                 _width = width;

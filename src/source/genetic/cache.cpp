@@ -53,7 +53,7 @@ void organisation::genetic::cache::copy(genetic *source, int src_start, int src_
 
     for(int i = 0; i < length; ++i)
     {
-        std::tuple<int,point> temp = source->values[src_start + i];        
+        std::tuple<int,point> temp = s->values[src_start + i];        
         values[dest_start + i] = temp;
 
         point p1 = std::get<1>(temp);

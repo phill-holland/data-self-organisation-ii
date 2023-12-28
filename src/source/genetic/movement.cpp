@@ -44,8 +44,8 @@ void organisation::genetic::movement::copy(genetic *source, int src_start, int s
 
     for(int i = 0; i < length; ++i)
     {
-        directions[dest_start + i] = source->directions[src_start + i];
+        directions[dest_start + i] = s->directions[src_start + i];
     }   
 
-    starting = source->starting;
+    starting = s->starting;
 }

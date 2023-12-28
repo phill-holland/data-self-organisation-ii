@@ -1,4 +1,4 @@
-#include "genetic/templates/generic.h"
+#include "genetic/templates/genetic.h"
 #include "point.h"
 #include <vector>
 #include <unordered_map>

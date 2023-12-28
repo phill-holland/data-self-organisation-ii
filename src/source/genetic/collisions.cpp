@@ -26,11 +26,13 @@ void organisation::genetic::collisions::copy(genetic *source, int src_start, int
 
     // ignore dest_start ??        
     int length = src_end - src_start;
-    if(length > values.size()) length = values.size();
+    if(length + dest_start > values.size())
+        length -= ((length + dest_start) - values.size());
+    //if(d.size() < (length + dest_start)) directions.resize(length + dest_start);
     //if(values.size() < (length + dest_start)) values.resize(length + dest_start);
 
     for(int i = 0; i < length; ++i)
     {
-        directions[dest_start + i] = source->directions[src_start + i];
+        values[dest_start + i] = s->values[src_start + i];
     }   
 }

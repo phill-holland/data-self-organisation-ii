@@ -1,4 +1,4 @@
-#include "genetic/templates/generic.h"
+#include "genetic/templates/genetic.h"
 #include "data.h"
 #include <vector>
 #include <random>
