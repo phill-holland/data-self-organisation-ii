@@ -27,16 +27,7 @@ namespace organisation
             }
 
         public:
-            size_t size() 
-            { 
-                int total = 0;
-                for(auto &it: values)
-                {
-                    total += it.directions.size() + 1;
-                }
-
-                return total;
-            }
+            size_t size();
 
             void clear()
             {
@@ -44,7 +35,8 @@ namespace organisation
             }
 
             void generate(data &source);
-            void mutate(data &source, int offset);
+            void mutate(data &source);
+            void copy(genetic *source, int src_start, int src_end, int dest_start);
         };
     };
 };

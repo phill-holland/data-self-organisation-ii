@@ -11,6 +11,9 @@ namespace organisation
         class genetic
         {
         public:
+            virtual ~genetic() { }
+
+        public:
             virtual size_t size() = 0;     
             virtual void clear() = 0;
             virtual void generate(data &source) = 0;

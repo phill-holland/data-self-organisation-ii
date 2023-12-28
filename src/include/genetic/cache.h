@@ -29,9 +29,14 @@ namespace organisation
 
         public:
             size_t size() { return values.size(); }
-            void clear() { values.clear(); }
+            void clear() 
+            { 
+                values.clear(); 
+                points.clear();
+            }
             void generate(data &source);
-            void mutate(data &source, int offset);
+            void mutate(data &source);
+            void copy(genetic *source, int src_start, int src_end, int dest_start);
         };
     };
 };

@@ -24,7 +24,7 @@ void organisation::program::reset(int w, int h, int d)
 void organisation::program::clear()
 {    
     caches.clear();
-    movements.clear();
+    movement.clear();
     collisions.clear();
     points.clear();
 }
@@ -36,7 +36,7 @@ void organisation::program::generate(data &source)
     const templates::genetic genes*[] = 
     { 
         &caches,
-        &movements,
+        &movement,
         &collisions
     }; 
 
@@ -89,7 +89,7 @@ void organisation::program::mutate(data &source)
     const templates::genetic genes*[] = 
     { 
         &caches,
-        &movements,
+        &movement,
         &collisions
     }; 
 
@@ -290,21 +290,21 @@ void organisation::program::cross(program &a, program &b, int middle)
     const templates::genetic ag*[] = 
     { 
         &a.caches,
-        &a.movements,
+        &a.movement,
         &a.collisions
     }; 
 
     const templates::genetic bg*[] = 
     { 
         &b.caches,
-        &b.movements,
+        &b.movement,
         &b.collisions
     }; 
 
     const templates::genetic dest*[] = 
     { 
         &caches,
-        &movements,
+        &movement,
         &collisions
     }; 
 

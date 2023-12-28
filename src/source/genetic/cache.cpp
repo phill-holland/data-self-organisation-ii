@@ -28,8 +28,10 @@ void organisation::genetic::cache::generate(data &source)
     }
 }
 
-void organisation::genetic::cache::mutate(data &source, int offset)
+void organisation::genetic::cache::mutate(data &source)
 {
+    int offset = (std::uniform_int_distribution<int>{0, (int)(values.size() - 1)})(generator);
+    
     int value = std::get<0>(values[offset]);
     point p1;
 
@@ -41,4 +43,24 @@ void organisation::genetic::cache::mutate(data &source, int offset)
     std::vector<int> all = source.all();
     int t1 = (std::uniform_int_distribution<int>{0, (int)(all.size() - 1)})(generator);
     value = all[t1];
+}
+
+void organisation::genetic::cache::copy(genetic *source, int src_start, int src_end, int dest_start)
+{
+    cache *s = dynamic_cast<cache*>(source);
+    int length = src_end - src_start;
+    if(values.size() < (length + dest_start)) values.resize(length + dest_start);
+
+    for(int i = 0; i < length; ++i)
+    {
+        std::tuple<int,point> temp = source->values[src_start + i];        
+        values[dest_start + i] = temp;
+
+        point p1 = std::get<1>(temp);
+        int index = ((_width * _height) * p1.z) + ((p1.y * _width) + p1.x);
+        if(points.find(index) == points.end())
+        {
+            points[index] = p1;
+        }
+    }
 }
