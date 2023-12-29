@@ -171,9 +171,19 @@ std::string organisation::program::run(std::string input, data &source, history 
 // ***
 
     std::vector<position> points;
-    std::unordered_map<int, position> lookup;    
+    //std::unordered_map<int, position> lookup;    
     //int length = _width * _height * _depth;
     //position volume[length];
+
+// COLLISOIN DETECTION
+// BASED ON INTERSECTING LINES
+
+// A-LINE;
+// start = a.position
+// end = a.next
+// B-line;
+// start = b.position
+// end = b.next
 
     std::vector<int> values = source.get(input);
 
@@ -183,8 +193,31 @@ std::string organisation::program::run(std::string input, data &source, history 
     do
     {
         // ***
+        // populate lookup with points
+        // ***
+
+        // ***
         // insert new points
         // ***
+        //lookup.clear();
+        std::unordered_map<int, position> lookup;
+        for(auto &it: points)
+        {
+            int index = ((_width * _height) * it.current.z) + ((it.current.y * _width) + it.current.x);
+            lookup[index] = it;
+        }
+        /*
+        for(auto &it: caches.points)
+        {
+            int index = ((_width * _height) * it.second.z) + ((it.second.y * _width) + it.second.x);
+            
+            position temp;
+            temp.current = it.second;
+            lookup[index] = temp;
+        }
+        */
+
+        // ****
 
         if(values.size() > 0)
         {
@@ -194,13 +227,15 @@ std::string organisation::program::run(std::string input, data &source, history 
             if(insert.get())
             {
                 int index = ((_width * _height) * starting.z) + ((starting.y * _width) + starting.x);
-                if(lookup.find(index) == lookup.end())
+                if((lookup.find(index) == lookup.end())
+                    &&(caches.points.find(index) == caches.points.end()))
                 {
                     position temp(value);
                     temp.current = starting;
+                    temp.time = counter;
                     
-                    lookup[index] = temp;
                     points.push_back(temp);
+                    lookup[index] = temp;
                 }           
                 // check starting point isn't occupied
             }
@@ -212,6 +247,19 @@ std::string organisation::program::run(std::string input, data &source, history 
 
 // NEED TO COPY CACHE INTO NEXT
         std::unordered_map<int, std::vector<int>> next;
+
+        for(auto &it: caches.points)
+        {
+            int index = ((_width * _height) * it.second.z) + ((it.second.y * _width) + it.second.x);
+            
+            //position temp;
+            //temp.current = it.second;
+            if(next.find(index) == next.end())
+                next[index] = { };
+            
+            next[index].push_back(-1);
+        }
+
         int i = 0;
         for(auto &it: points)
         {
@@ -227,14 +275,15 @@ std::string organisation::program::run(std::string input, data &source, history 
             int index = ((_width * _height) * it.next.z) + ((it.next.y * _width) + it.next.x);
             if(next.find(index) == next.end())
             {
-                std::vector<int> temp;
-                temp.push_back(i);
-                next[index] = temp;
+                next[index] = { };
+                //next[index].push_back(i);
             }
-            else
-            {
-                next[index].push_back(i);
-            }
+            //else
+            //{
+            next[index].push_back(i);
+            //}
+            
+
 
             ++i;
         }
@@ -243,7 +292,6 @@ std::string organisation::program::run(std::string input, data &source, history 
         // next position update
         // ***
 
-        lookup.clear();
 
         for(auto &it: next)
         {
@@ -251,16 +299,19 @@ std::string organisation::program::run(std::string input, data &source, history 
             if(it.second.size() == 1)
             {
                 int index = it.second.front();
-                position &point = points[index];
+                if(index >= 0)
+                {
+                    position &point = points[index];
 
-                // ***
-                // *** when does the current point get updated??
-                // ***
-                // ONLY UPDATE WHEN NO COLLISIONS FROM NEW DIRECTION
-                point.current = point.next;
+                    // ***
+                    // *** when does the current point get updated??
+                    // ***
+                    // ONLY UPDATE WHEN NO COLLISIONS FROM NEW DIRECTION
+                    point.current = point.next;
 
-                point.index = movement.next(point.index);                
-                point.direction = movement.directions[point.index];
+                    point.index = movement.next(point.index);                
+                    point.direction = movement.directions[point.index];
+                }
 
                 //it.index = movement.next(it.index);                
             //it.direction = movement.directions[it.index];
@@ -274,33 +325,40 @@ std::string organisation::program::run(std::string input, data &source, history 
                 // do I still increment point.index here????
                 // or just reset to 0 after collision?
 
+                // WRONG LOOP
                 for(int i = 0; i < it.second.size(); ++i)
                 {
-                    position &point = points[i];
-                    vector temp;
-                    for(int j = 0; j < it.second.size(); ++j)
+                    int idx1 = it.second[i];
+                    if(idx1 >= 0)
                     {
-                        if(i != j)
+                        position &point = points[idx1];
+                        vector temp;
+                        for(int j = 0; j < it.second.size(); ++j)
                         {
-                            temp.x += points[j].direction.x;
-                            temp.y += points[j].direction.y;
-                            temp.z += points[j].direction.z;
+                            int idx2 = it.second[j];
+                            //if(i != j)
+                            if(idx1 != idx2)
+                            {
+                                temp.x += points[idx2].direction.x;
+                                temp.y += points[idx2].direction.y;
+                                temp.z += points[idx2].direction.z;
+                            }
                         }
+
+                        temp.x /= (it.second.size() - 1);
+                        temp.y /= (it.second.size() - 1);
+                        temp.z /= (it.second.size() - 1);
+
+                        int encoded = temp.encode();
+                        vector direction;
+                        direction.decode(encoded);
+
+                        point.direction = direction;
                     }
-
-                    temp.x /= (it.second.size() - 1);
-                    temp.y /= (it.second.size() - 1);
-                    temp.z /= (it.second.size() - 1);
-
-                    int encoded = temp.encode();
-                    vector direction;
-                    direction.decode(encoded);
-
-                    point.direction = direction;
-
                     //
                     // COLLISIONS ALSO NEED TO OUTPUT!!!
                     // NEED AGE FOR EACH VALUE ADDED TO THE SYSTEM
+                    // add time index to each added cell
                     //
                 }
                 
