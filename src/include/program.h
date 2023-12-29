@@ -4,6 +4,7 @@
 #include "genetic/movement.h"
 #include "genetic/cache.h"
 #include "genetic/collisions.h"
+#include "genetic/insert.h"
 #include "vector.h"
 #include <string>
 #include <random>
@@ -29,14 +30,10 @@ namespace organisation
 
         int _width, _height, _depth;
 
-        //std::unordered_map<int,point> points;
-
         genetic::cache caches;
         genetic::movement movement;
         genetic::collisions collisions;
-        //std::vector<std::tuple<int,point>> cache;
-        //std::vector<movement> movements;
-        //std::vector<int> collisions; // 27
+        genetic::insert insert;
 
         int length;
 

@@ -16,25 +16,20 @@ namespace organisation
         {
             static std::mt19937_64 generator;
 
-            int _width, _height, _depth;
-
         public:
-            point starting;
             std::vector<organisation::vector> directions;
 
     public:
-            movement(int width, int height, int depth)
-            {
-                _width = width;
-                _height = height;
-                _depth = depth;
-            }
-
             size_t size() { return directions.size(); }
 
             void clear() 
             {
                 directions.clear();
+            }
+
+            int get()
+            {
+                #wanring manage end pointer to next direction
             }
 
         public:

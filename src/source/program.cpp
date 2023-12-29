@@ -1,4 +1,5 @@
 #include "program.h"
+#include "position.h"
 #include "genetic/templates/genetic.h"
 #include <stack>
 #include <unordered_map>
@@ -26,6 +27,7 @@ void organisation::program::clear()
     caches.clear();
     movement.clear();
     collisions.clear();
+    insert.clear();
 }
 
 void organisation::program::generate(data &source)
@@ -36,10 +38,11 @@ void organisation::program::generate(data &source)
     { 
         &caches,
         &movement,
-        &collisions
+        &collisions,
+        &insert
     }; 
 
-    const int components = 3;
+    const int components = sizeof(genes) / sizeof(templates::genetic*);
     for(int i = 0; i < components; ++i)
     {
         genes[i]->generate(source);
@@ -89,10 +92,11 @@ void organisation::program::mutate(data &source)
     { 
         &caches,
         &movement,
-        &collisions
+        &collisions,
+        &insert
     }; 
 
-    const int components = 3;
+    const int components = sizeof(genes) / sizeof(templates::genetic*);
 
     const int idx = (std::uniform_int_distribution<int>{0, components - 1})(generator);
     genes[idx]->mutate(source);
@@ -143,9 +147,32 @@ void organisation::program::mutate(data &source)
     }
     */
 }
-
+/*
+class insert
+{
+    int insert_frame_index;
+    std::vector<std::string> word;
+};
+*/
 std::string organisation::program::run(int start, data &source, history *destination)
 {
+// fill 3d cube with cache
+
+    std::vector<int> result;
+    std::vector<position> stack;
+    
+    const int MAX = 20;
+
+    //stack.push_back(position(movement.starting,0));
+
+    int counter = 0;
+    while ((!(stack.empty()))&&(counter < MAX))
+    {   
+        position temp = stack.back();     
+
+        ++counter;
+    }
+
     return std::string("");
     /*
     std::vector<int> result;
@@ -290,24 +317,27 @@ void organisation::program::cross(program &a, program &b, int middle)
     { 
         &a.caches,
         &a.movement,
-        &a.collisions
+        &a.collisions,
+        &a.insert
     }; 
 
     templates::genetic *bg[] = 
     { 
         &b.caches,
         &b.movement,
-        &b.collisions
+        &b.collisions,
+        &b.insert
     }; 
 
     templates::genetic *dest[] = 
     { 
         &caches,
         &movement,
-        &collisions
+        &collisions,
+        &insert
     }; 
 
-    const int components = 3;
+    const int components = sizeof(genes) / sizeof(templates::genetic*);
     
     for(int i = 0; i < components; ++i)
     {
