@@ -1,4 +1,5 @@
 #include "data.h"
+#include "general.h"
 #include <iostream>
 
 void organisation::data::add(std::vector<std::string> &source)
@@ -53,6 +54,20 @@ std::string organisation::data::get(std::vector<int> &source)
             std::cout << "HMM " << (*it) << "\r\n";
         }     
         else result += std::string(" ") + temp;//map(*it);
+    }
+
+    return result;
+}
+
+std::vector<int> organisation::data::get(std::string source)
+{
+    std::vector<int> result;
+    if(source.size() <= 0) return result;
+
+    auto strings = organisation::split(source);
+    for(auto &it: strings)
+    {
+        result.push_back(map(it));   
     }
 
     return result;

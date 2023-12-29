@@ -40,8 +40,7 @@ namespace organisation
         bool init;
         
     public:
-        program(int w, int h, int d) 
-        : caches(w,h,d), movement(w,h,d)
+        program(int w, int h, int d) : caches(w,h,d)
         { 
             makeNull(); 
             reset(w,h,d); 
@@ -61,7 +60,7 @@ namespace organisation
         void generate(data &source);  
         void mutate(data &source);
         
-        std::string run(int start, data &source, history *destination = NULL);
+        std::string run(std::string input, data &source, history *destination = NULL);
 
         int count();
 

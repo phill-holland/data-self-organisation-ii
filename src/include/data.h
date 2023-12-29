@@ -37,8 +37,10 @@ namespace organisation
         int map(std::string value);
         
         std::string get(std::vector<int> &source);  
-        std::vector<int> all();
+        std::vector<int> get(std::string source);
 
+        std::vector<int> all();
+        
     public:
         void copy(const data &source);      
     };

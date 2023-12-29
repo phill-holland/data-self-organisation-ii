@@ -27,9 +27,9 @@ namespace organisation
                 directions.clear();
             }
 
-            int get()
+            int next(int index)
             {
-                #wanring manage end pointer to next direction
+                if(index + 1 < directions.size()) return index + 1;
             }
 
         public:

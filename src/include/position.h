@@ -1,4 +1,5 @@
 #include "point.h"
+#include "vector.h"
 
 #ifndef _ORGANISATION_POSITION
 #define _ORGANISATION_POSITION
@@ -8,15 +9,20 @@ namespace organisation
     class position
     {
     public:
-        point pos;
+        point current, next;
+        vector direction;
+        int value;
         int index;
 
     public:
-        position(point p = {0,0,0}, int idx = 0)
+        position(int _value = -1, int _index = 0)
         {
-            pos = p;
-            index = idx;
+            value = _value;
+            index = _index;
         }
+
+    public:
+        bool isempty() { return value == -1; }
     };
 };
 

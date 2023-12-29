@@ -1,6 +1,7 @@
 #include "program.h"
 #include "position.h"
 #include "genetic/templates/genetic.h"
+#include "general.h"
 #include <stack>
 #include <unordered_map>
 #include <iostream>
@@ -154,16 +155,169 @@ class insert
     std::vector<std::string> word;
 };
 */
-std::string organisation::program::run(int start, data &source, history *destination)
+std::string organisation::program::run(std::string input, data &source, history *destination)
 {
-// fill 3d cube with cache
+// have too unordered_maps lookups by x,yz, index
+// one for cache (already exists)
+// one for current loop positions
+    point starting;
 
+    starting.x = (_width / 2);
+    starting.y = (_height / 2);
+    starting.z = (_depth / 2);
+
+// ***
+// COPY CACHES DATA into lookup
+// ***
+
+    std::vector<position> points;
+    std::unordered_map<int, position> lookup;    
+    //int length = _width * _height * _depth;
+    //position volume[length];
+
+    std::vector<int> values = source.get(input);
+
+    const int MAX = 20;
+    int counter = 0;
+
+    do
+    {
+        // ***
+        // insert new points
+        // ***
+
+        if(values.size() > 0)
+        {
+            int value = values.front();
+            values.erase(values.begin());
+
+            if(insert.get())
+            {
+                int index = ((_width * _height) * starting.z) + ((starting.y * _width) + starting.x);
+                if(lookup.find(index) == lookup.end())
+                {
+                    position temp(value);
+                    temp.current = starting;
+                    
+                    lookup[index] = temp;
+                    points.push_back(temp);
+                }           
+                // check starting point isn't occupied
+            }
+        }
+
+        // ***
+        // collision detection
+        // ***
+
+// NEED TO COPY CACHE INTO NEXT
+        std::unordered_map<int, std::vector<int>> next;
+        int i = 0;
+        for(auto &it: points)
+        {
+            //it.index = movement.next(it.index);                
+            //it.direction = movement.directions[it.index];
+
+            // update direction in FIRAT PART OF NLOOP
+             
+            it.next.x = it.current.x + it.direction.x;
+            it.next.y = it.current.y + it.direction.y;
+            it.next.z = it.current.z + it.direction.z;
+
+            int index = ((_width * _height) * it.next.z) + ((it.next.y * _width) + it.next.x);
+            if(next.find(index) == next.end())
+            {
+                std::vector<int> temp;
+                temp.push_back(i);
+                next[index] = temp;
+            }
+            else
+            {
+                next[index].push_back(i);
+            }
+
+            ++i;
+        }
+
+        // ***
+        // next position update
+        // ***
+
+        lookup.clear();
+
+        for(auto &it: next)
+        {
+            
+            if(it.second.size() == 1)
+            {
+                int index = it.second.front();
+                position &point = points[index];
+
+                // ***
+                // *** when does the current point get updated??
+                // ***
+                // ONLY UPDATE WHEN NO COLLISIONS FROM NEW DIRECTION
+                point.current = point.next;
+
+                point.index = movement.next(point.index);                
+                point.direction = movement.directions[point.index];
+
+                //it.index = movement.next(it.index);                
+            //it.direction = movement.directions[it.index];
+                //int index = ((_width * _height) * point.current.z) + ((point.current.y * _width) + point.current.x);
+                // update lookup
+            }
+            else if(it.second.size() > 1)
+            {
+                // compute next direction
+                
+                // do I still increment point.index here????
+                // or just reset to 0 after collision?
+
+                for(int i = 0; i < it.second.size(); ++i)
+                {
+                    position &point = points[i];
+                    vector temp;
+                    for(int j = 0; j < it.second.size(); ++j)
+                    {
+                        if(i != j)
+                        {
+                            temp.x += points[j].direction.x;
+                            temp.y += points[j].direction.y;
+                            temp.z += points[j].direction.z;
+                        }
+                    }
+
+                    temp.x /= (it.second.size() - 1);
+                    temp.y /= (it.second.size() - 1);
+                    temp.z /= (it.second.size() - 1);
+
+                    int encoded = temp.encode();
+                    vector direction;
+                    direction.decode(encoded);
+
+                    point.direction = direction;
+
+                    //
+                    // COLLISIONS ALSO NEED TO OUTPUT!!!
+                    // NEED AGE FOR EACH VALUE ADDED TO THE SYSTEM
+                    //
+                }
+                
+                // for each point, compare with all other points in 
+                // collisions
+                // compute next direction
+            }
+        }
+
+    } while(counter++<MAX);
+
+/*
     std::vector<int> result;
     std::vector<position> stack;
     
     const int MAX = 20;
 
-    //stack.push_back(position(movement.starting,0));
 
     int counter = 0;
     while ((!(stack.empty()))&&(counter < MAX))
@@ -172,7 +326,7 @@ std::string organisation::program::run(int start, data &source, history *destina
 
         ++counter;
     }
-
+*/
     return std::string("");
     /*
     std::vector<int> result;
