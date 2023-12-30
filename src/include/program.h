@@ -60,6 +60,7 @@ namespace organisation
         void generate(data &source);  
         void mutate(data &source);
         
+        std::string run2(std::string input, data &source, history *destination = NULL);
         std::string run(std::string input, data &source, history *destination = NULL);
 
         int count();

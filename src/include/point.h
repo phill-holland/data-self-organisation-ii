@@ -1,3 +1,4 @@
+#include "vector.h"
 #include <random>
 
 #ifndef _ORGANISATION_POINT
@@ -22,6 +23,33 @@ namespace organisation
 
     public:
         void generate(int max_x, int max_y, int max_z, int min_x = 0, int min_y = 0, int min_z = 0);
+
+        point min(const point &src)
+        {
+            point result;
+
+            result.x = x > src.x ? x : src.x;
+            result.y = y > src.y ? y : src.y;
+            result.z = z > src.z ? z : src.z;
+
+            return result;
+        }
+
+    public:
+        point operator+(const point &src) 
+        { 
+            return point(x + src.x,y + src.y,z + src.z); 
+        }   
+
+        point operator+(const vector &src) 
+        { 
+            return point(x + src.x,y + src.y,z + src.z); 
+        }   
+
+        point operator/(int r) 
+        { 
+            return point(x / r,y / r,z / r); 
+        }     
     };
 };
 

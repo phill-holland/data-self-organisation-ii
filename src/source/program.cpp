@@ -155,6 +155,126 @@ class insert
     std::vector<std::string> word;
 };
 */
+
+// OUTPUT ON COLLIDE WITH STATIONARY DATA ??
+
+// direction by data and/or lifetime
+
+std::string organisation::program::run2(std::string input, data &source, history *destination)
+{
+    point starting;
+
+    int half_width = (_width / 2);
+    int half_height = (_height / 2);
+    int half_depth = (_depth / 2);
+
+    starting.x = half_width;
+    starting.y = half_height;
+    starting.z = half_depth;
+
+    std::vector<int> values = source.get(input);
+
+    std::vector<position> points;
+
+    const int MAX = 20;
+    int counter = 0;
+
+    do
+    {
+        // ***
+        // add existing to collision lookup
+        // ***
+
+        std::unordered_map<int, std::vector<position*>> lookup;
+        for(auto &it: points)
+        {
+
+            vector direction = it.direction;
+
+            point a = it.current;
+            point b = a + direction;
+            point min = a.min(b) / 2;
+
+            int index = ((half_width * half_height) * min.z) + ((min.y * half_width) + min.x);
+
+            if(lookup.find(index) == lookup.end()) 
+                lookup[index] = { &it };
+            else
+                lookup[index].push_back(&it);
+        }
+
+        // ***
+        // add new points
+        // ***
+
+        if(values.size() > 0)
+        {
+            if(insert.get())
+            {
+                int value = values.front();
+                values.erase(values.begin());
+
+                position temp(value);
+                temp.current = starting;
+                temp.time = counter;
+                temp.index = 0;
+                temp.direction = movement.directions[0];
+
+                point b = starting + temp.direction;
+                point min = starting.min(b);
+
+                int index = ((half_width * half_height) * min.z) + ((min.y * half_width) + min.x);
+                if(lookup.find(index) == lookup.end())
+                {
+                    points.push_back(temp);                    
+                    lookup[index] = { &points.back() };                    
+                }           
+            }
+        }
+
+        // ***
+        // update positions
+        // ***
+
+        for(auto &it: lookup)
+        {
+            if(it.second.size() <= 1)
+            {
+                for(auto &jt: it.second)
+                {
+                    jt->current = jt->current + jt->direction;
+                    jt->index = movement.next(jt->index);                
+                    jt->direction = movement.directions[jt->index];
+                }
+            }
+            else
+            {
+                vector overall(0,0,0);
+                for(auto &jt: it.second)
+                {   
+                    overall.x += jt->direction.x;
+                    overall.y += jt->direction.y;
+                    overall.z += jt->direction.z;
+                }
+
+                int length = it.second.size() -1;
+                for(auto &jt: it.second)
+                {
+                    vector temp = overall - jt->direction;
+                    temp = temp / length;                    
+
+                    int encoded = temp.encode();
+                    vector direction;
+                    direction.decode(encoded);
+
+                    jt->direction = direction;
+                }                
+            }
+        }
+
+    }while(counter++<MAX);
+}
+
 std::string organisation::program::run(std::string input, data &source, history *destination)
 {
 // have too unordered_maps lookups by x,yz, index
@@ -217,6 +337,8 @@ std::string organisation::program::run(std::string input, data &source, history 
         }
         */
 
+        // ****
+        // add new point
         // ****
 
         if(values.size() > 0)
@@ -549,7 +671,7 @@ void organisation::program::cross(program &a, program &b, int middle)
         &insert
     }; 
 
-    const int components = sizeof(genes) / sizeof(templates::genetic*);
+    const int components = sizeof(dest) / sizeof(templates::genetic*);
     
     for(int i = 0; i < components; ++i)
     {

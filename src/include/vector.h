@@ -55,6 +55,13 @@ namespace organisation
 
             return (abs(tz) * (3 * 3)) + (abs(ty) * 3) + abs(tx);
         }
+
+    public:
+        vector operator*(const vector &src) { return vector(y * src.z - z * src.y,z * src.x - x * src.z,x * src.y - y * src.x, 0); }        
+        vector operator+(const vector &src) { return vector(x + src.x,y + src.y,z + src.z, 0); }
+        vector operator-(const vector &src) { return vector(x - src.x,y - src.y,z - src.z, 0); }
+        vector operator*(int r)  { return vector(x * r,y * r,z, 0); }
+        vector operator/(int r) { return vector(x / r,y / r,z / r, 0); }
     };
 };
 
