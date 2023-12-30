@@ -162,6 +162,16 @@ class insert
 
 std::string organisation::program::run2(std::string input, data &source, history *destination)
 {
+    auto intersect = [](point &a, point &b, point &c, point &d)
+    {
+      return 
+        ((a.x <= d.x && b.x >= c.x)
+        &&
+        (a.y <= d.y && b.y >= c.y)
+        &&
+        (a.z <= d.z && b.z >= c.z));
+    };
+
     point starting;
 
     int half_width = (_width / 2);
@@ -233,7 +243,7 @@ std::string organisation::program::run2(std::string input, data &source, history
         }
 
         // ***
-        // update positions
+        // update positions & directions
         // ***
 
         for(auto &it: lookup)
@@ -249,9 +259,54 @@ std::string organisation::program::run2(std::string input, data &source, history
             }
             else
             {
-                vector overall(0,0,0);
+                int length = it.second.size();
+                for(int i = 0; i < length; ++i)
+                {
+                    int collided = 0;
+                    vector overall(0,0,0);    
+
+                    point a = it.second[i]->current;
+                    point b = a + it.second[i]->direction;
+
+                    for(int j = 0; j < length; ++j)
+                    {
+                        if(i != j)
+                        {
+                            vector v = it.second[j]->direction;
+                            point c = it.second[j]->current;
+                            point d = a + v;
+
+                            if(intersect(a,b,c,d))
+                            {
+                                overall.x += v.x;
+                                overall.y += v.y;
+                                overall.z += v.z;
+
+                                collided++;
+                            }
+                        }
+                    }
+
+                    if(collided > 0)
+                    {
+                        overall = overall / collided;
+
+                        int encoded = overall.encode();
+
+                        int rebounded = collisions.values[encoded];
+                        vector direction;
+                        direction.decode(rebounded);
+
+                        it.second[i]->direction = direction;
+                    }
+                }
+
+                // NEED TO CHECK FOR GENIUNE COLLISION
+                // if collision, add to overall, falg collisoin = true
+                // line intersection test, for each i,j point in it.second
+                /*vector overall(0,0,0);
                 for(auto &jt: it.second)
-                {   
+                {                       
                     overall.x += jt->direction.x;
                     overall.y += jt->direction.y;
                     overall.z += jt->direction.z;
@@ -268,7 +323,8 @@ std::string organisation::program::run2(std::string input, data &source, history
                     direction.decode(encoded);
 
                     jt->direction = direction;
-                }                
+                } 
+                */               
             }
         }
 
