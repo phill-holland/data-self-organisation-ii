@@ -116,7 +116,8 @@ bool single(organisation::schema &schema, organisation::data &mappings, organisa
     int index = 0;
     for(std::vector<std::string>::iterator it = expected.begin(); it != expected.end(); ++it)
     {
-        std::string out1 = schema.run(index, *it, mappings, NULL);
+        //std::string out1 = schema.run(index, *it, mappings, NULL);
+        std::string out1;
         std::cout << "CPU " << index << " [" << out1 << "]\r\n";
 
         if(results[0].values.size() > index)

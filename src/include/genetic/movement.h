@@ -30,6 +30,7 @@ namespace organisation
             int next(int index)
             {
                 if(index + 1 < directions.size()) return index + 1;
+                return 0;
             }
 
         public:

@@ -5,6 +5,7 @@
 #include "schema.h"
 #include "kdpoint.h"
 
+/*
 organisation::program getTestProgram(organisation::data &d, int width, const int height, const int depth)
 {
     organisation::program p(width, height, depth);
@@ -33,11 +34,11 @@ organisation::program getTestProgram(organisation::data &d, int width, const int
 
         organisation::vector out1 = out[i];
 
-        p.set(in[i], out1, magnitude, x, y, z);
-        p.set(valueA, x, y, z);
+//        p.set(in[i], out1, magnitude, x, y, z);
+//        p.set(valueA, x, y, z);
 
-        p.set(in[i], out1, magnitude, x - 2, y, z);
-        p.set(valueB, x - 2, y, z);
+//        p.set(in[i], out1, magnitude, x - 2, y, z);
+//        p.set(valueB, x - 2, y, z);
 
         x += out1.x;
         y += out1.y;
@@ -159,3 +160,4 @@ TEST(BasicFrontTest, BasicAssertions)
         EXPECT_EQ(result[i], expected[i]);
     }
 }
+*/

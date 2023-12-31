@@ -329,6 +329,8 @@ std::string organisation::program::run2(std::string input, data &source, history
         }
 
     }while(counter++<MAX);
+
+    return std::string("");
 }
 
 std::string organisation::program::run(std::string input, data &source, history *destination)

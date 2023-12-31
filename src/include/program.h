@@ -56,6 +56,12 @@ namespace organisation
         void reset(int w, int h, int d);
 
     public:
+        void set(genetic::cache &source) { caches = source; }
+        void set(genetic::movement &source) { movement = source; }
+        void set(genetic::collisions &source) { collisions = source; }
+        void set(genetic::insert &source) { insert = source; }
+        
+    public:
         void clear();
         void generate(data &source);  
         void mutate(data &source);
