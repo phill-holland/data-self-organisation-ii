@@ -1,12 +1,11 @@
 #include "genetic/insert.h"
+#include <iostream>
 
 std::mt19937_64 organisation::genetic::insert::generator(std::random_device{}());
 
 void organisation::genetic::insert::start()
-{
-    counter = 0;
-    current = 0;
-
+{    
+    current = 1;
     counter = values[0];
 }
 
@@ -16,12 +15,12 @@ bool organisation::genetic::insert::get()
     
     counter--;
     
-    if(counter <= 0) 
-    {        
-        ++current;
+    if(counter < 0) 
+    {                        
+        std::cout << "insert current " << current << "\r\n";
+        counter = values[current++];
+        std::cout << "insert counter " << counter << "\r\n";
         if(current >= values.size()) current = 0;
-
-        counter = values[current];
 
         result = true;
     }
@@ -31,24 +30,24 @@ bool organisation::genetic::insert::get()
 
 void organisation::genetic::insert::generate(data &source)
 {
-    const int max = 15;
-    const int max_interval = 5;
+    //const int max = 15;
+    //const int max_interval = 5;
 
-    int length = (std::uniform_int_distribution<int>{1, max})(generator);
+    int length = (std::uniform_int_distribution<int>{1, LENGTH})(generator);
 
     for(int i = 0; i < length; ++i)
     {
-        int value = (std::uniform_int_distribution<int>{0, max_interval})(generator);
+        int value = (std::uniform_int_distribution<int>{MIN, MAX})(generator);
         values.push_back(value);
     }
 }
 
 void organisation::genetic::insert::mutate(data &source)
 {    
-    const int max_interval = 5;
+    //const int max_interval = 5;
 
     int offset = (std::uniform_int_distribution<int>{0, (int)(values.size() - 1)})(generator);
-    int value = (std::uniform_int_distribution<int>{0, max_interval})(generator);
+    int value = (std::uniform_int_distribution<int>{MIN, MAX})(generator);
     
     values[offset] = value;    
 }

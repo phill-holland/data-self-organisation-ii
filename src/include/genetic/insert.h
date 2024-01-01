@@ -14,6 +14,10 @@ namespace organisation
         {
             static std::mt19937_64 generator;
 
+            const static int LENGTH = 15;
+            const static int MIN = 1;
+            const static int MAX = 5;
+            
             int current;
             int counter;
 

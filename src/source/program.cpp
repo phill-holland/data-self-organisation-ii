@@ -181,9 +181,11 @@ std::string organisation::program::run3(std::string input, data &source, history
     starting.z = half_depth;
 
     std::vector<position> points;
+    std::vector<position> stationary;
+
     points.reserve(255);
 
-    const int MAX = 20;
+    const int MAX = 30;
     int counter = 0;
 
     const int length = _width * _height * _depth;
@@ -194,10 +196,23 @@ std::string organisation::program::run3(std::string input, data &source, history
         lookup[i] = NULL;
     }
 
+    for(auto &it: caches.values)
+    {
+        int value = std::get<0>(it);
+                
+        position temp(value);
+
+        temp.current = std::get<1>(it);        
+        temp.direction = vector(0,0,0);        
+
+        stationary.push_back(temp);
+    }
+
     insert.start();
 
     do
     {   
+        std::cout << "\r\n\r\nloop " << counter << "\r\n";
         // ***
         // clear lookup table
         // ***
@@ -211,11 +226,22 @@ std::string organisation::program::run3(std::string input, data &source, history
         // populate lookup table
         // ***
         
+        for(auto &it: stationary)
+        {            
+            int index1 = offset(it.current);
+            if(lookup[index1] == NULL)            
+                lookup[index1] = &it;
+        }
+
         for(auto &it: points)  
         {
-            int index1 = offset(it.current);
-            lookup[index1] = &it;
-        }
+            if(it.current.inside(_width,_height,_depth))
+            {
+                int index1 = offset(it.current);
+                if(lookup[index1] == NULL)            
+                    lookup[index1] = &it;
+            }
+        }        
 
         // special case for x_width - 1, if moving off grid, set to NULL
         for(int z = 0; z < _depth; ++z)
@@ -406,6 +432,10 @@ std::string organisation::program::run3(std::string input, data &source, history
                 int value = values.front();
                 values.erase(values.begin());
 
+for(auto &jt: points)
+{
+    std::cout << "(" << jt.current.x << "," << jt.current.y << "," << jt.current.z << ")";
+}
                 position temp(value);
                 temp.current = starting;
                 temp.time = counter;
@@ -413,10 +443,16 @@ std::string organisation::program::run3(std::string input, data &source, history
                 temp.direction = movement.directions[0];
 
                 int index1 = offset(temp.current);
+                std::cout << "\r\nattempt insert! " << temp.value << "\r\n";
                 if(lookup[index1] == NULL)
                 {
+                    std::cout << "insert! [" << temp.value << "]\r\n";
                     points.push_back(temp);
                     lookup[index1] = &points.back();
+                }
+                else
+                {
+                    std::cout << "failed insert (" << lookup[index1]->current.x << "," << lookup[index1]->current.y << "," << lookup[index1]->current.z << " value:" << lookup[index1]->value << ")\r\n";
                 }
             }
         }
@@ -453,7 +489,6 @@ std::string organisation::program::run3(std::string input, data &source, history
         points = working;
 
     }while(counter++<MAX);
-
     return std::string("");
 
 }

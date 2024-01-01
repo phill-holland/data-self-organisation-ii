@@ -18,7 +18,7 @@ TEST(BasicProgramExecution, BasicAssertions)
     organisation::program p(width, height, depth);
 
     organisation::genetic::insert insert;
-    insert.values = { 0,1,2,3 };
+    insert.values = { 1,2,3 };
 
     organisation::genetic::movement movement;
     movement.directions = { { 0,1,0 }, { 0,1,0 } };
@@ -38,7 +38,7 @@ TEST(BasicProgramExecution, BasicAssertions)
         int value = d.map(strings[i]);
     }
 
-    std::string output = p.run2(input, d, NULL);
+    std::string output = p.run3(input, d, NULL);
     std::vector<std::string> outputs = organisation::split(output);//p.run(0, d));
 
     EXPECT_EQ(p.count(), 8);
