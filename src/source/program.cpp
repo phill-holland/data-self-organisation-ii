@@ -157,8 +157,306 @@ class insert
 */
 
 // OUTPUT ON COLLIDE WITH STATIONARY DATA ??
+// NEED TO CHECK BOUNDS OF CONTAINING CUBE
 
 // direction by data and/or lifetime
+
+std::string organisation::program::run3(std::string input, data &source, history *destination)
+{
+    auto offset = [this](point &src)
+    {
+        return ((this->_width * this->_height) * src.z) + ((src.y * this->_width) + src.x);
+    };
+    
+    std::vector<int> values = source.get(input);
+
+    point starting;
+
+    int half_width = (_width / 2);
+    int half_height = (_height / 2);
+    int half_depth = (_depth / 2);
+
+    starting.x = half_width;
+    starting.y = half_height;
+    starting.z = half_depth;
+
+    std::vector<position> points;
+    points.reserve(255);
+
+    const int MAX = 20;
+    int counter = 0;
+
+    const int length = _width * _height * _depth;
+    position *lookup[length];
+
+    for(int i = 0; i < length; ++i)
+    {
+        lookup[i] = NULL;
+    }
+
+    insert.start();
+
+    do
+    {   
+        // ***
+        // clear lookup table
+        // ***
+
+        for(int i = 0; i < length; ++i)
+        {
+            lookup[i] = NULL;
+        }
+
+        // ***
+        // populate lookup table
+        // ***
+        
+        for(auto &it: points)  
+        {
+            int index1 = offset(it.current);
+            lookup[index1] = &it;
+        }
+
+        // special case for x_width - 1, if moving off grid, set to NULL
+        for(int z = 0; z < _depth; ++z)
+        {     
+            // edge cases for x _width bounds
+
+            for(int y = 0; y <_height; ++y)
+            {
+                point p1(_width - 1,y,z);
+                int index1 = offset(p1);
+                if(lookup[index1] != NULL)
+                {
+                    if(lookup[index1]->direction.x > 0)
+                    {
+                        lookup[index1] = NULL;
+                    }
+                }
+
+                // ***
+
+                point p2(0,y,z);
+                int index2 = offset(p2);
+                if(lookup[index2] != NULL)
+                {
+                    if(lookup[index2]->direction.x < 0)
+                    {
+                        lookup[index2] = NULL;
+                    }
+                }
+            }
+
+
+            int x_reverse = _width - 2;
+            int x_forward = 1;
+
+            for(int x = _width - 2; x >= 0; x--)
+            {
+                for(int y = 0; y < _height; ++y)
+                {
+                    point p1(x_reverse,y,z), p2(x_reverse + 1,y,z);
+                    int index1 = offset(p1);
+                    int index2 = offset(p2);
+
+                    if(lookup[index1] != NULL)
+                    {
+                        if(lookup[index1]->direction.x > 0)
+                        {
+                            if(lookup[index2] == NULL)
+                            {
+                                position *temp = lookup[index1];                    
+                                temp->current.x += temp->direction.x;
+                            }
+                            else
+                            {
+                                position *temp = lookup[index1];
+                                temp->collision.x += temp->direction.x;
+                                // collision occured
+                                // for the point, need to push_back this collision
+                                // direction, and sum, for computation of next direction
+                            }
+                        }                    
+                    }
+
+                    // ****
+                    point p3(x_forward,y,z), p4(x_forward - 1,y,z);
+                    int index3 = offset(p3);
+                    int index4 = offset(p4);
+                    if(lookup[index3] != NULL)
+                    {
+                        if(lookup[index3]->direction.x < 0)
+                        {
+                            if(lookup[index4] == NULL)
+                            {
+                                position *temp = lookup[index3];                    
+                                temp->current.x += temp->direction.x;
+                            }
+                            else
+                            {
+                                // record collision
+                                position *temp = lookup[index3];
+                                temp->collision.x += temp->direction.x;
+                            }
+                        }
+                    }
+                }
+                x_reverse--;
+                x_forward++;
+            }
+
+            // ***
+            // process y 
+
+            // y edge cases
+
+            for(int x = 0; x <_width; ++x)
+            {
+                point p1(x,_height - 1,z);
+                int index1 = offset(p1);
+                if(lookup[index1] != NULL)
+                {
+                    if(lookup[index1]->direction.y > 0)
+                    {
+                        lookup[index1] = NULL;
+                    }
+                }
+
+                // ***
+
+                point p2(x,0,z);
+                int index2 = offset(p2);
+                if(lookup[index2] != NULL)
+                {
+                    if(lookup[index2]->direction.y < 0)
+                    {
+                        lookup[index2] = NULL;
+                    }
+                }
+            }
+
+
+            int y_reverse = _height - 2;
+            int y_forward = 1;
+
+            for(int y = _height - 2; y >= 0; y--)
+            {
+                for(int x = 0; x < _width; x++)
+                {
+                    point p1(x,y_reverse,z), p2(x,y_reverse + 1,z);
+                    int index1 = offset(p1);
+                    int index2 = offset(p2);
+
+                    if(lookup[index1] != NULL)
+                    {
+                        if(lookup[index1]->direction.y > 0)
+                        {
+                            if(lookup[index2] == NULL)
+                            {
+                                position *temp = lookup[index1];                    
+                                temp->current.y += temp->direction.y;
+                            }
+                            else
+                            {
+                                position *temp = lookup[index1];
+                                temp->collision.y += temp->direction.y;
+                                // collision occured
+                                // for the point, need to push_back this collision
+                                // direction, and sum, for computation of next direction
+                            }
+                        }                    
+                    }
+
+                    // ****
+                    point p3(x,y_forward,z), p4(x,y_forward - 1,z);
+                    int index3 = offset(p3);
+                    int index4 = offset(p4);
+                    if(lookup[index3] != NULL)
+                    {
+                        if(lookup[index3]->direction.y < 0)
+                        {
+                            if(lookup[index4] == NULL)
+                            {
+                                position *temp = lookup[index3];                    
+                                temp->current.y += temp->direction.y;
+                            }
+                            else
+                            {
+                                // record collision
+                                position *temp = lookup[index3];
+                                temp->collision.y += temp->direction.y;
+                            }
+                        }
+                    }
+                }
+                y_reverse--;
+                y_forward++;
+            }
+
+        }
+
+        // WORK OUT FOR Z DIMENSIONS
+
+        // ADD ANY NEW POINTS INTO LOOKUP TABLE
+
+        if(values.size() > 0)
+        {
+            if(insert.get())
+            {
+                int value = values.front();
+                values.erase(values.begin());
+
+                position temp(value);
+                temp.current = starting;
+                temp.time = counter;
+                temp.index = 0;
+                temp.direction = movement.directions[0];
+
+                int index1 = offset(temp.current);
+                if(lookup[index1] == NULL)
+                {
+                    points.push_back(temp);
+                    lookup[index1] = &points.back();
+                }
+            }
+        }
+
+        // RECOLLATE LOOKUP bACK INTO POINTS VECTOR,
+        // ALSO COMPUTE NEW DIRECTIONS FOR COLLISIONS
+
+        std::vector<position> working;
+
+        for(int i = 0; i < length; ++i)
+        {
+            if(lookup[i] != NULL)
+            {
+                position temp(*lookup[i]);
+
+                if((temp.collision.x == 0)&&(temp.collision.y == 0)&&(temp.collision.z == 0))
+                {
+                    temp.index = movement.next(temp.index);                
+                    temp.direction = movement.directions[temp.index];
+                }
+                else
+                {
+                    int encoded = temp.collision.encode();
+                    int rebounded = collisions.values[encoded];
+                    vector direction;
+                    direction.decode(rebounded);
+                    temp.direction = direction;          
+                }
+
+                working.push_back(temp);
+            }
+        }
+
+        points = working;
+
+    }while(counter++<MAX);
+
+    return std::string("");
+
+}
 
 std::string organisation::program::run2(std::string input, data &source, history *destination)
 {
@@ -185,20 +483,39 @@ std::string organisation::program::run2(std::string input, data &source, history
     std::vector<int> values = source.get(input);
 
     std::vector<position> points;
+    points.reserve(255);
 
     const int MAX = 20;
     int counter = 0;
 
+    insert.start();
+
     do
     {
+std::cout << "loop\r\n\r\n";
+        // ***
+        // remove points that extend beyond bondary
+        // ***
+
+        std::vector<position> temp;
+        for(auto it: points)
+        {
+            if(it.current.inside(_width,_height,_depth))
+            {
+                temp.push_back(it);
+            }
+        }
+        points = temp;
+
         // ***
         // add existing to collision lookup
         // ***
 
         std::unordered_map<int, std::vector<position*>> lookup;
         for(auto &it: points)
+        //for(int i = 0; i < points.size(); ++i)
         {
-
+            //position it = points[i];
             vector direction = it.direction;
 
             point a = it.current;
@@ -207,10 +524,14 @@ std::string organisation::program::run2(std::string input, data &source, history
 
             int index = ((half_width * half_height) * min.z) + ((min.y * half_width) + min.x);
 
+std::cout << "LOOKUP ins value:" << it.value << " " << a.x << "," << a.y << "," << a.z << " index:" << index << "\r\n";
+std::cout << "min " << min.x << "," << min.y << "," << min.z << "\r\n";
+
             if(lookup.find(index) == lookup.end()) 
-                lookup[index] = { &it };
-            else
-                lookup[index].push_back(&it);
+                lookup[index] = { };
+                //lookup[index] = { &points.at(i) };
+            //else
+                lookup[index].push_back(&it);//(points.at(i));
         }
 
         // ***
@@ -234,11 +555,22 @@ std::string organisation::program::run2(std::string input, data &source, history
                 point min = starting.min(b);
 
                 int index = ((half_width * half_height) * min.z) + ((min.y * half_width) + min.x);
+
+                std::cout << "ins value:" << temp.value << " index:" << index << "\r\n";
+
                 if(lookup.find(index) == lookup.end())
                 {
-                    points.push_back(temp);                    
-                    lookup[index] = { &points.back() };                    
-                }           
+                    points.push_back(temp);
+                    lookup[index] = { };
+                    lookup[index].push_back(&points.back());
+                    //lookup[index] = { &points.back() };                    
+                } 
+                else
+                {
+                    // todo
+                    // loop through each in lookup vector
+                    // and see if a true collision!!!
+                }          
             }
         }
 
@@ -249,12 +581,16 @@ std::string organisation::program::run2(std::string input, data &source, history
         for(auto &it: lookup)
         {
             if(it.second.size() <= 1)
-            {
+            {        
+        std::cout << "INDEX: " << it.first << "\r\n";
                 for(auto &jt: it.second)
                 {
                     jt->current = jt->current + jt->direction;
                     jt->index = movement.next(jt->index);                
                     jt->direction = movement.directions[jt->index];
+
+        std::cout << "update value:" << jt->value << " pos:(" << jt->current.x << "," << jt->current.y << "," << jt->current.z << ")\r\n";
+        std::cout << "update dir_idx:" << jt->index << " dir:(" << jt->direction.x << "," << jt->direction.y << "," << jt->direction.z << ")\r\n";
                 }
             }
             else
@@ -274,7 +610,7 @@ std::string organisation::program::run2(std::string input, data &source, history
                         {
                             vector v = it.second[j]->direction;
                             point c = it.second[j]->current;
-                            point d = a + v;
+                            point d = c + v;
 
                             if(intersect(a,b,c,d))
                             {
@@ -300,31 +636,6 @@ std::string organisation::program::run2(std::string input, data &source, history
                         it.second[i]->direction = direction;
                     }
                 }
-
-                // NEED TO CHECK FOR GENIUNE COLLISION
-                // if collision, add to overall, falg collisoin = true
-                // line intersection test, for each i,j point in it.second
-                /*vector overall(0,0,0);
-                for(auto &jt: it.second)
-                {                       
-                    overall.x += jt->direction.x;
-                    overall.y += jt->direction.y;
-                    overall.z += jt->direction.z;
-                }
-
-                int length = it.second.size() -1;
-                for(auto &jt: it.second)
-                {
-                    vector temp = overall - jt->direction;
-                    temp = temp / length;                    
-
-                    int encoded = temp.encode();
-                    vector direction;
-                    direction.decode(encoded);
-
-                    jt->direction = direction;
-                } 
-                */               
             }
         }
 
@@ -447,7 +758,7 @@ std::string organisation::program::run(std::string input, data &source, history 
             //it.direction = movement.directions[it.index];
 
             // update direction in FIRAT PART OF NLOOP
-             
+            /* 
             it.next.x = it.current.x + it.direction.x;
             it.next.y = it.current.y + it.direction.y;
             it.next.z = it.current.z + it.direction.z;
@@ -460,9 +771,9 @@ std::string organisation::program::run(std::string input, data &source, history 
             }
             //else
             //{
-            next[index].push_back(i);
+            next[index].push_back(i);        
             //}
-            
+            */
 
 
             ++i;
@@ -487,7 +798,7 @@ std::string organisation::program::run(std::string input, data &source, history 
                     // *** when does the current point get updated??
                     // ***
                     // ONLY UPDATE WHEN NO COLLISIONS FROM NEW DIRECTION
-                    point.current = point.next;
+                    //point.current = point.next;
 
                     point.index = movement.next(point.index);                
                     point.direction = movement.directions[point.index];

@@ -5,52 +5,44 @@
 #include "vector.h"
 #include "schema.h"
 #include "general.h"
+#include "genetic/cache.h"
+#include "genetic/movement.h"
+#include "genetic/collisions.h"
+#include "genetic/insert.h"
 
 TEST(BasicProgramExecution, BasicAssertions)
 {
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
     organisation::program p(width, height, depth);
 
+    organisation::genetic::insert insert;
+    insert.values = { 0,1,2,3 };
+
+    organisation::genetic::movement movement;
+    movement.directions = { { 0,1,0 }, { 0,1,0 } };
+
+    p.set(insert);
+    p.set(movement);
+
     std::string input("daisy daisy give me your answer do .");
 
-    std::vector<std::string> expected = organisation::split("daisy daisy give me your answer do .");
+    //std::vector<std::string> expected = organisation::split("daisy daisy give me your answer do .");
     
     std::vector<std::string> strings = organisation::split("daisy daisy give me your answer do .");
     organisation::data d(strings);
 
-    //organisation::vector up = { 0,1,0 } ,left = { 1,0,0 };
-    //organisation::vector down = { 0,-1,0 } ,right = { -1,0,0 };
-
-    //std::vector<organisation::vector> in = { up, up, left, up, left, up, left, up };
-    //std::vector<organisation::vector> out = { down, right, down, right, down, right, down, right };
-
-    //int x = (width / 2);
-    //int y = (height / 2);
-    //int z = (depth / 2);
-
-    //int magnitude = 1;
-
     for(int i = 0; i < strings.size(); ++i)
     {
         int value = d.map(strings[i]);
-        
-        //organisation::vector out1 = out[i];
-
-        //p.set(in[i], out1, magnitude, x, y, z);
-        //p.set(value, x, y, z);
-
-        //x += out1.x;
-        //y += out1.y;
-        //z += out1.z;
     }
 
     std::string output = p.run2(input, d, NULL);
     std::vector<std::string> outputs = organisation::split(output);//p.run(0, d));
 
     EXPECT_EQ(p.count(), 8);
-    EXPECT_EQ(outputs, expected);        
+    //EXPECT_EQ(outputs, expected);        
 }
 
 /*

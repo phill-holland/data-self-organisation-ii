@@ -28,11 +28,20 @@ namespace organisation
         {
             point result;
 
-            result.x = x > src.x ? x : src.x;
-            result.y = y > src.y ? y : src.y;
-            result.z = z > src.z ? z : src.z;
+            result.x = x > src.x ? src.x : x;
+            result.y = y > src.y ? src.y : y;
+            result.z = z > src.z ? src.z : z;
 
             return result;
+        }
+
+        bool inside(int w, int h, int d)
+        {
+            if((x < 0)||(x >= w)) return false;
+            if((y < 0)||(y >= h)) return false;
+            if((z < 0)||(z >= d)) return false;
+
+            return true;
         }
 
     public:

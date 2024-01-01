@@ -9,12 +9,16 @@ namespace organisation
     class position
     {
     public:
-        point current, next;
+        int id;
+
+        point current;
         vector direction;
         int value;
         int index;
         int time;
 
+        vector collision;
+        
     public:
         position(int _value = -1, int _index = 0, int _time = 0)
         {

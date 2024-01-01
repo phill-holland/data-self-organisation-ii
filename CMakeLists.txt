@@ -5,7 +5,8 @@ set(CMAKE_CXX_COMPILER "${DPCPP_HOME}/llvm/build/bin/clang++")
 
 project(data-self-organisation)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -gdwarf-4")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O2 -gdwarf-4")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O0 -gdwarf-4")
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 

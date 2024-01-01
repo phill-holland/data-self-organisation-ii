@@ -73,6 +73,7 @@
         "charconv": "cpp",
         "future": "cpp",
         "complex": "cpp",
-        "typeindex": "cpp"
+        "typeindex": "cpp",
+        "coroutine": "cpp"
     }
 }
