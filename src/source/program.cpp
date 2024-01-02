@@ -8,6 +8,7 @@
 #include <tuple>
 #include <fstream>
 #include <sstream>
+#include <functional>
 
 std::mt19937_64 organisation::program::generator(std::random_device{}());
 
@@ -155,6 +156,355 @@ class insert
     std::vector<std::string> word;
 };
 */
+
+
+std::string organisation::program::run4(std::string input, data &source, history *destination)
+{
+    auto offset = [this](point &src)
+    {
+        return ((this->_width * this->_height) * src.z) + ((src.y * this->_width) + src.x);
+    };
+    
+    std::vector<int> values = source.get(input);
+
+    point starting;
+
+    int half_width = (_width / 2);
+    int half_height = (_height / 2);
+    int half_depth = (_depth / 2);
+
+    starting.x = half_width;
+    starting.y = half_height;
+    starting.z = half_depth;
+
+    std::vector<position> points;    
+    std::vector<position> stationary;
+
+    points.reserve(255);
+
+    for(auto &it: caches.values)
+    {
+        int value = std::get<0>(it);
+                
+        position temp(value);
+
+        temp.current = std::get<1>(it);        
+        temp.direction = vector(0,0,0);        
+        temp.index = -1;
+
+        stationary.push_back(temp);
+    }
+
+    const int MAX = 30;
+    int counter = 0;
+
+    do
+    {
+        std::cout << "loop " << counter << "\r\n";
+        for(auto &it: points)
+        {
+            std::cout << "(" << it.current.x << "," << it.current.y << "," << it.current.z << ")\r\n";
+        }
+
+        // ***
+        // check for new values to insert
+        // ***
+
+        if(values.size() > 0)
+        {
+            if(insert.get())
+            {
+                int value = values.front();
+                values.erase(values.begin());
+
+                position temp(value);
+                temp.current = starting;
+                temp.time = counter;
+                temp.index = 0;
+                temp.direction = movement.directions[0];
+
+                std::cout << "\r\nattempt insert! " << temp.value << "\r\n";
+
+                // NEED TO ALSO CHECK WITH STATIONARY POINTS
+                // unless, generate stationary points
+                // WITHOUT STARTING POINT 
+                if(find_if(points.begin(), points.end(),[starting] (const position &p) { return p.current.x == starting.x && p.current.y == starting.y && p.current.z == starting.z; })==points.end())
+                {
+                    std::cout << "insert! [" << temp.value << "]\r\n";
+                    points.push_back(temp);
+                }                                
+                else
+                {
+                    std::cout << "failed insert!\r\n";
+                }                
+            }
+        }
+
+        // ***
+        // create lookup tables for each dimension
+        // ***
+
+        std::vector<position> working;
+        std::copy(points.begin(), points.end(), std::back_inserter(working));
+        std::copy(stationary.begin(), stationary.end(), std::back_inserter(working));
+
+        std::unordered_map<int, std::vector<position*>> y_lookup;
+        std::sort(working.begin(), working.end(), [](const position &a, const position &b)
+        {
+            return a.current.y < b.current.y;
+        });
+
+        for(auto &it: working)
+        {
+            int index = (it.current.z * _width) + it.current.x;
+            if(y_lookup.find(index) == y_lookup.end())
+                y_lookup[index] = { };
+            
+            y_lookup[index].push_back(&it);
+        }
+
+        // ***
+        
+        std::unordered_map<int, std::vector<position*>> x_lookup;
+        std::sort(working.begin(), working.end(), [](const position &a, const position &b)
+        {
+            return a.current.x < b.current.x;
+        });
+
+        for(auto &it: working)
+        {
+            int index = (it.current.z * _width) + it.current.y;
+            if(x_lookup.find(index) == x_lookup.end())
+                x_lookup[index] = { };
+            
+            x_lookup[index].push_back(&it);
+        }
+
+        // ***        
+
+        std::unordered_map<int, std::vector<position*>> z_lookup;
+        std::sort(working.begin(), working.end(), [](const position &a, const position &b)
+        {
+            return a.current.z < b.current.z;
+        });
+
+        for(auto &it: working)
+        {
+            int index = (it.current.y * _width) + it.current.y;
+            if(z_lookup.find(index) == z_lookup.end())
+                z_lookup[index] = { };
+            
+            z_lookup[index].push_back(&it);
+        }
+
+        // ***
+        // x-dimension collision detection
+        // ***
+
+        for(auto &it:x_lookup)
+        {            
+            int reverse = it.second.size() - 1;
+            int forward = 0;
+
+            for(int i = 0; i < it.second.size(); ++i)
+            {
+                position *&fwd = it.second[forward];
+                position *&rev = it.second[reverse];
+
+                position *previous_fwd = NULL;
+                position *previous_rev = NULL;
+
+                if(forward > 0) 
+                    position *&previous_fwd = it.second[forward - 1];
+                if(reverse < it.second.size() - 1) 
+                    position *&previous_rev = it.second[reverse + 1];
+
+                if(fwd->direction.x < 0)
+                {
+                    if(previous_fwd != NULL)
+                    {
+                        if(previous_fwd->current.x != fwd->current.x + fwd->direction.x)
+                            fwd->current.x += fwd->direction.x;
+                        else
+                        {
+                            // collision
+                            if(fwd->collision.x != 0) fwd->collision.x += fwd->direction.x;
+                        }
+                    }
+                    else fwd->current.x += fwd->direction.x;
+                }
+
+                if(rev->direction.x > 0)
+                {
+                    if(previous_rev != NULL)
+                    {
+                        if(previous_rev->current.x != rev->current.x + rev->direction.x)
+                            rev->current.x += rev->direction.x;
+                        else
+                        {
+                            // collision
+                            if(rev->collision.x != 0) rev->collision.x += rev->direction.x;
+                        }
+                    }
+                    else rev->current.x += rev->direction.x;
+                }
+
+                ++forward;
+                --reverse;
+            }
+        }
+
+        // ***
+        // y-dimension collision detection
+        // ***
+
+        for(auto &it:y_lookup)
+        {            
+            int reverse = it.second.size() - 1;
+            int forward = 0;
+
+            for(int i = 0; i < it.second.size(); ++i)
+            {
+                position *&fwd = it.second[forward];
+                position *&rev = it.second[reverse];
+
+                position *previous_fwd = NULL;
+                position *previous_rev = NULL;
+
+                if(forward > 0) 
+                    position *&previous_fwd = it.second[forward - 1];
+                if(reverse < it.second.size() - 1) 
+                    position *&previous_rev = it.second[reverse + 1];
+
+                if(fwd->direction.y < 0)
+                {
+                    if(previous_fwd != NULL)
+                    {
+                        if(previous_fwd->current.y != fwd->current.y + fwd->direction.y)
+                            fwd->current.y += fwd->direction.y;
+                        else
+                        {
+                            // collision
+                            if(fwd->collision.y != 0) fwd->collision.y += fwd->direction.y;
+                        }
+                    }
+                    else fwd->current.y += fwd->direction.y;
+                }
+
+                if(rev->direction.y > 0)
+                {
+                    if(previous_rev != NULL)
+                    {
+                        if(previous_rev->current.y != rev->current.y + rev->direction.y)
+                            rev->current.y += rev->direction.y;
+                        else
+                        {
+                            // collision
+                            if(rev->collision.y != 0) rev->collision.y += rev->direction.y;
+                        }
+                    }
+                    else rev->current.y += rev->direction.y;
+                }
+
+                ++forward;
+                --reverse;
+            }
+        }
+
+        // ***
+        // z-dimension collision detection
+        // ***
+
+        for(auto &it:z_lookup)
+        {            
+            int reverse = it.second.size() - 1;
+            int forward = 0;
+
+            for(int i = 0; i < it.second.size(); ++i)
+            {
+                position *&fwd = it.second[forward];
+                position *&rev = it.second[reverse];
+
+                position *previous_fwd = NULL;
+                position *previous_rev = NULL;
+
+                if(forward > 0) 
+                    position *&previous_fwd = it.second[forward - 1];
+                if(reverse < it.second.size() - 1) 
+                    position *&previous_rev = it.second[reverse + 1];
+
+                if(fwd->direction.z < 0)
+                {
+                    if(previous_fwd != NULL)
+                    {
+                        if(previous_fwd->current.z != fwd->current.z + fwd->direction.z)
+                            fwd->current.z += fwd->direction.z;
+                        else
+                        {
+                            // collision
+                            if(fwd->collision.z != 0) fwd->collision.z += fwd->direction.z;
+                        }                        
+                    }
+                    else fwd->current.z += fwd->direction.z;
+                }
+
+                if(rev->direction.z > 0)
+                {
+                    if(previous_rev != NULL)
+                    {
+                        if(previous_rev->current.z != rev->current.z + rev->direction.z)
+                            rev->current.z += rev->direction.z;
+                        else
+                        {
+                            // collision
+                            if(rev->collision.z != 0) rev->collision.z += rev->direction.z;
+                        }
+                    }
+                    else rev->current.z += rev->direction.z;
+                }
+
+                ++forward;
+                --reverse;
+            }
+        }
+
+        // ***
+        // remove points out-of-bounds and compute collision directions
+        // ***
+
+        std::vector<position> temp;
+        for(auto it: working)
+        {
+            if(it.current.inside(_width,_height,_depth))
+            {            
+                if(it.index >= 0)
+                {
+                    if((it.collision.x == 0)&&(it.collision.y == 0)&&(it.collision.z == 0))
+                    {
+                        it.index = movement.next(it.index);                
+                        it.direction = movement.directions[it.index];
+                    }
+                    else
+                    {
+                        int encoded = it.collision.encode();
+                        int rebounded = collisions.values[encoded];
+                        vector direction;
+                        direction.decode(rebounded);
+                        it.direction = direction;          
+
+                        it.collision = vector(0,0,0);
+                    }
+                    
+                    temp.push_back(it);
+                }
+            }
+        }
+        points = temp;
+        
+    }while(counter++<MAX);
+
+    return std::string("");
+}
 
 // OUTPUT ON COLLIDE WITH STATIONARY DATA ??
 // NEED TO CHECK BOUNDS OF CONTAINING CUBE

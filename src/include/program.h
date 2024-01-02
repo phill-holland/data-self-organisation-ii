@@ -65,7 +65,8 @@ namespace organisation
         void clear();
         void generate(data &source);  
         void mutate(data &source);
-        
+
+        std::string run4(std::string input, data &source, history *destination = NULL);        
         std::string run3(std::string input, data &source, history *destination = NULL);
         std::string run2(std::string input, data &source, history *destination = NULL);
         std::string run(std::string input, data &source, history *destination = NULL);

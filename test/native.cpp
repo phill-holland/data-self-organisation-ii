@@ -38,7 +38,7 @@ TEST(BasicProgramExecution, BasicAssertions)
         int value = d.map(strings[i]);
     }
 
-    std::string output = p.run3(input, d, NULL);
+    std::string output = p.run4(input, d, NULL);
     std::vector<std::string> outputs = organisation::split(output);//p.run(0, d));
 
     EXPECT_EQ(p.count(), 8);
