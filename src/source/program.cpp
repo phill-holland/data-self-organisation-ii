@@ -166,6 +166,7 @@ std::string organisation::program::run4(std::string input, data &source, history
     };
     
     std::vector<int> values = source.get(input);
+    std::vector<int> results;
 
     point starting;
 
@@ -192,7 +193,8 @@ std::string organisation::program::run4(std::string input, data &source, history
         temp.direction = vector(0,0,0);        
         temp.index = -1;
 
-        stationary.push_back(temp);
+        if(!(temp.current == starting))
+            stationary.push_back(temp);
     }
 
     const int MAX = 30;
@@ -326,9 +328,9 @@ std::string organisation::program::run4(std::string input, data &source, history
                         if(previous_fwd->current.x != fwd->current.x + fwd->direction.x)
                             fwd->current.x += fwd->direction.x;
                         else
-                        {
-                            // collision
-                            if(fwd->collision.x != 0) fwd->collision.x += fwd->direction.x;
+                        {   
+                            fwd->collisions.push_back(vector(fwd->direction.x,0,0));
+                            previous_fwd->output = true;
                         }
                     }
                     else fwd->current.x += fwd->direction.x;
@@ -341,9 +343,9 @@ std::string organisation::program::run4(std::string input, data &source, history
                         if(previous_rev->current.x != rev->current.x + rev->direction.x)
                             rev->current.x += rev->direction.x;
                         else
-                        {
-                            // collision
-                            if(rev->collision.x != 0) rev->collision.x += rev->direction.x;
+                        {                            
+                            rev->collisions.push_back(vector(rev->direction.x,0,0));
+                            previous_rev->output = true;
                         }
                     }
                     else rev->current.x += rev->direction.x;
@@ -383,9 +385,9 @@ std::string organisation::program::run4(std::string input, data &source, history
                         if(previous_fwd->current.y != fwd->current.y + fwd->direction.y)
                             fwd->current.y += fwd->direction.y;
                         else
-                        {
-                            // collision
-                            if(fwd->collision.y != 0) fwd->collision.y += fwd->direction.y;
+                        {                            
+                            fwd->collisions.push_back(vector(0,fwd->direction.y,0));
+                            previous_fwd->output = true;
                         }
                     }
                     else fwd->current.y += fwd->direction.y;
@@ -398,9 +400,9 @@ std::string organisation::program::run4(std::string input, data &source, history
                         if(previous_rev->current.y != rev->current.y + rev->direction.y)
                             rev->current.y += rev->direction.y;
                         else
-                        {
-                            // collision
-                            if(rev->collision.y != 0) rev->collision.y += rev->direction.y;
+                        {                            
+                            rev->collisions.push_back(vector(0,rev->direction.y,0));
+                            previous_rev->output = true;
                         }
                     }
                     else rev->current.y += rev->direction.y;
@@ -441,8 +443,8 @@ std::string organisation::program::run4(std::string input, data &source, history
                             fwd->current.z += fwd->direction.z;
                         else
                         {
-                            // collision
-                            if(fwd->collision.z != 0) fwd->collision.z += fwd->direction.z;
+                            fwd->collisions.push_back(vector(0,0,fwd->direction.z));
+                            previous_fwd->output = true;
                         }                        
                     }
                     else fwd->current.z += fwd->direction.z;
@@ -456,8 +458,8 @@ std::string organisation::program::run4(std::string input, data &source, history
                             rev->current.z += rev->direction.z;
                         else
                         {
-                            // collision
-                            if(rev->collision.z != 0) rev->collision.z += rev->direction.z;
+                            rev->collisions.push_back(vector(0,0,rev->direction.z));
+                            previous_rev->output = true;
                         }
                     }
                     else rev->current.z += rev->direction.z;
@@ -475,35 +477,52 @@ std::string organisation::program::run4(std::string input, data &source, history
         std::vector<position> temp;
         for(auto it: working)
         {
+            if(it.output) results.push_back(it.value);
+
             if(it.current.inside(_width,_height,_depth))
-            {            
+            {                    
                 if(it.index >= 0)
                 {
-                    if((it.collision.x == 0)&&(it.collision.y == 0)&&(it.collision.z == 0))
+                    position output;
+
+                    output.current = it.current;
+                    output.value = it.value;
+                    output.time = it.time;
+                    output.index = it.index;
+                    output.direction = it.direction;
+
+                    if(it.collisions.size() == 0)
                     {
-                        it.index = movement.next(it.index);                
-                        it.direction = movement.directions[it.index];
+                        output.index = movement.next(output.index);                
+                        output.direction = movement.directions[output.index];
                     }
                     else
                     {
-                        int encoded = it.collision.encode();
+                        vector temp;
+                        for(auto &jt:it.collisions)
+                        {
+                            temp = temp + jt;
+                        }
+
+                        temp = temp / it.collisions.size();
+
+                        int encoded = temp.encode();
                         int rebounded = collisions.values[encoded];
                         vector direction;
                         direction.decode(rebounded);
-                        it.direction = direction;          
-
-                        it.collision = vector(0,0,0);
+                        
+                        output.direction = direction;          
                     }
                     
-                    temp.push_back(it);
-                }
+                    temp.push_back(output);
+                }                
             }
         }
         points = temp;
         
     }while(counter++<MAX);
 
-    return std::string("");
+    return source.get(results);
 }
 
 // OUTPUT ON COLLIDE WITH STATIONARY DATA ??
@@ -647,7 +666,7 @@ std::string organisation::program::run3(std::string input, data &source, history
                             else
                             {
                                 position *temp = lookup[index1];
-                                temp->collision.x += temp->direction.x;
+                                //temp->collision.x += temp->direction.x;
                                 // collision occured
                                 // for the point, need to push_back this collision
                                 // direction, and sum, for computation of next direction
@@ -672,7 +691,7 @@ std::string organisation::program::run3(std::string input, data &source, history
                             {
                                 // record collision
                                 position *temp = lookup[index3];
-                                temp->collision.x += temp->direction.x;
+                                //temp->collision.x += temp->direction.x;
                             }
                         }
                     }
@@ -735,7 +754,7 @@ std::string organisation::program::run3(std::string input, data &source, history
                             else
                             {
                                 position *temp = lookup[index1];
-                                temp->collision.y += temp->direction.y;
+                                //temp->collision.y += temp->direction.y;
                                 // collision occured
                                 // for the point, need to push_back this collision
                                 // direction, and sum, for computation of next direction
@@ -760,7 +779,7 @@ std::string organisation::program::run3(std::string input, data &source, history
                             {
                                 // record collision
                                 position *temp = lookup[index3];
-                                temp->collision.y += temp->direction.y;
+                                //temp->collision.y += temp->direction.y;
                             }
                         }
                     }
@@ -818,6 +837,7 @@ for(auto &jt: points)
             {
                 position temp(*lookup[i]);
 
+/*
                 if((temp.collision.x == 0)&&(temp.collision.y == 0)&&(temp.collision.z == 0))
                 {
                     temp.index = movement.next(temp.index);                
@@ -831,7 +851,7 @@ for(auto &jt: points)
                     direction.decode(rebounded);
                     temp.direction = direction;          
                 }
-
+*/
                 working.push_back(temp);
             }
         }

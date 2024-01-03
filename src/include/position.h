@@ -9,15 +9,14 @@ namespace organisation
     class position
     {
     public:
-        int id;
-
         point current;
         vector direction;
         int value;
         int index;
         int time;
+        bool output;
 
-        vector collision;
+        std::vector<vector> collisions;
         
     public:
         position(int _value = -1, int _index = 0, int _time = 0)
@@ -25,6 +24,8 @@ namespace organisation
             value = _value;
             index = _index;
             time = _time;
+
+            output = false;
         }
 
     public:

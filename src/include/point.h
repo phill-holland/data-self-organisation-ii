@@ -43,8 +43,13 @@ namespace organisation
 
             return true;
         }
-
+        
     public:
+        bool operator==(const point &src) const
+        {
+            return x == src.x && y == src.y && z == src.z;
+        }
+
         point operator+(const point &src) 
         { 
             return point(x + src.x,y + src.y,z + src.z); 

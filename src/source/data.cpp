@@ -43,6 +43,8 @@ std::string organisation::data::get(std::vector<int> &source)
 {
     std::string result;
 
+    if(source.size() == 0) return result;
+    
     if(source.begin() != source.end()) 
         result = map(*source.begin());
 
