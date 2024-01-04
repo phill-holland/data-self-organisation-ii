@@ -5,6 +5,7 @@
 #include "vector.h"
 #include "schema.h"
 #include "general.h"
+#include "point.h"
 #include "genetic/cache.h"
 #include "genetic/movement.h"
 #include "genetic/collisions.h"
@@ -17,32 +18,39 @@ TEST(BasicProgramExecution, BasicAssertions)
     const int width = 20, height = 20, depth = 20;
     organisation::program p(width, height, depth);
 
+    std::string input("daisy daisy give me your answer do .");
+    std::string expected("daisy");
+
+    std::vector<std::string> strings = organisation::split(input);
+    organisation::data d(strings);
+
+    organisation::point starting(width / 2, height / 2, depth / 2);
+
+    organisation::genetic::cache cache(width, height, depth);
+    cache.set(0, organisation::point(starting.x, 18, starting.z));
+
     organisation::genetic::insert insert;
     insert.values = { 1,2,3 };
 
     organisation::genetic::movement movement;
     movement.directions = { { 0,1,0 }, { 0,1,0 } };
 
+    organisation::genetic::collisions collisions;
+
+    collisions.values.resize(27);
+    organisation::vector up(0,1,0), rebound(1,0,0);
+    collisions.values[up.encode()] = rebound.encode();
+
+    p.set(cache);
     p.set(insert);
     p.set(movement);
-
-    std::string input("daisy daisy give me your answer do .");
-
-    //std::vector<std::string> expected = organisation::split("daisy daisy give me your answer do .");
-    
-    std::vector<std::string> strings = organisation::split("daisy daisy give me your answer do .");
-    organisation::data d(strings);
-
-    for(int i = 0; i < strings.size(); ++i)
-    {
-        int value = d.map(strings[i]);
-    }
+    p.set(collisions);
 
     std::string output = p.run4(input, d, NULL);
     std::vector<std::string> outputs = organisation::split(output);//p.run(0, d));
-
-    EXPECT_EQ(p.count(), 8);
-    //EXPECT_EQ(outputs, expected);        
+    
+    //EXPECT_EQ(p.count(), 1);
+    EXPECT_EQ(outputs.size(), 1);
 }
 
 /*

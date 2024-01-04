@@ -165,6 +165,8 @@ std::string organisation::program::run4(std::string input, data &source, history
         return ((this->_width * this->_height) * src.z) + ((src.y * this->_width) + src.x);
     };
     
+    position *np = NULL;
+
     std::vector<int> values = source.get(input);
     std::vector<int> results;
 
@@ -313,13 +315,13 @@ std::string organisation::program::run4(std::string input, data &source, history
                 position *&fwd = it.second[forward];
                 position *&rev = it.second[reverse];
 
-                position *previous_fwd = NULL;
-                position *previous_rev = NULL;
+                position *&previous_fwd = np;
+                position *&previous_rev = np;
 
                 if(forward > 0) 
-                    position *&previous_fwd = it.second[forward - 1];
+                    previous_fwd = it.second[forward - 1];
                 if(reverse < it.second.size() - 1) 
-                    position *&previous_rev = it.second[reverse + 1];
+                    previous_rev = it.second[reverse + 1];
 
                 if(fwd->direction.x < 0)
                 {
@@ -329,6 +331,7 @@ std::string organisation::program::run4(std::string input, data &source, history
                             fwd->current.x += fwd->direction.x;
                         else
                         {   
+                        std::cout << "collide fwd X " << previous_fwd->value << "\r\n"; 
                             fwd->collisions.push_back(vector(fwd->direction.x,0,0));
                             previous_fwd->output = true;
                         }
@@ -343,7 +346,8 @@ std::string organisation::program::run4(std::string input, data &source, history
                         if(previous_rev->current.x != rev->current.x + rev->direction.x)
                             rev->current.x += rev->direction.x;
                         else
-                        {                            
+                        {      
+                        std::cout << "collide rev X " << previous_rev->value << "\r\n";                       
                             rev->collisions.push_back(vector(rev->direction.x,0,0));
                             previous_rev->output = true;
                         }
@@ -370,13 +374,21 @@ std::string organisation::program::run4(std::string input, data &source, history
                 position *&fwd = it.second[forward];
                 position *&rev = it.second[reverse];
 
-                position *previous_fwd = NULL;
-                position *previous_rev = NULL;
+/*
+if((rev->current.y == 17)&&(rev->direction.y!=0))
+{
+std::cout << "plop!\r\n";
+}
+*/
+                
+                position *&previous_fwd = np;
+                position *&previous_rev = np;
 
                 if(forward > 0) 
-                    position *&previous_fwd = it.second[forward - 1];
+                    previous_fwd = it.second[forward - 1];
                 if(reverse < it.second.size() - 1) 
-                    position *&previous_rev = it.second[reverse + 1];
+                    previous_rev = it.second[reverse + 1];
+
 
                 if(fwd->direction.y < 0)
                 {
@@ -385,7 +397,8 @@ std::string organisation::program::run4(std::string input, data &source, history
                         if(previous_fwd->current.y != fwd->current.y + fwd->direction.y)
                             fwd->current.y += fwd->direction.y;
                         else
-                        {                            
+                        {             
+                        std::cout << "collide fwd Y " << previous_fwd->value << "\r\n";                
                             fwd->collisions.push_back(vector(0,fwd->direction.y,0));
                             previous_fwd->output = true;
                         }
@@ -400,7 +413,8 @@ std::string organisation::program::run4(std::string input, data &source, history
                         if(previous_rev->current.y != rev->current.y + rev->direction.y)
                             rev->current.y += rev->direction.y;
                         else
-                        {                            
+                        {                           
+                        std::cout << "collide rev Y " << previous_rev->value << "\r\n"; 
                             rev->collisions.push_back(vector(0,rev->direction.y,0));
                             previous_rev->output = true;
                         }
@@ -427,13 +441,13 @@ std::string organisation::program::run4(std::string input, data &source, history
                 position *&fwd = it.second[forward];
                 position *&rev = it.second[reverse];
 
-                position *previous_fwd = NULL;
-                position *previous_rev = NULL;
+                position *&previous_fwd = np;
+                position *&previous_rev = np;
 
                 if(forward > 0) 
-                    position *&previous_fwd = it.second[forward - 1];
+                    previous_fwd = it.second[forward - 1];
                 if(reverse < it.second.size() - 1) 
-                    position *&previous_rev = it.second[reverse + 1];
+                    previous_rev = it.second[reverse + 1];
 
                 if(fwd->direction.z < 0)
                 {
@@ -443,6 +457,7 @@ std::string organisation::program::run4(std::string input, data &source, history
                             fwd->current.z += fwd->direction.z;
                         else
                         {
+                        std::cout << "collide fwd Y " << previous_fwd->value << "\r\n"; 
                             fwd->collisions.push_back(vector(0,0,fwd->direction.z));
                             previous_fwd->output = true;
                         }                        
@@ -458,6 +473,7 @@ std::string organisation::program::run4(std::string input, data &source, history
                             rev->current.z += rev->direction.z;
                         else
                         {
+                        std::cout << "collide rev Z " << previous_rev->value << "\r\n"; 
                             rev->collisions.push_back(vector(0,0,rev->direction.z));
                             previous_rev->output = true;
                         }

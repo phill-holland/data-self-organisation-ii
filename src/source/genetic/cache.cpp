@@ -2,6 +2,20 @@
 
 std::mt19937_64 organisation::genetic::cache::generator(std::random_device{}());
 
+bool organisation::genetic::cache::set(int value, point position)
+{
+    int index = ((_width * _height) * position.z) + ((position.y * _width) + position.x);
+    if(points.find(index) == points.end())
+    {
+        points[index] = position;
+        values.push_back(std::tuple<int,point>(value,position));
+
+        return true;
+    }
+
+    return false;
+}
+
 void organisation::genetic::cache::generate(data &source)
 {
     clear();
@@ -21,6 +35,7 @@ void organisation::genetic::cache::generate(data &source)
             int index = ((_width * _height) * p1.z) + ((p1.y * _width) + p1.x);
             if(points.find(index) == points.end())
             {
+                points[index] = p1;
                 values.push_back(std::tuple<int,point>(it,p1));
                 if(values.size() >= max_cache) return;
             }
