@@ -11,46 +11,72 @@
 #include "genetic/collisions.h"
 #include "genetic/insert.h"
 
-TEST(BasicProgramExecution, BasicAssertions)
+TEST(BasicMovementAndCollisionDetection, BasicAssertions)
 {
     //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
-    organisation::program p(width, height, depth);
-
-    std::string input("daisy daisy give me your answer do .");
-    std::string expected("daisy");
-
-    std::vector<std::string> strings = organisation::split(input);
-    organisation::data d(strings);
-
     organisation::point starting(width / 2, height / 2, depth / 2);
 
-    organisation::genetic::cache cache(width, height, depth);
-    cache.set(0, organisation::point(starting.x, 18, starting.z));
+    std::vector<std::tuple<organisation::point,organisation::vector,organisation::vector>> directions = {
+        /*{ 
+            organisation::point(starting.x,18,starting.z), 
+            organisation::vector(0,1,0), 
+            organisation::vector(1,0,0)             
+        },
+        { 
+            organisation::point(starting.x,2,starting.z), 
+            organisation::vector(0,-1,0), 
+            organisation::vector(1,0,0)             
+        },*/
+        { 
+            organisation::point(18,starting.y,starting.z), 
+            organisation::vector(1,0,0), 
+            organisation::vector(0,1,0)             
+        },
+        /*{ 
+            organisation::point(2,starting.y,starting.z), 
+            organisation::vector(-1,0,0), 
+            organisation::vector(0,1,0)             
+        } */      
+    };
 
-    organisation::genetic::insert insert;
-    insert.values = { 1,2,3 };
+    for(auto &it: directions)
+    {        
+        organisation::program p(width, height, depth);
 
-    organisation::genetic::movement movement;
-    movement.directions = { { 0,1,0 }, { 0,1,0 } };
+        std::string input("daisy daisy give me your answer do .");
+        std::vector<std::string> expected = organisation::split("daisy daisy daisy daisy daisy daisy daisy daisy");
 
-    organisation::genetic::collisions collisions;
+        std::vector<std::string> strings = organisation::split(input);
+        organisation::data d(strings);
+        
+        organisation::genetic::cache cache(width, height, depth);
+        cache.set(0, std::get<0>(it));
+        
+        organisation::genetic::insert insert;
+        insert.values = { 1,2,3 };
 
-    collisions.values.resize(27);
-    organisation::vector up(0,1,0), rebound(1,0,0);
-    collisions.values[up.encode()] = rebound.encode();
+        organisation::genetic::movement movement;
+        movement.directions = { std::get<1>(it) };
 
-    p.set(cache);
-    p.set(insert);
-    p.set(movement);
-    p.set(collisions);
+        organisation::genetic::collisions collisions;
 
-    std::string output = p.run4(input, d, NULL);
-    std::vector<std::string> outputs = organisation::split(output);//p.run(0, d));
-    
-    //EXPECT_EQ(p.count(), 1);
-    EXPECT_EQ(outputs.size(), 1);
+        collisions.values.resize(27);
+        organisation::vector up = std::get<1>(it);
+        organisation::vector rebound = std::get<2>(it);
+        collisions.values[up.encode()] = rebound.encode();
+
+        p.set(cache);
+        p.set(insert);
+        p.set(movement);
+        p.set(collisions);
+
+        std::string output = p.run4(input, d);
+        std::vector<std::string> outputs = organisation::split(output);//p.run(0, d));
+        
+        EXPECT_EQ(outputs, expected);
+    }
 }
 
 /*

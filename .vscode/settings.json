@@ -75,5 +75,6 @@
         "complex": "cpp",
         "typeindex": "cpp",
         "coroutine": "cpp"
-    }
+    },
+    "editor.suggest.insertMode": "insert"
 }
