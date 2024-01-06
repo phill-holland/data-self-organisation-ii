@@ -29,16 +29,27 @@ TEST(BasicMovementAndCollisionDetection, BasicAssertions)
             organisation::vector(0,-1,0), 
             organisation::vector(1,0,0)             
         },*/
-        { 
+        /*{ 
             organisation::point(18,starting.y,starting.z), 
             organisation::vector(1,0,0), 
             organisation::vector(0,1,0)             
-        },
+        },*/
         /*{ 
             organisation::point(2,starting.y,starting.z), 
             organisation::vector(-1,0,0), 
             organisation::vector(0,1,0)             
-        } */      
+        } 
+        */
+       { 
+            organisation::point(starting.x,starting.y,18), 
+            organisation::vector(0,0,1), 
+            organisation::vector(0,1,0)             
+        }/*,       
+       { 
+            organisation::point(starting.x,starting.y,2), 
+            organisation::vector(0,0,-1), 
+            organisation::vector(0,1,0)             
+        }   */    
     };
 
     for(auto &it: directions)
@@ -46,7 +57,7 @@ TEST(BasicMovementAndCollisionDetection, BasicAssertions)
         organisation::program p(width, height, depth);
 
         std::string input("daisy daisy give me your answer do .");
-        std::vector<std::string> expected = organisation::split("daisy daisy daisy daisy daisy daisy daisy daisy");
+        std::vector<std::string> expected = organisation::split("daisy daisy daisy daisy me daisy daisy do");
 
         std::vector<std::string> strings = organisation::split(input);
         organisation::data d(strings);
@@ -72,7 +83,7 @@ TEST(BasicMovementAndCollisionDetection, BasicAssertions)
         p.set(movement);
         p.set(collisions);
 
-        std::string output = p.run4(input, d);
+        std::string output = p.run5(input, d);
         std::vector<std::string> outputs = organisation::split(output);//p.run(0, d));
         
         EXPECT_EQ(outputs, expected);

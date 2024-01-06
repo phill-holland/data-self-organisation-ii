@@ -157,14 +157,25 @@ class insert
 };
 */
 
-
-std::string organisation::program::run4(std::string input, data &source, int max, history *destination)
+std::string organisation::program::run5(std::string input, data &source, int max, history *destination)
 {
     auto offset = [this](point &src)
     {
         return ((this->_width * this->_height) * src.z) + ((src.y * this->_width) + src.x);
     };
     
+    auto _distance = [](point &a, point &b)
+    {
+        float x = (a.x - b.x) * (a.x - b.x);
+        float y = (a.y - b.y) * (a.y - b.y);
+        float z = (a.z - b.z) * (a.z - b.z);
+
+        int d = (int)sqrtf(x + y + z);
+
+        return d;
+
+    };
+
     std::vector<int> values = source.get(input);
     std::vector<int> results;
 
@@ -183,6 +194,17 @@ std::string organisation::program::run4(std::string input, data &source, int max
 
     points.reserve(255);
 
+    position a, b;
+
+    a.current = point(5,5,5);
+    a.direction = vector(1,1,0);
+
+    b.current = point(6,6,5);
+    b.direction = vector(-1,-1,0);
+
+    points.push_back(a);
+    points.push_back(b);
+    
     for(auto &it: caches.values)
     {
         int value = std::get<0>(it);
@@ -243,16 +265,90 @@ std::string organisation::program::run4(std::string input, data &source, int max
         std::copy(points.begin(), points.end(), std::back_inserter(working));
         std::copy(stationary.begin(), stationary.end(), std::back_inserter(working));
 
+//std::unordered_map<int, std::vector<position*>> lens;
+std::vector<std::vector<position*>> lens;
+lens.resize(30);
+// don't need vector anymore!
+
     std::cout << "loop " << counter << "\r\n";
     for(auto &it: working)
     {
         std::cout << "(" << it.current.x << "," << it.current.y << "," << it.current.z << ")\r\n";
+
+        point a = it.current + it.direction;
+
+float x = (it.direction.x / 2.0f) + (float)it.current.x;
+float y = (it.direction.y / 2.0f) + (float)it.current.y;
+float z = (it.direction.z / 2.0f) + (float)it.current.z;
+
+point b((int)x,(int)y,(int)z);
+        /*
+        float x = (a.x - starting.x) * (a.x - starting.x);
+        float y = (a.y - starting.y) * (a.y - starting.y);
+        float z = (a.z - starting.z) * (a.z - starting.z);
+
+        int d = (int)sqrtf(x + y + z);
+        */
+        
+        //if(lens.find(d) == lens.end()) lens[d] = { };
+        int d = _distance(a, starting);
+        lens[d].push_back(&it);
+
+        int d2 = _distance(b, starting);
+        if(d2 != d) lens[d2].push_back(&it);
+        //lens[d2].push_back(&it);
+    }
+
+int distance = 0;
+    for(auto &it: lens)
+    {
+        if(it.size() > 0)
+        {
+            std::sort(it.begin(), it.end(), [](const position *a, const position *b)
+            {
+                return a->current.x < b->current.x;
+            });
+
+
+// ***
+            for(int i = 1; i < it.size(); ++i)
+            {
+                position *a = it[i - 1];
+                position *b = it[i];
+
+                int d = _distance(a->current,b->current);
+                if(d == 1)
+                {
+                    point t1 = a->current + a->direction;
+                    if(t1 == b->current)
+                    {
+                        a->collisions.push_back(a->direction);
+                        b->output = true;
+                        // a collides into b
+                    }
+                    point t2 = b->current + b->direction;
+                    if(t2 == a->current)
+                    {
+                        b->collisions.push_back(b->direction);
+                        a->output = true;
+                    }
+                }                
+            }
+// ***
+            std::cout << "distance: " << distance << " ";
+            for(auto &jt: it)
+            {
+            std::cout << "(" << jt->current.x << "," << jt->current.y << "," << jt->current.z << ")";
+            }
+            std::cout << "\r\n";
+        }
+        ++distance;
     }
                        
         // ***
         // x-dimension collision detection
         // ***
-
+/*
         std::unordered_map<int, std::vector<position*>> x_lookup;
         std::sort(working.begin(), working.end(), [](const position &a, const position &b)
         {
@@ -284,16 +380,15 @@ std::string organisation::program::run4(std::string input, data &source, int max
                     if(forward > 0)
                     {
                         position *&previous_fwd = it.second[forward - 1];
-                        if(previous_fwd->current.x != fwd->current.x + fwd->direction.x)
-                            fwd->current.x += fwd->direction.x;
-                        else
-                        {   
-                        std::cout << "collide fwd X " << previous_fwd->value << "\r\n"; 
+                        if(previous_fwd->current.x == fwd->current.x + fwd->direction.x)
+                        {
+                            std::cout << "collide fwd X " << previous_fwd->value << "\r\n"; 
+
                             fwd->collisions.push_back(vector(fwd->direction.x,0,0));
                             previous_fwd->output = true;
                         }
                     }
-                    else fwd->current.x += fwd->direction.x;
+                    //else fwd->current.x += fwd->direction.x;
                 }
 
                 if(rev->direction.x > 0)
@@ -301,20 +396,18 @@ std::string organisation::program::run4(std::string input, data &source, int max
                     if(reverse < length - 1)
                     {
                         position *&previous_rev = it.second[reverse + 1];
-                        if(previous_rev->current.x != rev->current.x + rev->direction.x)
-                            rev->current.x += rev->direction.x;
-                        else
-                        {      
-                        std::cout << "collide rev X [" << previous_rev->value << "] ";
+                        if(previous_rev->current.x == rev->current.x + rev->direction.x)
+                        {
+                            std::cout << "collide rev X [" << previous_rev->value << "] ";
                         std::cout << " (" << previous_rev->current.x << "," << previous_rev->current.y << "," << previous_rev->current.z << ")";
                         std::cout << "-> (" << rev->current.x << "," << rev->current.y << "," << rev->current.z << ") ";
                         std::cout << " dir(" << rev->direction.x << "," << rev->direction.y << "," << rev->direction.z << ")\r\n";
-                        
+
                             rev->collisions.push_back(vector(rev->direction.x,0,0));
                             previous_rev->output = true;
                         }
                     }
-                    else rev->current.x += rev->direction.x;
+                    //else rev->current.x += rev->direction.x;
                 }
 
                 ++forward;
@@ -357,16 +450,15 @@ std::string organisation::program::run4(std::string input, data &source, int max
                     if(forward > 0)
                     {
                         position *&previous_fwd = it.second[forward - 1];
-                        if(previous_fwd->current.y != fwd->current.y + fwd->direction.y)
-                            fwd->current.y += fwd->direction.y;
-                        else
-                        {             
-                        std::cout << "collide fwd Y " << previous_fwd->value << "\r\n";                
+                        if(previous_fwd->current.y == fwd->current.y + fwd->direction.y)
+                        {
+                            std::cout << "collide fwd Y " << previous_fwd->value << "\r\n";                
+
                             fwd->collisions.push_back(vector(0,fwd->direction.y,0));
                             previous_fwd->output = true;
                         }
                     }
-                    else fwd->current.y += fwd->direction.y;
+                    //else fwd->current.y += fwd->direction.y;
                 }
 
                 if(rev->direction.y > 0)
@@ -374,16 +466,15 @@ std::string organisation::program::run4(std::string input, data &source, int max
                     if(reverse < length - 1)
                     {
                         position *&previous_rev = it.second[reverse + 1];
-                        if(previous_rev->current.y != rev->current.y + rev->direction.y)
-                            rev->current.y += rev->direction.y;
-                        else
-                        {                           
-                        std::cout << "collide rev Y " << previous_rev->value << "\r\n"; 
+                        if(previous_rev->current.y == rev->current.y + rev->direction.y)
+                        {
+                            std::cout << "collide rev Y " << previous_rev->value << "\r\n"; 
+
                             rev->collisions.push_back(vector(0,rev->direction.y,0));
                             previous_rev->output = true;
                         }
                     }
-                    else rev->current.y += rev->direction.y;
+                    //else rev->current.y += rev->direction.y;
                 }
 
                 ++forward;
@@ -403,7 +494,7 @@ std::string organisation::program::run4(std::string input, data &source, int max
 
         for(auto &it: working)
         {
-            int index = (it.current.y * _width) + it.current.y;
+            int index = (it.current.y * _width) + it.current.x;
             if(z_lookup.find(index) == z_lookup.end())
                 z_lookup[index] = { };
             
@@ -426,6 +517,454 @@ std::string organisation::program::run4(std::string input, data &source, int max
                     if(forward > 0)
                     {
                         position *&previous_fwd = it.second[forward - 1];
+                        if(previous_fwd->current.z == fwd->current.z + fwd->direction.z)
+                        {
+                            std::cout << "collide fwd Z " << previous_fwd->value << "\r\n";
+
+                            fwd->collisions.push_back(vector(0,0,fwd->direction.z));
+                            previous_fwd->output = true;
+                        }
+                    }
+                    //else fwd->current.z += fwd->direction.z;
+                }
+
+                if(rev->direction.z > 0)
+                {
+                    if(reverse < length - 1)
+                    {
+                        position *&previous_rev = it.second[reverse + 1];
+                        if(previous_rev->current.z == rev->current.z + rev->direction.z)
+                        {
+                            std::cout << "collide rev Z " << previous_rev->value << "\r\n"; 
+
+                            rev->collisions.push_back(vector(0,0,rev->direction.z));
+                            previous_rev->output = true;
+                        }
+                    }
+                    //else rev->current.z += rev->direction.z;
+                }
+
+                ++forward;
+                --reverse;
+            }
+        }
+*/
+        // ***
+        // remove points out-of-bounds and compute collision directions
+        // ***
+
+        std::vector<position> temp;
+        for(auto it: working)
+        {
+            if(it.output) results.push_back(it.value);
+
+            if(it.current.inside(_width,_height,_depth))
+            {                    
+                if(it.index >= 0)
+                {
+                    position output;
+
+                    output.current = it.current;
+                    output.value = it.value;
+                    output.time = it.time;
+                    output.index = it.index;
+                    output.direction = it.direction;
+
+                    if(it.collisions.size() == 0)
+                    {
+                        output.current = output.current + output.direction;
+                        output.index = movement.next(output.index);                
+                        output.direction = movement.directions[output.index];
+                    }
+                    else
+                    {
+                        vector temp;
+                        for(auto &jt:it.collisions)
+                        {
+                            temp = temp + jt;
+                        }
+
+                        temp = temp / it.collisions.size();
+
+                        int encoded = temp.encode();
+                        int rebounded = collisions.values[encoded];
+                        vector direction;
+                        direction.decode(rebounded);
+                        
+
+                        std::cout << " COL " << encoded << "," << rebounded << " ";
+                        std::cout << "(" << temp.x << "," << temp.y << "," << temp.z << ") -> ";
+                        std::cout << "(" << direction.x << "," << direction.y << "," << direction.z << ")\r\n";
+                        output.direction = direction;          
+                    }
+                    
+                    temp.push_back(output);
+                }                
+            }
+        }
+        points = temp;
+        
+    }while(counter++<max);
+
+    return source.get(results);
+}
+
+// *********************
+
+std::string organisation::program::run4(std::string input, data &source, int max, history *destination)
+{
+    auto offset = [this](point &src)
+    {
+        return ((this->_width * this->_height) * src.z) + ((src.y * this->_width) + src.x);
+    };
+    
+    std::vector<int> values = source.get(input);
+    std::vector<int> results;
+
+    point starting;
+
+    int half_width = (_width / 2);
+    int half_height = (_height / 2);
+    int half_depth = (_depth / 2);
+
+    starting.x = half_width;
+    starting.y = half_height;
+    starting.z = half_depth;
+
+    std::vector<position> points;    
+    std::vector<position> stationary;
+
+    points.reserve(255);
+
+    position a, b;
+
+    a.current = point(5,5,5);
+    a.direction = vector(1,1,0);
+
+    b.current = point(6,6,5);
+    b.direction = vector(-1,-1,0);
+
+    points.push_back(a);
+    points.push_back(b);
+    
+    for(auto &it: caches.values)
+    {
+        int value = std::get<0>(it);
+                
+        position temp(value);
+
+        temp.current = std::get<1>(it);        
+        temp.direction = vector(0,0,0);        
+        temp.index = -1;
+
+        if(!(temp.current == starting))
+            stationary.push_back(temp);
+    }
+    
+    int counter = 0;
+
+    do
+    {
+        // ***
+        // check for new values to insert
+        // ***
+
+        if(values.size() > 0)
+        {
+            if(insert.get())
+            {
+                int value = values.front();
+                values.erase(values.begin());
+
+                position temp(value);
+                temp.current = starting;
+                temp.time = counter;
+                temp.index = 0;
+                temp.direction = movement.directions[0];
+
+                std::cout << "\r\nattempt insert! " << temp.value << "\r\n";
+
+                // NEED TO ALSO CHECK WITH STATIONARY POINTS
+                // unless, generate stationary points
+                // WITHOUT STARTING POINT 
+                if(find_if(points.begin(), points.end(),[starting] (const position &p) { return p.current.x == starting.x && p.current.y == starting.y && p.current.z == starting.z; })==points.end())
+                {
+                    std::cout << "insert! [" << temp.value << "]\r\n";
+                    points.push_back(temp);
+                }                                
+                else
+                {
+                    std::cout << "failed insert!\r\n";
+                }                
+            }
+        }
+
+        // ***
+        // create lookup tables for each dimension
+        // ***
+
+        std::vector<position> working;
+        std::copy(points.begin(), points.end(), std::back_inserter(working));
+        std::copy(stationary.begin(), stationary.end(), std::back_inserter(working));
+
+std::unordered_map<int, std::vector<position*>> lens;
+
+    std::cout << "loop " << counter << "\r\n";
+    for(auto &it: working)
+    {
+        std::cout << "(" << it.current.x << "," << it.current.y << "," << it.current.z << ")\r\n";
+
+        point a = it.current + it.direction;
+
+        float x = (a.x - starting.x) * (a.x - starting.x);
+        float y = (a.y - starting.y) * (a.y - starting.y);
+        float z = (a.z - starting.z) * (a.z - starting.z);
+
+        int d = (int)sqrtf(x + y + z);
+        
+        if(lens.find(d) == lens.end()) lens[d] = { };
+        lens[d].push_back(&it);
+    }
+
+    for(auto &it: lens)
+    {
+        std::cout << "distance: " << it.first << " ";
+        for(auto &jt: it.second)
+        {
+        std::cout << "(" << jt->current.x << "," << jt->current.y << "," << jt->current.z << ")";
+        }
+        std::cout << "\r\n";
+    }
+                       
+        // ***
+        // x-dimension collision detection
+        // ***
+
+        std::unordered_map<int, std::vector<position*>> x_lookup;
+        std::sort(working.begin(), working.end(), [](const position &a, const position &b)
+        {
+            return a.current.x < b.current.x;
+        });
+
+        for(auto &it: working)
+        {
+            int index = (it.current.z * _width) + it.current.y;
+            if(x_lookup.find(index) == x_lookup.end())
+                x_lookup[index] = { };
+            
+            x_lookup[index].push_back(&it);
+        }
+        
+        for(auto &it:x_lookup)
+        {    
+            const int length = it.second.size();        
+            int reverse = length - 1;
+            int forward = 0;
+
+            for(int i = 0; i < length; ++i)
+            {
+                position *&fwd = it.second[forward];
+                position *&rev = it.second[reverse];
+
+                if(fwd->direction.x < 0)
+                {
+                    if(forward > 0)
+                    {
+                        position *&previous_fwd = it.second[forward - 1];
+                        if(previous_fwd->current.x == fwd->current.x + fwd->direction.x)
+                        {
+                            std::cout << "collide fwd X " << previous_fwd->value << "\r\n"; 
+
+                            fwd->collisions.push_back(vector(fwd->direction.x,0,0));
+                            previous_fwd->output = true;
+                        }
+                        /*
+                        position *&previous_fwd = it.second[forward - 1];
+                        if(previous_fwd->current.x != fwd->current.x + fwd->direction.x)
+                            fwd->current.x += fwd->direction.x;
+                        else
+                        {   
+                        std::cout << "collide fwd X " << previous_fwd->value << "\r\n"; 
+                            fwd->collisions.push_back(vector(fwd->direction.x,0,0));
+                            previous_fwd->output = true;
+                        }
+                        */
+                    }
+                    //else fwd->current.x += fwd->direction.x;
+                }
+
+                if(rev->direction.x > 0)
+                {
+                    if(reverse < length - 1)
+                    {
+                        position *&previous_rev = it.second[reverse + 1];
+                        if(previous_rev->current.x == rev->current.x + rev->direction.x)
+                        {
+                            std::cout << "collide rev X [" << previous_rev->value << "] ";
+                        std::cout << " (" << previous_rev->current.x << "," << previous_rev->current.y << "," << previous_rev->current.z << ")";
+                        std::cout << "-> (" << rev->current.x << "," << rev->current.y << "," << rev->current.z << ") ";
+                        std::cout << " dir(" << rev->direction.x << "," << rev->direction.y << "," << rev->direction.z << ")\r\n";
+
+                            rev->collisions.push_back(vector(rev->direction.x,0,0));
+                            previous_rev->output = true;
+                        }
+                        /*
+                        position *&previous_rev = it.second[reverse + 1];
+                        if(previous_rev->current.x != rev->current.x + rev->direction.x)
+                            rev->current.x += rev->direction.x;
+                        else
+                        {      
+                        std::cout << "collide rev X [" << previous_rev->value << "] ";
+                        std::cout << " (" << previous_rev->current.x << "," << previous_rev->current.y << "," << previous_rev->current.z << ")";
+                        std::cout << "-> (" << rev->current.x << "," << rev->current.y << "," << rev->current.z << ") ";
+                        std::cout << " dir(" << rev->direction.x << "," << rev->direction.y << "," << rev->direction.z << ")\r\n";
+                        
+                            rev->collisions.push_back(vector(rev->direction.x,0,0));
+                            previous_rev->output = true;
+                        }
+                        */
+                    }
+                    //else rev->current.x += rev->direction.x;
+                }
+
+                ++forward;
+                --reverse;
+            }
+        }
+
+        // ***
+        // y-dimension collision detection
+        // ***
+
+        std::unordered_map<int, std::vector<position*>> y_lookup;
+        std::sort(working.begin(), working.end(), [](const position &a, const position &b)
+        {
+            return a.current.y < b.current.y;
+        });
+
+        for(auto &it: working)
+        {
+            int index = (it.current.z * _width) + it.current.x;
+            if(y_lookup.find(index) == y_lookup.end())
+                y_lookup[index] = { };
+            
+            y_lookup[index].push_back(&it);
+        }
+
+        for(auto &it:y_lookup)
+        {           
+            const int length = it.second.size();
+            int reverse = length - 1;
+            int forward = 0;
+
+            for(int i = 0; i < length; ++i)
+            {
+                position *&fwd = it.second[forward];
+                position *&rev = it.second[reverse];
+                
+                if(fwd->direction.y < 0)
+                {                
+                    if(forward > 0)
+                    {
+                        position *&previous_fwd = it.second[forward - 1];
+                        if(previous_fwd->current.y == fwd->current.y + fwd->direction.y)
+                        {
+                            std::cout << "collide fwd Y " << previous_fwd->value << "\r\n";                
+
+                            fwd->collisions.push_back(vector(0,fwd->direction.y,0));
+                            previous_fwd->output = true;
+                        }
+                        /*
+                        position *&previous_fwd = it.second[forward - 1];
+                        if(previous_fwd->current.y != fwd->current.y + fwd->direction.y)
+                            fwd->current.y += fwd->direction.y;
+                        else
+                        {             
+                        std::cout << "collide fwd Y " << previous_fwd->value << "\r\n";                
+                            fwd->collisions.push_back(vector(0,fwd->direction.y,0));
+                            previous_fwd->output = true;
+                        }
+                        */
+                    }
+                    //else fwd->current.y += fwd->direction.y;
+                }
+
+                if(rev->direction.y > 0)
+                {
+                    if(reverse < length - 1)
+                    {
+                        position *&previous_rev = it.second[reverse + 1];
+                        if(previous_rev->current.y == rev->current.y + rev->direction.y)
+                        {
+                            std::cout << "collide rev Y " << previous_rev->value << "\r\n"; 
+
+                            rev->collisions.push_back(vector(0,rev->direction.y,0));
+                            previous_rev->output = true;
+                        }
+                        /*
+                        position *&previous_rev = it.second[reverse + 1];
+                        if(previous_rev->current.y != rev->current.y + rev->direction.y)
+                            rev->current.y += rev->direction.y;
+                        else
+                        {                           
+                        std::cout << "collide rev Y " << previous_rev->value << "\r\n"; 
+                            rev->collisions.push_back(vector(0,rev->direction.y,0));
+                            previous_rev->output = true;
+                        }
+                        */
+                    }
+                    //else rev->current.y += rev->direction.y;
+                }
+
+                ++forward;
+                --reverse;
+            }
+        }
+
+        // ***
+        // z-dimension collision detection
+        // ***
+
+        std::unordered_map<int, std::vector<position*>> z_lookup;
+        std::sort(working.begin(), working.end(), [](const position &a, const position &b)
+        {
+            return a.current.z < b.current.z;
+        });
+
+        for(auto &it: working)
+        {
+            int index = (it.current.y * _width) + it.current.x;
+            if(z_lookup.find(index) == z_lookup.end())
+                z_lookup[index] = { };
+            
+            z_lookup[index].push_back(&it);
+        }
+
+        for(auto &it:z_lookup)
+        {            
+            const int length = it.second.size();
+            int reverse = length - 1;
+            int forward = 0;
+
+            for(int i = 0; i < length; ++i)
+            {
+                position *&fwd = it.second[forward];
+                position *&rev = it.second[reverse];
+
+                if(fwd->direction.z < 0)
+                {
+                    if(forward > 0)
+                    {
+                        position *&previous_fwd = it.second[forward - 1];
+                        if(previous_fwd->current.z == fwd->current.z + fwd->direction.z)
+                        {
+                            std::cout << "collide fwd Z " << previous_fwd->value << "\r\n";
+
+                            fwd->collisions.push_back(vector(0,0,fwd->direction.z));
+                            previous_fwd->output = true;
+                        }
+                        /*
+                        position *&previous_fwd = it.second[forward - 1];
                         if(previous_fwd->current.z != fwd->current.z + fwd->direction.z)
                             fwd->current.z += fwd->direction.z;
                         else
@@ -433,15 +972,25 @@ std::string organisation::program::run4(std::string input, data &source, int max
                         std::cout << "collide fwd Z " << previous_fwd->value << "\r\n"; 
                             fwd->collisions.push_back(vector(0,0,fwd->direction.z));
                             previous_fwd->output = true;
-                        }                        
+                        } 
+                        */                       
                     }
-                    else fwd->current.z += fwd->direction.z;
+                    //else fwd->current.z += fwd->direction.z;
                 }
 
                 if(rev->direction.z > 0)
                 {
                     if(reverse < length - 1)
                     {
+                        position *&previous_rev = it.second[reverse + 1];
+                        if(previous_rev->current.z == rev->current.z + rev->direction.z)
+                        {
+                            std::cout << "collide rev Z " << previous_rev->value << "\r\n"; 
+
+                            rev->collisions.push_back(vector(0,0,rev->direction.z));
+                            previous_rev->output = true;
+                        }
+                        /*
                         position *&previous_rev = it.second[reverse + 1];
                         if(previous_rev->current.z != rev->current.z + rev->direction.z)
                             rev->current.z += rev->direction.z;
@@ -451,8 +1000,9 @@ std::string organisation::program::run4(std::string input, data &source, int max
                             rev->collisions.push_back(vector(0,0,rev->direction.z));
                             previous_rev->output = true;
                         }
+                        */
                     }
-                    else rev->current.z += rev->direction.z;
+                    //else rev->current.z += rev->direction.z;
                 }
 
                 ++forward;
@@ -483,6 +1033,7 @@ std::string organisation::program::run4(std::string input, data &source, int max
 
                     if(it.collisions.size() == 0)
                     {
+                        output.current = output.current + output.direction;
                         output.index = movement.next(output.index);                
                         output.direction = movement.directions[output.index];
                     }
@@ -1346,30 +1897,6 @@ int organisation::program::count()
 */
     return result;
 }
-
-/*
-void organisation::program::set(int value, int x, int y, int z)
-{
-    if ((x < 0)||(x >= _width)) return;
-    if ((y < 0)||(y >= _height)) return;
-    if ((z < 0)||(z >= _depth)) return;
-
-    int index = (z * _width * _height) + (y * _width) + x;
-
-    cells[index].value = value;
-}
-
-void organisation::program::set(vector input, vector output, int magnitude, int x, int y, int z)
-{
-    if ((x < 0)||(x >= _width)) return;
-    if ((y < 0)||(y >= _height)) return;
-    if ((z < 0)||(z >= _depth)) return;
-
-    int index = (z * _width * _height) + (y * _width) + x;
-
-    //cells[index].set(input, output, magnitude);
-}
-*/
 
 bool organisation::program::validate(data &source)
 {
