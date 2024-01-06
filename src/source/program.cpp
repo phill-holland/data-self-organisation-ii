@@ -265,290 +265,97 @@ std::string organisation::program::run5(std::string input, data &source, int max
         std::copy(points.begin(), points.end(), std::back_inserter(working));
         std::copy(stationary.begin(), stationary.end(), std::back_inserter(working));
 
-//std::unordered_map<int, std::vector<position*>> lens;
-std::vector<std::vector<position*>> lens;
-lens.resize(30);
-// don't need vector anymore!
+        std::unordered_map<int, std::vector<position*>> lens;
 
-    std::cout << "loop " << counter << "\r\n";
-    for(auto &it: working)
-    {
-        std::cout << "(" << it.current.x << "," << it.current.y << "," << it.current.z << ")\r\n";
-
-        point a = it.current + it.direction;
-
-float x = (it.direction.x / 2.0f) + (float)it.current.x;
-float y = (it.direction.y / 2.0f) + (float)it.current.y;
-float z = (it.direction.z / 2.0f) + (float)it.current.z;
-
-point b((int)x,(int)y,(int)z);
-        /*
-        float x = (a.x - starting.x) * (a.x - starting.x);
-        float y = (a.y - starting.y) * (a.y - starting.y);
-        float z = (a.z - starting.z) * (a.z - starting.z);
-
-        int d = (int)sqrtf(x + y + z);
-        */
-        
-        //if(lens.find(d) == lens.end()) lens[d] = { };
-        int d = _distance(a, starting);
-        lens[d].push_back(&it);
-
-        int d2 = _distance(b, starting);
-        if(d2 != d) lens[d2].push_back(&it);
-        //lens[d2].push_back(&it);
-    }
-
-int distance = 0;
-    for(auto &it: lens)
-    {
-        if(it.size() > 0)
-        {
-            std::sort(it.begin(), it.end(), [](const position *a, const position *b)
-            {
-                return a->current.x < b->current.x;
-            });
-
-
-// ***
-            for(int i = 1; i < it.size(); ++i)
-            {
-                position *a = it[i - 1];
-                position *b = it[i];
-
-                int d = _distance(a->current,b->current);
-                if(d == 1)
-                {
-                    point t1 = a->current + a->direction;
-                    if(t1 == b->current)
-                    {
-                        a->collisions.push_back(a->direction);
-                        b->output = true;
-                        // a collides into b
-                    }
-                    point t2 = b->current + b->direction;
-                    if(t2 == a->current)
-                    {
-                        b->collisions.push_back(b->direction);
-                        a->output = true;
-                    }
-                }                
-            }
-// ***
-            std::cout << "distance: " << distance << " ";
-            for(auto &jt: it)
-            {
-            std::cout << "(" << jt->current.x << "," << jt->current.y << "," << jt->current.z << ")";
-            }
-            std::cout << "\r\n";
-        }
-        ++distance;
-    }
-                       
-        // ***
-        // x-dimension collision detection
-        // ***
-/*
-        std::unordered_map<int, std::vector<position*>> x_lookup;
-        std::sort(working.begin(), working.end(), [](const position &a, const position &b)
-        {
-            return a.current.x < b.current.x;
-        });
-
+        std::cout << "loop " << counter << "\r\n";
         for(auto &it: working)
         {
-            int index = (it.current.z * _width) + it.current.y;
-            if(x_lookup.find(index) == x_lookup.end())
-                x_lookup[index] = { };
+            std::cout << "(" << it.current.x << "," << it.current.y << "," << it.current.z << ")\r\n";
+
+            point a = it.current + it.direction;
+
+            float x = (it.direction.x / 2.0f) + (float)it.current.x;
+            float y = (it.direction.y / 2.0f) + (float)it.current.y;
+            float z = (it.direction.z / 2.0f) + (float)it.current.z;
+
+            point b((int)x,(int)y,(int)z);
+
+            int d = _distance(a, starting);
+            if(lens.find(d) == lens.end()) lens[d] = { };
             
-            x_lookup[index].push_back(&it);
-        }
-        
-        for(auto &it:x_lookup)
-        {    
-            const int length = it.second.size();        
-            int reverse = length - 1;
-            int forward = 0;
+            lens[d].push_back(&it);
 
-            for(int i = 0; i < length; ++i)
+            int d2 = _distance(b, starting);
+            if(d2 != d) 
             {
-                position *&fwd = it.second[forward];
-                position *&rev = it.second[reverse];
+                if(lens.find(d2) == lens.end()) lens[d2] = { };
+                lens[d2].push_back(&it);
+            }
+            //lens[d2].push_back(&it);
+        }
 
-                if(fwd->direction.x < 0)
+        for(auto &it: lens)
+        {
+            if(it.second.size() > 0)
+            {
+                // ***
+                std::vector<std::vector<position*>> relative;
+                position *front = it.second.front();
+                relative.resize(30);
+                relative[0].push_back(front);
+                point t1 = front->current + front->direction;
+                for(int i = 1; i < it.second.size(); ++i)
                 {
-                    if(forward > 0)
-                    {
-                        position *&previous_fwd = it.second[forward - 1];
-                        if(previous_fwd->current.x == fwd->current.x + fwd->direction.x)
+                    position *src = it.second[i];
+                    point t2 = src->current + src->direction;
+                    int d2 = _distance(t1, t2);
+                    relative[d2].push_back(it.second[i]);
+                }
+                int idx = 0;
+                for(auto &jt:relative)
+                {
+                    if(jt.size() > 0)
+                    {                        
+                        std::cout << "relative: " << idx << " ";
+                        for(auto &moo:jt)
                         {
-                            std::cout << "collide fwd X " << previous_fwd->value << "\r\n"; 
-
-                            fwd->collisions.push_back(vector(fwd->direction.x,0,0));
-                            previous_fwd->output = true;
+                            std::cout << "(" << moo->current.x << "," << moo->current.y << "," << moo->current.z << ")";
+                        }
+                        std::cout << "\r\n";
+                    }
+                    ++idx;
+                }
+                // ***
+                for(auto &a: it.second)
+                {
+                    for(auto &b: it.second)
+                    {
+                        if(a != b)
+                        {
+                            point t1 = a->current + a->direction;
+                            if(t1 == b->current)
+                            {
+                                a->collisions.push_back(a->direction);
+                                b->output = true;
+                            }
+                            point t2 = b->current + b->direction;
+                            if(t2 == a->current)
+                            {
+                                b->collisions.push_back(b->direction);
+                                a->output = true;
+                            }
                         }
                     }
-                    //else fwd->current.x += fwd->direction.x;
                 }
 
-                if(rev->direction.x > 0)
+                std::cout << "distance: " << it.first << " ";
+                for(auto &jt: it.second)
                 {
-                    if(reverse < length - 1)
-                    {
-                        position *&previous_rev = it.second[reverse + 1];
-                        if(previous_rev->current.x == rev->current.x + rev->direction.x)
-                        {
-                            std::cout << "collide rev X [" << previous_rev->value << "] ";
-                        std::cout << " (" << previous_rev->current.x << "," << previous_rev->current.y << "," << previous_rev->current.z << ")";
-                        std::cout << "-> (" << rev->current.x << "," << rev->current.y << "," << rev->current.z << ") ";
-                        std::cout << " dir(" << rev->direction.x << "," << rev->direction.y << "," << rev->direction.z << ")\r\n";
-
-                            rev->collisions.push_back(vector(rev->direction.x,0,0));
-                            previous_rev->output = true;
-                        }
-                    }
-                    //else rev->current.x += rev->direction.x;
+                std::cout << "(" << jt->current.x << "," << jt->current.y << "," << jt->current.z << ")";
                 }
-
-                ++forward;
-                --reverse;
+                std::cout << "\r\n";
             }
         }
-
-        // ***
-        // y-dimension collision detection
-        // ***
-
-        std::unordered_map<int, std::vector<position*>> y_lookup;
-        std::sort(working.begin(), working.end(), [](const position &a, const position &b)
-        {
-            return a.current.y < b.current.y;
-        });
-
-        for(auto &it: working)
-        {
-            int index = (it.current.z * _width) + it.current.x;
-            if(y_lookup.find(index) == y_lookup.end())
-                y_lookup[index] = { };
-            
-            y_lookup[index].push_back(&it);
-        }
-
-        for(auto &it:y_lookup)
-        {           
-            const int length = it.second.size();
-            int reverse = length - 1;
-            int forward = 0;
-
-            for(int i = 0; i < length; ++i)
-            {
-                position *&fwd = it.second[forward];
-                position *&rev = it.second[reverse];
-                
-                if(fwd->direction.y < 0)
-                {                
-                    if(forward > 0)
-                    {
-                        position *&previous_fwd = it.second[forward - 1];
-                        if(previous_fwd->current.y == fwd->current.y + fwd->direction.y)
-                        {
-                            std::cout << "collide fwd Y " << previous_fwd->value << "\r\n";                
-
-                            fwd->collisions.push_back(vector(0,fwd->direction.y,0));
-                            previous_fwd->output = true;
-                        }
-                    }
-                    //else fwd->current.y += fwd->direction.y;
-                }
-
-                if(rev->direction.y > 0)
-                {
-                    if(reverse < length - 1)
-                    {
-                        position *&previous_rev = it.second[reverse + 1];
-                        if(previous_rev->current.y == rev->current.y + rev->direction.y)
-                        {
-                            std::cout << "collide rev Y " << previous_rev->value << "\r\n"; 
-
-                            rev->collisions.push_back(vector(0,rev->direction.y,0));
-                            previous_rev->output = true;
-                        }
-                    }
-                    //else rev->current.y += rev->direction.y;
-                }
-
-                ++forward;
-                --reverse;
-            }
-        }
-
-        // ***
-        // z-dimension collision detection
-        // ***
-
-        std::unordered_map<int, std::vector<position*>> z_lookup;
-        std::sort(working.begin(), working.end(), [](const position &a, const position &b)
-        {
-            return a.current.z < b.current.z;
-        });
-
-        for(auto &it: working)
-        {
-            int index = (it.current.y * _width) + it.current.x;
-            if(z_lookup.find(index) == z_lookup.end())
-                z_lookup[index] = { };
-            
-            z_lookup[index].push_back(&it);
-        }
-
-        for(auto &it:z_lookup)
-        {            
-            const int length = it.second.size();
-            int reverse = length - 1;
-            int forward = 0;
-
-            for(int i = 0; i < length; ++i)
-            {
-                position *&fwd = it.second[forward];
-                position *&rev = it.second[reverse];
-
-                if(fwd->direction.z < 0)
-                {
-                    if(forward > 0)
-                    {
-                        position *&previous_fwd = it.second[forward - 1];
-                        if(previous_fwd->current.z == fwd->current.z + fwd->direction.z)
-                        {
-                            std::cout << "collide fwd Z " << previous_fwd->value << "\r\n";
-
-                            fwd->collisions.push_back(vector(0,0,fwd->direction.z));
-                            previous_fwd->output = true;
-                        }
-                    }
-                    //else fwd->current.z += fwd->direction.z;
-                }
-
-                if(rev->direction.z > 0)
-                {
-                    if(reverse < length - 1)
-                    {
-                        position *&previous_rev = it.second[reverse + 1];
-                        if(previous_rev->current.z == rev->current.z + rev->direction.z)
-                        {
-                            std::cout << "collide rev Z " << previous_rev->value << "\r\n"; 
-
-                            rev->collisions.push_back(vector(0,0,rev->direction.z));
-                            previous_rev->output = true;
-                        }
-                    }
-                    //else rev->current.z += rev->direction.z;
-                }
-
-                ++forward;
-                --reverse;
-            }
-        }
-*/
         // ***
         // remove points out-of-bounds and compute collision directions
         // ***

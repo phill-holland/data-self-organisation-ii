@@ -19,37 +19,36 @@ TEST(BasicMovementAndCollisionDetection, BasicAssertions)
     organisation::point starting(width / 2, height / 2, depth / 2);
 
     std::vector<std::tuple<organisation::point,organisation::vector,organisation::vector>> directions = {
-        /*{ 
+        { 
             organisation::point(starting.x,18,starting.z), 
             organisation::vector(0,1,0), 
             organisation::vector(1,0,0)             
-        },
+        }/*,
         { 
             organisation::point(starting.x,2,starting.z), 
             organisation::vector(0,-1,0), 
             organisation::vector(1,0,0)             
-        },*/
-        /*{ 
+        },
+        { 
             organisation::point(18,starting.y,starting.z), 
             organisation::vector(1,0,0), 
             organisation::vector(0,1,0)             
-        },*/
-        /*{ 
+        },
+        { 
             organisation::point(2,starting.y,starting.z), 
             organisation::vector(-1,0,0), 
             organisation::vector(0,1,0)             
-        } 
-        */
+        },         
        { 
             organisation::point(starting.x,starting.y,18), 
             organisation::vector(0,0,1), 
             organisation::vector(0,1,0)             
-        }/*,       
+        },       
        { 
             organisation::point(starting.x,starting.y,2), 
             organisation::vector(0,0,-1), 
             organisation::vector(0,1,0)             
-        }   */    
+        }*/
     };
 
     for(auto &it: directions)
