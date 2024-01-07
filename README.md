@@ -1,4 +1,16 @@
-# Data Self Organisation (Experimental)
+# Data Self Organisation-ii (Experimental)
+
+these notes are copied from another project!  they are not relevant yet!
+
+Project has google tests in it, only one test works! (see native.cpp)
+
+Configured to run in vscode, cmake launch task preconfigured.
+
+The genetic algorithm for combining programs needs to be tested next!
+
+The parallel version of the collision detection algorithm needs to be written also next!
+
+// ***************
 
 This is a work in progress to investigate how a data storage solution may self organise into efficient data storage and retrieval system, with the aim of identifying data patterns of storage for abitary sentence structures (i.e. sequential data).
 

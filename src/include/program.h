@@ -47,11 +47,6 @@ namespace organisation
             makeNull(); 
             reset(w,h,d); 
         }
-        /*program(const program &source)
-        : caches(w,h,d), movement(w,h,d) 
-        { 
-            copy(source); 
-        }*/
         ~program() { cleanup(); }
 
         bool initalised() { return init; }
@@ -68,11 +63,7 @@ namespace organisation
         void generate(data &source);  
         void mutate(data &source);
 
-        std::string run5(std::string input, data &source, int max = MAX, history *destination = NULL);        
-        std::string run4(std::string input, data &source, int max = MAX, history *destination = NULL);        
-        std::string run3(std::string input, data &source, history *destination = NULL);
-        std::string run2(std::string input, data &source, history *destination = NULL);
-        std::string run(std::string input, data &source, history *destination = NULL);
+        std::string run(std::string input, data &source, int max = MAX, history *destination = NULL);        
 
         int count();
 

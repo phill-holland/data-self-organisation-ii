@@ -125,7 +125,7 @@ void organisation::schema::cross(schema *destination, schema *value)
 std::string organisation::schema::run(int epoch, std::string input, std::string expected, data &source, history *destination)
 {		
     //std::string output = prog.run(epoch, source, destination);
-    std::string output = prog.run(input, source, destination);
+    std::string output = "";//prog.run(input, source, destination);
     scores[epoch].compute(expected, output);
     
     return output;

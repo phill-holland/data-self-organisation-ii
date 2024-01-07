@@ -23,7 +23,7 @@ TEST(BasicMovementAndCollisionDetection, BasicAssertions)
             organisation::point(starting.x,18,starting.z), 
             organisation::vector(0,1,0), 
             organisation::vector(1,0,0)             
-        }/*,
+        },
         { 
             organisation::point(starting.x,2,starting.z), 
             organisation::vector(0,-1,0), 
@@ -48,7 +48,7 @@ TEST(BasicMovementAndCollisionDetection, BasicAssertions)
             organisation::point(starting.x,starting.y,2), 
             organisation::vector(0,0,-1), 
             organisation::vector(0,1,0)             
-        }*/
+        }
     };
 
     for(auto &it: directions)
@@ -82,7 +82,7 @@ TEST(BasicMovementAndCollisionDetection, BasicAssertions)
         p.set(movement);
         p.set(collisions);
 
-        std::string output = p.run5(input, d);
+        std::string output = p.run(input, d);
         std::vector<std::string> outputs = organisation::split(output);//p.run(0, d));
         
         EXPECT_EQ(outputs, expected);
