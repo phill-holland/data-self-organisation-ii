@@ -40,7 +40,11 @@ namespace organisation
         public:
             void generate(data &source);
             void mutate(data &source);
+            
             void copy(genetic *source, int src_start, int src_end, int dest_start);
+
+        public:
+            bool equals(const cache &source);
         };
     };
 };

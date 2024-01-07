@@ -79,3 +79,25 @@ void organisation::genetic::cache::copy(genetic *source, int src_start, int src_
         }
     }
 }
+
+bool organisation::genetic::cache::equals(const cache &source)
+{
+    if(values.size() != source.values.size()) return false;
+    if(points.size() != source.points.size()) return false;
+
+    for(int i = 0; i < values.size(); ++i)
+    {
+        std::tuple<int,point> a = values[i];
+        std::tuple<int,point> b = source.values[i];
+
+        if(a != b) return false;
+    }
+
+    for(auto &it: points)
+    {
+        if(source.points.find(it.first) == source.points.end()) return false;
+        if(!(source.points.at(it.first) == it.second)) return false;        
+    }
+
+    return true;
+}
