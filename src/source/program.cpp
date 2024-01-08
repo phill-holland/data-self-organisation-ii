@@ -628,7 +628,7 @@ void organisation::program::cross(program &a, program &b, int middle)
     */   
 }
 
-void organisation::program::save(std::string filename)
+std::string organisation::program::serialise()
 {
     std::vector<templates::serialiser*> sources = 
     { 
@@ -638,15 +638,49 @@ void organisation::program::save(std::string filename)
         &insert
     }; 
 
+    std::string result;
+
+    for(auto &it: sources)
+    {
+        result += it->serialise();    
+    }
+
+    return result;
+}
+
+void organisation::program::deserialise(std::string source)
+{
+    std::stringstream ss(source);
+    std::string value;
+
+    caches.clear();
+    collisions.clear();
+    movement.clear();
+    insert.clear();
+
+    while(std::getline(ss,value))
+    {
+        std::stringstream stream(value);
+		std::string type;
+	            
+        if(stream >> type)
+        {
+            if(type == "D") caches.deserialise(value);
+            else if(type == "M") movement.deserialise(value);
+            else if(type == "C") collisions.deserialise(value);
+            else if(type == "I") insert.deserialise(value);
+        }
+    };
+}
+
+void organisation::program::save(std::string filename)
+{
     std::fstream output(filename, std::fstream::out | std::fstream::binary);
 
     if(output.is_open())
     {
-        for(auto &it: sources)
-        {
-            std::string data = it->serialise();
-            output.write(data.c_str(), data.size());
-        }
+        std::string data = serialise();
+        output.write(data.c_str(), data.size());
     }
 
     output.close();
@@ -669,7 +703,7 @@ void organisation::program::load(std::string filename)
 	            
             if(stream >> type)
             {
-                if(type == "C") caches.deserialise(value);
+                if(type == "D") caches.deserialise(value);
                 else if(type == "M") movement.deserialise(value);
                 else if(type == "C") collisions.deserialise(value);
                 else if(type == "I") insert.deserialise(value);

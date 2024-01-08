@@ -43,10 +43,10 @@ void organisation::point::deserialise(std::string source)
 
     while(std::getline(ss, str, ','))
     {
-        if(index++ < 3)
+        if(index < 3)
         {
             int temp = std::atoi(str.c_str());
-            *position[index] = temp;  
+            *position[index++] = temp;  
         }
     }
 }

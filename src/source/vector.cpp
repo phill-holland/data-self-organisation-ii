@@ -36,10 +36,10 @@ void organisation::vector::deserialise(std::string source)
 
     while(std::getline(ss, str, ','))
     {
-        if(index++ < 4)
+        if(index < 4)
         {
             int temp = std::atoi(str.c_str());
-            *position[index] = temp;  
+            *position[index++] = temp;  
         }
     }
 }

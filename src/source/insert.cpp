@@ -71,7 +71,7 @@ std::string organisation::genetic::insert::serialise()
 
     for(auto &it: values)
     {
-        result += "I " + std::to_string(it) + "\r\n";
+        result += "I " + std::to_string(it) + "\n";
     }
 
     return result;

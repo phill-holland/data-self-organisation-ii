@@ -79,6 +79,10 @@ namespace organisation
         void cross(program &a, program &b, int middle = -1);
 
     public:
+        std::string serialise();
+        void deserialise(std::string source);
+
+    public:
         void save(std::string filename);
         void load(std::string filename);
 

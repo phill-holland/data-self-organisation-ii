@@ -10,7 +10,7 @@ std::string organisation::genetic::movement::serialise()
 
     for(auto &it: directions)
     {
-        result += "M " + it.serialise() + "\r\n";
+        result += "M " + it.serialise() + "\n";
     }
 
     return result;

@@ -45,7 +45,7 @@ std::string organisation::genetic::collisions::serialise()
 
     for(auto &it: values)
     {
-        result += "C " + std::to_string(it) + "\r\n";
+        result += "C " + std::to_string(it) + "\n";
     }
 
     return result;

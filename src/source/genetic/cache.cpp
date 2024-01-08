@@ -24,8 +24,8 @@ std::string organisation::genetic::cache::serialise()
 
     for(auto &it: values)
     {     
-        result += "C " + std::to_string(std::get<0>(it));
-        result += " " + std::get<1>(it).serialise() + "\r\n";            
+        result += "D " + std::to_string(std::get<0>(it));
+        result += " " + std::get<1>(it).serialise() + "\n";            
     }
 
     return result;                    
@@ -43,7 +43,7 @@ void organisation::genetic::cache::deserialise(std::string source)
     {
         if(index == 0)
         {
-            if(str.compare("C")!=0) return;
+            if(str.compare("D")!=0) return;
         }
         else if(index == 1)
         {
