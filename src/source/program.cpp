@@ -1,6 +1,7 @@
 #include "program.h"
 #include "position.h"
 #include "genetic/templates/genetic.h"
+#include "genetic/templates/serialiser.h"
 #include "general.h"
 #include <stack>
 #include <unordered_map>
@@ -446,19 +447,6 @@ std::string organisation::program::run(std::string input, data &source, int max,
     return source.get(results);
 }
 
-int organisation::program::count()
-{
-    int result = 0;
-
-/*
-    for(int i = 0; i < length; ++i)
-    {
-        if(cells[i].value > -1) ++result;
-    }
-*/
-    return result;
-}
-
 bool organisation::program::validate(data &source)
 {
     /*
@@ -481,21 +469,24 @@ bool organisation::program::validate(data &source)
 
 void organisation::program::copy(const program &source)
 {    
-    //cells.assign(source.cells.begin(), source.cells.end());
     _width = source._width;
     _height = source._height;
     _depth = source._depth;
     length = source.length;
+
+    caches.copy(source.caches);
+    movement.copy(source.movement);
+    collisions.copy(source.collisions);
+    insert.copy(source.insert);    
 }
 
 bool organisation::program::equals(const program &source)
 {
-    /*
-    for(int i = 0; i < length; ++i)
-    {
-        if(!cells[i].equals(source.cells[i])) return false;
-    }
-    */
+    if(!caches.equals(source.caches)) return false;
+    if(!movement.equals(source.movement)) return false;
+    if(!collisions.equals(source.collisions)) return false;
+    if(!insert.equals(source.insert)) return false;
+    
     return true;
 }
 
@@ -639,152 +630,55 @@ void organisation::program::cross(program &a, program &b, int middle)
 
 void organisation::program::save(std::string filename)
 {
-    /*
-     std::fstream output(filename, std::fstream::out | std::fstream::binary);
+    std::vector<templates::serialiser*> sources = 
+    { 
+        &caches,
+        &movement,
+        &collisions,
+        &insert
+    }; 
+
+    std::fstream output(filename, std::fstream::out | std::fstream::binary);
 
     if(output.is_open())
     {
-        for(int z = 0; z < _depth; ++z)
-        {    
-            std::string line;        
-            for(int y = 0; y < _height; ++y)
-            {                
-                for(int x = 0; x < _width; ++x)
-                {
-                    int index = (z * _width * _height) + (y * _width) + x;
-
-                    line += "P ";
-                    line += std::to_string(x) + ",";
-                    line += std::to_string(y) + ",";
-                    line += std::to_string(z);
-                    line += "\r\n";
-
-                    line += "V " + std::to_string(cells[index].value) + "\r\n";
-
-                    std::vector<int> in_gates = cells[index].pull();
-                    for(std::vector<int>::iterator it = in_gates.begin(); it != in_gates.end(); ++it)
-                    {                     
-                        line += "G " + std::to_string(*it);
-                        line += " ";
-                        
-                        std::vector<int> out_gates = cells[index].pull(*it);
-                        for(std::vector<int>::iterator jt = out_gates.begin(); jt != out_gates.end(); ++jt)
-                        {
-                            organisation::gate gate = cells[index].get(*it,*jt);
-
-                            line += std::to_string(*jt);
-                            line += "/" + std::to_string(gate.magnitude);
-                            if(jt != out_gates.end() - 1) line += ",";
-                        }
-
-                        line += "\r\n";
-                    }
-                    line += "\r\n";
-                }              
-            }
-
-            output.write(line.c_str(), line.size());
+        for(auto &it: sources)
+        {
+            std::string data = it->serialise();
+            output.write(data.c_str(), data.size());
         }
+    }
 
-        output.close();
-    }   
-    */
+    output.close();
 }
 
 void organisation::program::load(std::string filename)
 {
-    /*
     std::ifstream source(filename);
     if(source.is_open())
     {
-        int x = 0, y = 0, z = 0;
-        int *position[] = { &x, &y, &z };
+        caches.clear();
+        collisions.clear();
+        movement.clear();
+        insert.clear();
 
         for(std::string value; getline(source, value); )
         {
             std::stringstream stream(value);
-		    std::string type, word;
+		    std::string type;
 	            
             if(stream >> type)
             {
-                if(type == "P")
-                {
-                    std::vector<std::string> words;
-                    while(stream >> word) words.push_back(word);
-                    
-                    if(words[0].size() > 0)
-                    {
-                        std::stringstream ss(words[0]); 
-                        std::string str;
-                        int index = 0;
-                        while (std::getline(ss, str, ',')) 
-                        {
-                            if(index < 3)
-                            {                            
-                                int temp = std::atoi(str.c_str());
-                                *position[index] = temp;
-                            }
-                            ++index;                        
-                        }
-                    }
-                }
-                else if(type == "V")
-                {
-                    std::vector<std::string> words;
-                    while(stream >> word) words.push_back(word);
-                    if(words.size() > 0)
-                    {
-                        int index = (z * _width * _height) + (y * _width) + x;
-                        cells[index].value = std::atoi(words[0].c_str());
-                    }
-                }
-                else if(type == "G")
-                {
-                    std::vector<std::string> words;
-                    while(stream >> word) words.push_back(word);
-                    
-                    if(words.size() >= 1)
-                    {
-                        int in_gate = std::atoi(words[0].c_str());
-                    
-
-                        int index = (z * _width * _height) + (y * _width) + x;
-                        cells[index].set(in_gate);
-
-                        if(words.size() >= 2)
-                        {
-                            std::stringstream ss(words[1]); 
-                            std::string str;
-
-                            while (std::getline(ss, str, ',')) 
-                            {
-
-                                std::stringstream ww(str);
-                                std::string vv;
-                                std::vector<std::string> values;
-                                while(std::getline(ww, vv, '/'))
-                                {
-                                    values.push_back(vv);
-                                };
-
-                                if(values.size() > 1)
-                                {
-                                    int out_gate = std::atoi(values[0].c_str());
-                                    int magnitude = std::atoi(values[1].c_str());
-
-                                    int index = (z * _width * _height) + (y * _width) + x;
-                                    cells[index].set(in_gate, out_gate, organisation::gate(magnitude)); 
-                                }
-                            }
-                        }
-                    }
-                }
+                if(type == "C") caches.deserialise(value);
+                else if(type == "M") movement.deserialise(value);
+                else if(type == "C") collisions.deserialise(value);
+                else if(type == "I") insert.deserialise(value);
             }
         }
 
-        source.close();
     }
-    */
+
+    source.close();
 }
     
 void organisation::program::makeNull()

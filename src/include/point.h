@@ -1,5 +1,6 @@
 #include "vector.h"
 #include <random>
+#include <string>
 
 #ifndef _ORGANISATION_POINT
 #define _ORGANISATION_POINT
@@ -20,6 +21,11 @@ namespace organisation
             y = _y;
             z = _z;
         }    
+
+        void clear()
+        {
+            x = y = z = 0;
+        }
 
     public:
         void generate(int max_x, int max_y, int max_z, int min_x = 0, int min_y = 0, int min_z = 0);
@@ -44,10 +50,18 @@ namespace organisation
             return true;
         }
         
+        std::string serialise();
+        void deserialise(std::string source);
+
     public:
         bool operator==(const point &src) const
         {
             return x == src.x && y == src.y && z == src.z;
+        }
+
+        bool operator!=(const point &src) const
+        {
+            return x != src.x || y != src.y || z != src.z;
         }
 
         point operator+(const point &src) 

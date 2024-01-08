@@ -1,4 +1,5 @@
 #include "math.h"
+#include <string>
 
 #ifndef _ORGANISATION_VECTOR
 #define _ORGANISATION_VECTOR
@@ -11,9 +12,11 @@ namespace organisation
         int x,y,z,w;
 
     public:
-        vector() { x = y = z = 0; w = 1; }
+        vector() { clear(); }
         vector(int a, int b, int c) { x = a; y = b; z = c; w = 1; }
         vector(int a, int b, int c, int d) { x = a; y = b; z = c; w = d; }
+
+        void clear() { x = y = z = 0; w = 1; }
 
         vector inverse()
         {
@@ -56,12 +59,44 @@ namespace organisation
             return (abs(tz) * (3 * 3)) + (abs(ty) * 3) + abs(tx);
         }
 
+        std::string serialise();
+        void deserialise(std::string source);
+
     public:
-        vector operator*(const vector &src) { return vector(y * src.z - z * src.y,z * src.x - x * src.z,x * src.y - y * src.x, 0); }        
-        vector operator+(const vector &src) { return vector(x + src.x,y + src.y,z + src.z, 0); }
-        vector operator-(const vector &src) { return vector(x - src.x,y - src.y,z - src.z, 0); }
-        vector operator*(int r)  { return vector(x * r,y * r,z, 0); }
-        vector operator/(int r) { return vector(x / r,y / r,z / r, 0); }
+        bool operator==(const vector &src) const
+        {
+            return x == src.x && y == src.y && z == src.z;
+        }
+
+        bool operator!=(const vector &src) const
+        {
+            return x != src.x || y != src.y || z != src.z;
+        }
+
+        vector operator*(const vector &src) 
+        { 
+            return vector(y * src.z - z * src.y,z * src.x - x * src.z,x * src.y - y * src.x, 0); 
+        }        
+        
+        vector operator+(const vector &src) 
+        { 
+            return vector(x + src.x,y + src.y,z + src.z, 0); 
+        }
+
+        vector operator-(const vector &src) 
+        { 
+            return vector(x - src.x,y - src.y,z - src.z, 0); 
+        }
+
+        vector operator*(int r)  
+        { 
+            return vector(x * r,y * r,z, 0); 
+        }
+        
+        vector operator/(int r) 
+        { 
+            return vector(x / r,y / r,z / r, 0); 
+        }
     };
 };
 

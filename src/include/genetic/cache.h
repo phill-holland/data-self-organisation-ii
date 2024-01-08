@@ -1,4 +1,5 @@
 #include "genetic/templates/genetic.h"
+#include "genetic/templates/serialiser.h"
 #include "point.h"
 #include <vector>
 #include <unordered_map>
@@ -11,7 +12,7 @@ namespace organisation
 {
     namespace genetic
     {
-        class cache : public templates::genetic
+        class cache : public templates::genetic, public templates::serialiser
         {
             static std::mt19937_64 generator;
 
@@ -37,6 +38,9 @@ namespace organisation
 
             bool set(int value, point position);
 
+            std::string serialise();
+            void deserialise(std::string source);
+
         public:
             void generate(data &source);
             void mutate(data &source);
@@ -44,6 +48,7 @@ namespace organisation
             void copy(genetic *source, int src_start, int src_end, int dest_start);
 
         public:
+            void copy(const cache &source);
             bool equals(const cache &source);
         };
     };

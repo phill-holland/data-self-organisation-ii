@@ -65,8 +65,6 @@ namespace organisation
 
         std::string run(std::string input, data &source, int max = MAX, history *destination = NULL);        
 
-        int count();
-
         bool validate(data &source);
 
         int width() { return _width; }

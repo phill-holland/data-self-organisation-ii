@@ -1,5 +1,7 @@
 #include "genetic/insert.h"
 #include <iostream>
+#include <sstream>
+#include <functional>
 
 std::mt19937_64 organisation::genetic::insert::generator(std::random_device{}());
 
@@ -17,9 +19,7 @@ bool organisation::genetic::insert::get()
     
     if(counter < 0) 
     {                        
-        std::cout << "insert current " << current << "\r\n";
         counter = values[current++];
-        std::cout << "insert counter " << counter << "\r\n";
         if(current >= values.size()) current = 0;
 
         result = true;
@@ -63,4 +63,57 @@ void organisation::genetic::insert::copy(genetic *source, int src_start, int src
     {
         values[dest_start + i] = s->values[src_start + i];
     }   
+}
+
+std::string organisation::genetic::insert::serialise()
+{
+    std::string result;
+
+    for(auto &it: values)
+    {
+        result += "I " + std::to_string(it) + "\r\n";
+    }
+
+    return result;
+}
+
+void organisation::genetic::insert::deserialise(std::string source)
+{
+    std::stringstream ss(source);
+    std::string str;
+
+    int value = 0;
+    int index = 0;
+
+    while(std::getline(ss,str,' '))
+    {
+        if(index == 0)
+        {
+            if(str.compare("I")!=0) return;
+        }
+        else if(index == 1)
+        {
+            int value = std::atoi(str.c_str());
+            values.push_back(value);
+        }
+
+        ++index;
+    };
+}
+
+void organisation::genetic::insert::copy(const insert &source)
+{
+    values.assign(source.values.begin(), source.values.end());
+}
+
+bool organisation::genetic::insert::equals(const insert &source)
+{
+    if(values.size() != source.values.size()) return false;
+
+    for(int i = 0; i < values.size(); ++i)
+    {
+        if(values[i] != source.values[i]) return false;
+    }
+
+    return true;
 }

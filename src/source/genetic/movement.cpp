@@ -1,6 +1,46 @@
 #include "genetic/movement.h"
+#include <sstream>
+#include <functional>
 
 std::mt19937_64 organisation::genetic::movement::generator(std::random_device{}());
+
+std::string organisation::genetic::movement::serialise()
+{
+    std::string result;
+
+    for(auto &it: directions)
+    {
+        result += "M " + it.serialise() + "\r\n";
+    }
+
+    return result;
+}
+
+void organisation::genetic::movement::deserialise(std::string source)
+{
+    std::stringstream ss(source);
+    std::string str;
+
+    int value = 0;
+    int index = 0;
+
+    while(std::getline(ss,str,' '))
+    {
+        if(index == 0)
+        {
+            if(str.compare("M")!=0) return;
+        }
+        else if(index == 1)
+        {
+            organisation::vector temp;
+
+            temp.deserialise(str);
+            directions.push_back(temp);            
+        }
+
+        ++index;
+    };
+}
 
 void organisation::genetic::movement::generate(data &source)
 {
@@ -38,4 +78,21 @@ void organisation::genetic::movement::copy(genetic *source, int src_start, int s
     {
         directions[dest_start + i] = s->directions[src_start + i];
     }   
+}
+
+void organisation::genetic::movement::copy(const movement &source)
+{
+    directions.assign(source.directions.begin(), source.directions.end());
+}
+
+bool organisation::genetic::movement::equals(const movement &source)
+{
+    if(directions.size() != source.directions.size()) return false;
+
+    for(int i = 0; i < directions.size(); ++i)
+    {
+        if(directions[i] != source.directions[i]) return false;
+    }
+
+    return true;
 }

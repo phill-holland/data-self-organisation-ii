@@ -1,7 +1,9 @@
 #include "genetic/templates/genetic.h"
+#include "genetic/templates/serialiser.h"
 #include "data.h"
 #include <vector>
 #include <random>
+#include <string>
 
 #ifndef _ORGANISATION_GENETIC_INSERT
 #define _ORGANISATION_GENETIC_INSERT
@@ -10,7 +12,7 @@ namespace organisation
 {
     namespace genetic
     {
-        class insert : public templates::genetic
+        class insert : public templates::genetic, public templates::serialiser
         {
             static std::mt19937_64 generator;
 
@@ -44,6 +46,13 @@ namespace organisation
             void generate(data &source);
             void mutate(data &source);
             void copy(genetic *source, int src_start, int src_end, int dest_start);
+
+            std::string serialise();
+            void deserialise(std::string source);
+
+        public:
+            void copy(const insert &source);
+            bool equals(const insert &source);
         };
     };
 };

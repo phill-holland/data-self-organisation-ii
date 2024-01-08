@@ -1,4 +1,6 @@
 #include "genetic/cache.h"
+#include <sstream>
+#include <functional>
 
 std::mt19937_64 organisation::genetic::cache::generator(std::random_device{}());
 
@@ -14,6 +16,55 @@ bool organisation::genetic::cache::set(int value, point position)
     }
 
     return false;
+}
+
+std::string organisation::genetic::cache::serialise()
+{
+    std::string result;
+
+    for(auto &it: values)
+    {     
+        result += "C " + std::to_string(std::get<0>(it));
+        result += " " + std::get<1>(it).serialise() + "\r\n";            
+    }
+
+    return result;                    
+}
+
+void organisation::genetic::cache::deserialise(std::string source)
+{
+    std::stringstream ss(source);
+    std::string str;
+
+    int value = 0;
+    int index = 0;
+
+    while(std::getline(ss,str,' '))
+    {
+        if(index == 0)
+        {
+            if(str.compare("C")!=0) return;
+        }
+        else if(index == 1)
+        {
+            int value = std::atoi(str.c_str());
+        }
+        else if(index == 2)
+        {
+            organisation::point temp;
+
+            temp.deserialise(str);
+            int index = ((_width * _height) * temp.z) + ((temp.y * _width) + temp.x);
+
+            if(points.find(index) == points.end())
+            {
+                points[index] = temp;
+                values.push_back(std::tuple<int,point>(value,temp));
+            }
+        }
+
+        ++index;
+    };
 }
 
 void organisation::genetic::cache::generate(data &source)
@@ -78,6 +129,16 @@ void organisation::genetic::cache::copy(genetic *source, int src_start, int src_
             points[index] = p1;
         }
     }
+}
+
+void organisation::genetic::cache::copy(const cache &source)
+{
+    _width = source._width;
+    _height = source._height;
+    _depth = source._depth;
+
+    values = source.values;
+    points = source.points;
 }
 
 bool organisation::genetic::cache::equals(const cache &source)

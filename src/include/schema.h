@@ -36,7 +36,7 @@ namespace organisation
         
         void generate(data &source);
     
-        int count() { return prog.count(); }
+        //int count() { return prog.count(); }
 
         bool get(kdpoint &destination, int minimum, int maximum);
 

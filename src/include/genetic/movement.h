@@ -1,4 +1,5 @@
 #include "genetic/templates/genetic.h"
+#include "genetic/templates/serialiser.h"
 #include "point.h"
 #include "vector.h"
 #include "data.h"
@@ -12,7 +13,7 @@ namespace organisation
 {
     namespace genetic
     {
-        class movement : public templates::genetic
+        class movement : public templates::genetic, public templates::serialiser
         {
             static std::mt19937_64 generator;
 
@@ -33,10 +34,17 @@ namespace organisation
                 return 0;
             }
 
+            std::string serialise();
+            void deserialise(std::string source);
+
         public:
             void generate(data &source);
             void mutate(data &source);
             void copy(genetic *source, int src_start, int src_end, int dest_start);
+
+        public:
+            void copy(const movement &source);
+            bool equals(const movement &source);
         };
     };
 };
