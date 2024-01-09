@@ -50,6 +50,8 @@ namespace organisation
             std::string serialise();
             void deserialise(std::string source);
 
+            bool validate(data &source);
+
         public:
             void copy(const insert &source);
             bool equals(const insert &source);

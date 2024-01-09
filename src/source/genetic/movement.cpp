@@ -1,6 +1,7 @@
 #include "genetic/movement.h"
 #include <sstream>
 #include <functional>
+#include <iostream>
 
 std::mt19937_64 organisation::genetic::movement::generator(std::random_device{}());
 
@@ -42,14 +43,37 @@ void organisation::genetic::movement::deserialise(std::string source)
     };
 }
 
+bool organisation::genetic::movement::validate(data &source)
+{
+    if(directions.empty()) { std::cout << "movement::validate(false): directions is empty\r\n"; return false; }
+
+    for(auto &it: directions)
+    {
+/*        if(it.isempty())
+        { 
+            std::cout << "movement::validate(false): direction going nowhere\r\n"; 
+            return false; 
+        }
+*/
+        if((it.x < -1)||(it.x > 1)
+            ||(it.y < -1)||(it.y > 1)
+            ||(it.z < -1)||(it.z > 1))
+        {
+            std::cout << "movement::validate(false): direction out of bounds (" << it.x << "," << it.y << "," << it.z << ")\r\n"; 
+            return false;
+        }
+    }
+
+    return true;
+}
+
 void organisation::genetic::movement::generate(data &source)
 {
-    const int max_movements = 10;
-    int n = (std::uniform_int_distribution<int>{0, max_movements})(generator);
+    int n = (std::uniform_int_distribution<int>{MIN, MAX})(generator);
 
     for(int i = 0; i < n; ++i)
     {
-        int value = (std::uniform_int_distribution<int>{0, 27})(generator);
+        int value = (std::uniform_int_distribution<int>{0, 26})(generator);
         vector v1;
         if(v1.decode(value))
         {
@@ -60,12 +84,23 @@ void organisation::genetic::movement::generate(data &source)
 
 void organisation::genetic::movement::mutate(data &source)
 {
-    int n = (std::uniform_int_distribution<int>{0, (int)(directions.size() - 1)})(generator);
+    const int COUNTER = 15;
 
-    int value = (std::uniform_int_distribution<int>{0, 27})(generator);
-    vector v1;
-    v1.decode(value);
-    directions[n] = v1;   
+    int n = 0; 
+    int value = 0, old = 0;
+    int counter = 0;
+
+    do
+    {
+        n = (std::uniform_int_distribution<int>{0, (int)(directions.size() - 1)})(generator);
+        value = (std::uniform_int_distribution<int>{0, 26})(generator);
+
+        old = directions[n].encode();
+        vector v1;
+        v1.decode(value);
+        directions[n] = v1;   
+    } while((old == value)&&(counter++<COUNTER));    
+    std::cout << "movement before " << old << " after " << value << "\r\n";
 }
 
 void organisation::genetic::movement::copy(genetic *source, int src_start, int src_end, int dest_start)
@@ -87,11 +122,13 @@ void organisation::genetic::movement::copy(const movement &source)
 
 bool organisation::genetic::movement::equals(const movement &source)
 {
-    if(directions.size() != source.directions.size()) return false;
+    if(directions.size() != source.directions.size()) 
+        return false;
 
     for(int i = 0; i < directions.size(); ++i)
     {
-        if(directions[i] != source.directions[i]) return false;
+        if(directions[i] != source.directions[i]) 
+            return false;
     }
 
     return true;

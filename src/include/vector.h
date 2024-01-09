@@ -1,5 +1,6 @@
 #include "math.h"
 #include <string>
+#include <iostream>
 
 #ifndef _ORGANISATION_VECTOR
 #define _ORGANISATION_VECTOR
@@ -28,9 +29,14 @@ namespace organisation
             return { x / w, y / w, z / w, w };
         }
 
+        bool isempty()
+        {
+            return x == 0 && y == 0 && z == 0;
+        }
+
         bool decode(int index)
         {
-            if ((index >= 0) && (index <= 27))
+            if ((index >= 0) && (index <= 26))
             {
                 div_t r = div(index, 9);
                 z = (float)r.quot - 1;

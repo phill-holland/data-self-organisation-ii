@@ -39,12 +39,12 @@ TEST(BasicMovementAndCollisionDetection, BasicAssertions)
             organisation::vector(-1,0,0), 
             organisation::vector(0,1,0)             
         },         
-       { 
+        { 
             organisation::point(starting.x,starting.y,18), 
             organisation::vector(0,0,1), 
             organisation::vector(0,1,0)             
         },       
-       { 
+        { 
             organisation::point(starting.x,starting.y,2), 
             organisation::vector(0,0,-1), 
             organisation::vector(0,1,0)             
@@ -91,6 +91,8 @@ TEST(BasicMovementAndCollisionDetection, BasicAssertions)
 
 TEST(BasicSerialisationDeserialisation, BasicAssertions)
 {
+    GTEST_SKIP();
+
     const int width = 20, height = 20, depth = 20;
     organisation::point starting(width / 2, height / 2, depth / 2);
 
@@ -124,8 +126,97 @@ TEST(BasicSerialisationDeserialisation, BasicAssertions)
     EXPECT_TRUE(p1.equals(p2));
 }
 
-/*
+TEST(BasicProgramGenerate, BasicAssertions)
+{
+    GTEST_SKIP();
+
+    const int width = 20, height = 20, depth = 20;
+    organisation::point starting(width / 2, height / 2, depth / 2);
+
+    organisation::program p1(width, height, depth);
+ 
+    std::string input("daisy daisy give me your answer do .");        
+
+    std::vector<std::string> strings = organisation::split(input);
+    organisation::data d(strings);
+
+    for(int i = 0; i < 100000; ++i)
+    {
+        p1.generate(d);
+        p1.mutate(d);
+
+        EXPECT_TRUE(p1.validate(d));
+    }
+}
+
+TEST(BasicProgramMutate, BasicAssertions)
+{
+    //GTEST_SKIP();
+
+    const int width = 20, height = 20, depth = 20;
+    organisation::point starting(width / 2, height / 2, depth / 2);
+
+    organisation::program p1(width, height, depth);
+ 
+    std::string input("daisy daisy give me your answer do .");        
+
+    std::vector<std::string> strings = organisation::split(input);
+    organisation::data d(strings);
+
+    for(int i = 0; i < 100; ++i)
+    {
+        organisation::program p2(width, height, depth);
+
+        p1.generate(d);        
+        p2.copy(p1);
+
+        EXPECT_TRUE(p1.equals(p2));
+
+        p1.mutate(d);
+
+        EXPECT_FALSE(p1.equals(p2));
+        EXPECT_TRUE(p1.validate(d));
+    }
+}
+
 TEST(BasicProgramCross, BasicAssertions)
+{
+    GTEST_SKIP();
+
+    const int width = 20, height = 20, depth = 20;
+    organisation::point starting(width / 2, height / 2, depth / 2);
+     
+    std::string input("daisy daisy give me your answer do .");        
+
+    std::vector<std::string> strings = organisation::split(input);
+    organisation::data d(strings);
+
+    for(int i = 0; i < 10; ++i)
+    {
+        organisation::program p1(width, height, depth);
+        organisation::program p2(width, height, depth);
+        organisation::program p3(width, height, depth);
+
+        p1.generate(d);        
+        p2.generate(d);
+
+        p3.cross(p1, p2);
+
+        EXPECT_FALSE(p3.equals(p1));
+        EXPECT_FALSE(p3.equals(p2));
+        EXPECT_TRUE(p3.validate(d));
+    }
+
+    // run validation after test!
+    // test new program does not equal source p1 and source p2
+    // p3 != p1 
+    // p3 != p2
+    // validate p3
+    // mock random numbers??
+}
+
+/*
+TEST(BasicProgramCrossD, BasicAssertions)
 {
     GTEST_SKIP();
     

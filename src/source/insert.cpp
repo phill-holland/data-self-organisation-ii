@@ -30,9 +30,6 @@ bool organisation::genetic::insert::get()
 
 void organisation::genetic::insert::generate(data &source)
 {
-    //const int max = 15;
-    //const int max_interval = 5;
-
     int length = (std::uniform_int_distribution<int>{1, LENGTH})(generator);
 
     for(int i = 0; i < length; ++i)
@@ -44,12 +41,22 @@ void organisation::genetic::insert::generate(data &source)
 
 void organisation::genetic::insert::mutate(data &source)
 {    
-    //const int max_interval = 5;
+    const int COUNTER = 15;
 
-    int offset = (std::uniform_int_distribution<int>{0, (int)(values.size() - 1)})(generator);
-    int value = (std::uniform_int_distribution<int>{MIN, MAX})(generator);
-    
-    values[offset] = value;    
+    int offset = 0;
+    int value = 0, old = 0;
+    int counter = 0;
+
+    do
+    {
+        offset = (std::uniform_int_distribution<int>{0, (int)(values.size() - 1)})(generator);
+        value = (std::uniform_int_distribution<int>{MIN, MAX})(generator);
+
+        old = values[offset];        
+        values[offset] = value;
+
+    }while((old==value)&&(counter++<COUNTER));
+    std::cout << "insert before " << old << " after " << value << "\r\n";    
 }
 
 void organisation::genetic::insert::copy(genetic *source, int src_start, int src_end, int dest_start)
@@ -101,6 +108,22 @@ void organisation::genetic::insert::deserialise(std::string source)
     };
 }
 
+bool organisation::genetic::insert::validate(data &source)
+{
+    if(values.empty()) { std::cout << "insert::validate(false): values is empty\r\n"; return false; }
+
+    for(auto &it: values)
+    {
+        if((it < MIN)||(it > MAX))
+        { 
+            std::cout << "insert::validate(false): out of bounds\r\n"; 
+            return false; 
+        }
+    }
+
+    return true;
+}
+
 void organisation::genetic::insert::copy(const insert &source)
 {
     values.assign(source.values.begin(), source.values.end());
@@ -108,11 +131,13 @@ void organisation::genetic::insert::copy(const insert &source)
 
 bool organisation::genetic::insert::equals(const insert &source)
 {
-    if(values.size() != source.values.size()) return false;
+    if(values.size() != source.values.size()) 
+        return false;
 
     for(int i = 0; i < values.size(); ++i)
     {
-        if(values[i] != source.values[i]) return false;
+        if(values[i] != source.values[i]) 
+            return false;
     }
 
     return true;

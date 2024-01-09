@@ -1,6 +1,7 @@
 #include "genetic/cache.h"
 #include <sstream>
 #include <functional>
+#include <iostream>
 
 std::mt19937_64 organisation::genetic::cache::generator(std::random_device{}());
 
@@ -67,6 +68,36 @@ void organisation::genetic::cache::deserialise(std::string source)
     };
 }
 
+bool organisation::genetic::cache::validate(data &source)
+{
+    //if(values.empty()) { std::cout << "cache::validate(false): values empty\r\n"; return false; }
+    //if(points.empty()) { std::cout << "cache::validate(false): points empty\r\n"; return false; }
+
+    if(values.size() != points.size()) { std::cout << "cache::validate(false): values.size() != points.size()\r\n"; return false; }
+
+    for(auto &it: values)
+    {
+        int value = std::get<0>(it);
+
+        if(source.map(value).empty()) { std::cout << "cache::validate(false): map empty\r\n"; return false; }
+
+        point position = std::get<1>(it);
+
+        if(!position.inside(_width, _height, _depth))
+        {
+            std::cout << "cache::validate(false): invalid position\r\n"; 
+            return false; 
+        }
+
+        int index = ((_width * _height) * position.z) + ((position.y * _width) + position.x);
+
+        if(points.find(index) == points.end()) { std::cout << "cache::validate(false): point(index)\r\n"; return false; }
+        if(points[index] != position) { std::cout << "cache::validate(false): invalid position\r\n"; return false; }
+    }
+
+    return true;
+}
+
 void organisation::genetic::cache::generate(data &source)
 {
     clear();
@@ -96,19 +127,45 @@ void organisation::genetic::cache::generate(data &source)
 
 void organisation::genetic::cache::mutate(data &source)
 {
+    if(values.empty()) { std::cout << "not mutated\r\n"; return; }
+
     int offset = (std::uniform_int_distribution<int>{0, (int)(values.size() - 1)})(generator);
     
-    int value = std::get<0>(values[offset]);
+    //int value = std::get<0>(values[offset]);
     point p1;
 
     p1.generate(_width, _height, _depth);
     int index = ((_width * _height) * p1.z) + ((p1.y * _width) + p1.x);
 
-    if(points.find(index) != points.end()) p1 = std::get<1>(values[offset]);
+    //if(points.find(index) != points.end()) p1 = std::get<1>(values[offset]);
 
     std::vector<int> all = source.all();
     int t1 = (std::uniform_int_distribution<int>{0, (int)(all.size() - 1)})(generator);
-    value = all[t1];
+    int value = all[t1];
+
+    if(points.find(index) == points.end()) 
+    {
+        std::cout << "cache new point!\r\n";
+        points[index] = { };
+        points[index] = p1;
+        values.push_back(std::tuple<int,point>(value,p1));
+    }
+    else
+    {
+        for(auto &it: values)
+        {
+            point &temp = std::get<1>(it);
+            if(temp == p1) 
+            {   
+                std::cout << "cache before " << std::get<0>(it);             
+                std::get<0>(it) = value;
+
+                std::cout << " after " << std::get<0>(it) << "\r\n";
+
+                return;
+            }
+        }
+    }
 }
 
 void organisation::genetic::cache::copy(genetic *source, int src_start, int src_end, int dest_start)
@@ -143,21 +200,26 @@ void organisation::genetic::cache::copy(const cache &source)
 
 bool organisation::genetic::cache::equals(const cache &source)
 {
-    if(values.size() != source.values.size()) return false;
-    if(points.size() != source.points.size()) return false;
+    if(values.size() != source.values.size()) 
+        return false;
+    if(points.size() != source.points.size())
+        return false;
 
     for(int i = 0; i < values.size(); ++i)
     {
         std::tuple<int,point> a = values[i];
         std::tuple<int,point> b = source.values[i];
 
-        if(a != b) return false;
+        if(a != b) 
+            return false;
     }
 
     for(auto &it: points)
     {
-        if(source.points.find(it.first) == source.points.end()) return false;
-        if(!(source.points.at(it.first) == it.second)) return false;        
+        if(source.points.find(it.first) == source.points.end()) 
+            return false;
+        if(!(source.points.at(it.first) == it.second)) 
+            return false;        
     }
 
     return true;

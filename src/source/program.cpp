@@ -102,6 +102,7 @@ void organisation::program::mutate(data &source)
     const int components = sizeof(genes) / sizeof(templates::genetic*);
 
     const int idx = (std::uniform_int_distribution<int>{0, components - 1})(generator);
+    std::cout << "idx " << idx << "\r\n";
     genes[idx]->mutate(source);
 
 
@@ -449,21 +450,19 @@ std::string organisation::program::run(std::string input, data &source, int max,
 
 bool organisation::program::validate(data &source)
 {
-    /*
-    if(count() <= 0) 
-        return false;
+    templates::genetic *genes[] = 
+    { 
+        &caches,
+        &movement,
+        &collisions,
+        &insert
+    }; 
 
-    int gates = 0;
-    for(int i = 0; i < length; ++i)
+    for(auto &it: genes)
     {
-        std::tuple<bool,bool> temp = cells[i].validate(source.maximum());
-        if(!std::get<0>(temp)) return false;
-        if(std::get<1>(temp)) ++gates;
+        if(!it->validate(source)) return false;
     }
 
-    if(gates <= 0) 
-        return false;
-    */
     return true;
 }
 

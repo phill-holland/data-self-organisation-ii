@@ -34,6 +34,8 @@ namespace organisation
             std::string serialise();
             void deserialise(std::string source);
 
+            bool validate(data &source);
+
         public:
             void copy(const collisions &source);
             bool equals(const collisions &source);

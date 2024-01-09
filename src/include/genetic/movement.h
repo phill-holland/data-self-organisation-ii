@@ -17,6 +17,8 @@ namespace organisation
         {
             static std::mt19937_64 generator;
 
+            static const int MIN = 1, MAX = 10;
+            
         public:
             std::vector<organisation::vector> directions;
 
@@ -36,6 +38,8 @@ namespace organisation
 
             std::string serialise();
             void deserialise(std::string source);
+
+            bool validate(data &source);
 
         public:
             void generate(data &source);

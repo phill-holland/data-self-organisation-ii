@@ -1,24 +1,37 @@
 #include "genetic/collisions.h"
 #include <sstream>
 #include <functional>
+#include <iostream>
 
 std::mt19937_64 organisation::genetic::collisions::generator(std::random_device{}());
 
 void organisation::genetic::collisions::generate(data &source)
 {
-    for(int i = 0; i <= 27; ++i)
+    for(int i = 0; i < 26; ++i)
     {
-        int value = (std::uniform_int_distribution<int>{0, 27})(generator);
+        int value = (std::uniform_int_distribution<int>{0, 26})(generator);
         values.push_back(value);
     }
 }
 
 void organisation::genetic::collisions::mutate(data &source)
 {
-    int offset = (std::uniform_int_distribution<int>{0, (int)(values.size() - 1)})(generator);
-    int value = (std::uniform_int_distribution<int>{0, 27})(generator);
-    
-    values[offset] = value;
+    const int COUNTER = 15;
+
+    int offset = 0;
+    int value = 0, old = 0;
+    int counter = 0;   
+
+    do
+    {
+        offset = (std::uniform_int_distribution<int>{0, (int)(values.size() - 1)})(generator);
+        value = (std::uniform_int_distribution<int>{0, 26})(generator);
+
+        old = values[offset];
+        values[offset] = value;
+
+    }while((old == value)&&(counter++<COUNTER));
+    std::cout << "collisions before " << old << " after " << value << "\r\n";    
 }
 
 void organisation::genetic::collisions::copy(genetic *source, int src_start, int src_end, int dest_start)
@@ -75,6 +88,21 @@ void organisation::genetic::collisions::deserialise(std::string source)
     };
 }
 
+bool organisation::genetic::collisions::validate(data &source)
+{
+    if(values.size() != 26) { std::cout << "collisions::validate(false): values.size() != 26 (" << values.size() << ")\r\n"; return false; }
+    
+    for(auto &it: values)
+    {
+        if((it < 0)||(it >= 27)) 
+        { 
+            std::cout << "collisions::validate(false): it < 0 || it > 27\r\n"; 
+            return false; }
+    }
+
+    return true;
+}
+
 void organisation::genetic::collisions::copy(const collisions &source)
 {
     values.assign(source.values.begin(), source.values.end());
@@ -82,11 +110,13 @@ void organisation::genetic::collisions::copy(const collisions &source)
 
 bool organisation::genetic::collisions::equals(const collisions &source)
 {
-    if(values.size() != source.values.size()) return false;
+    if(values.size() != source.values.size()) 
+        return false;
 
     for(int i = 0; i < values.size(); ++i)
     {
-        if(values[i] != source.values[i]) return false;
+        if(values[i] != source.values[i]) 
+            return false;
     }
 
     return true;
