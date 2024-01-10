@@ -76,7 +76,7 @@ namespace organisation
         bool equals(const program &source);
 
     public:
-        void cross(program &a, program &b, int middle = -1);
+        bool cross(program &a, program &b, int middle = -1);
 
     public:
         std::string serialise();

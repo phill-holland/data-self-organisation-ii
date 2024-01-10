@@ -151,7 +151,7 @@ TEST(BasicProgramGenerate, BasicAssertions)
 
 TEST(BasicProgramMutate, BasicAssertions)
 {
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
     organisation::point starting(width / 2, height / 2, depth / 2);
@@ -181,7 +181,7 @@ TEST(BasicProgramMutate, BasicAssertions)
 
 TEST(BasicProgramCross, BasicAssertions)
 {
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
     organisation::point starting(width / 2, height / 2, depth / 2);
@@ -191,8 +191,10 @@ TEST(BasicProgramCross, BasicAssertions)
     std::vector<std::string> strings = organisation::split(input);
     organisation::data d(strings);
 
-    for(int i = 0; i < 10; ++i)
+    for(int i = 0; i < 100; ++i)
     {
+std::cout << "i " << i << "\r\n";
+
         organisation::program p1(width, height, depth);
         organisation::program p2(width, height, depth);
         organisation::program p3(width, height, depth);

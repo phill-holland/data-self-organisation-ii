@@ -73,7 +73,9 @@ bool organisation::genetic::cache::validate(data &source)
     //if(values.empty()) { std::cout << "cache::validate(false): values empty\r\n"; return false; }
     //if(points.empty()) { std::cout << "cache::validate(false): points empty\r\n"; return false; }
 
-    if(values.size() != points.size()) { std::cout << "cache::validate(false): values.size() != points.size()\r\n"; return false; }
+    if(values.size() != points.size()) { std::cout << "cache::validate(false): values.size(" << values.size() << ") != points.size(" << points.size() << ")\r\n"; return false; }
+
+    std::unordered_map<int, point> duplicates;
 
     for(auto &it: values)
     {
@@ -90,6 +92,13 @@ bool organisation::genetic::cache::validate(data &source)
         }
 
         int index = ((_width * _height) * position.z) + ((position.y * _width) + position.x);
+        if(duplicates.find(index) == duplicates.end())
+            duplicates[index] = position;
+        else
+        {
+            std::cout << "cache::validate(false): duplicate position\r\n"; 
+            return false;  
+        }
 
         if(points.find(index) == points.end()) { std::cout << "cache::validate(false): point(index)\r\n"; return false; }
         if(points[index] != position) { std::cout << "cache::validate(false): invalid position\r\n"; return false; }
@@ -170,6 +179,8 @@ void organisation::genetic::cache::mutate(data &source)
 
 void organisation::genetic::cache::copy(genetic *source, int src_start, int src_end, int dest_start)
 {
+std::cout << "cache::copy " << src_start << "," << src_end << "," << dest_start << "\r\n";    
+
     cache *s = dynamic_cast<cache*>(source);
     int length = src_end - src_start;
     if(values.size() < (length + dest_start)) values.resize(length + dest_start);

@@ -10,7 +10,8 @@ void organisation::genetic::collisions::generate(data &source)
     for(int i = 0; i < 26; ++i)
     {
         int value = (std::uniform_int_distribution<int>{0, 26})(generator);
-        values.push_back(value);
+        values[i] = value;
+        //values.push_back(value);
     }
 }
 
@@ -36,8 +37,12 @@ void organisation::genetic::collisions::mutate(data &source)
 
 void organisation::genetic::collisions::copy(genetic *source, int src_start, int src_end, int dest_start)
 {
-#warning needs fix length splicing here
+std::cout << "collisions::copy " << src_start << "," << src_end << "," << dest_start << "\r\n";        
+
     collisions *s = dynamic_cast<collisions*>(source);
+
+    clear();
+    //values.resize(LEN
 
     // ignore dest_start ??        
     int length = src_end - src_start;

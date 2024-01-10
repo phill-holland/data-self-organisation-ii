@@ -61,6 +61,8 @@ void organisation::genetic::insert::mutate(data &source)
 
 void organisation::genetic::insert::copy(genetic *source, int src_start, int src_end, int dest_start)
 {
+std::cout << "insert::copy " << src_start << "," << src_end << "," << dest_start << "\r\n";    
+
     insert *s = dynamic_cast<insert*>(source);
 
     int length = src_end - src_start;  

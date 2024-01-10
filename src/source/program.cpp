@@ -217,7 +217,7 @@ std::string organisation::program::run(std::string input, data &source, int max,
         temp.direction = vector(0,0,0);        
         temp.index = -1;
 
-        if(!(temp.current == starting))
+        if(temp.current != starting)
             stationary.push_back(temp);
     }
     
@@ -489,7 +489,7 @@ bool organisation::program::equals(const program &source)
     return true;
 }
 
-void organisation::program::cross(program &a, program &b, int middle)
+bool organisation::program::cross(program &a, program &b, int middle)
 {
     clear();
 
@@ -522,14 +522,24 @@ void organisation::program::cross(program &a, program &b, int middle)
     for(int i = 0; i < components; ++i)
     {
         int length = ag[i]->size() - 1;
+        if(length < 0) 
+            return false;
 
         int sa = 0, ea = 0;
 
-        do
+        if(length > 0)
         {
-            sa = (std::uniform_int_distribution<int>{ 0, length })(generator);
-            ea = (std::uniform_int_distribution<int>{ 0, length })(generator);
-        } while(sa == ea);
+            do
+            {
+                sa = (std::uniform_int_distribution<int>{ 0, length })(generator);
+                ea = (std::uniform_int_distribution<int>{ 0, length })(generator);
+            } while(sa == ea);
+        }
+        else 
+        {
+            sa = 0;
+            ea = 1;
+        }
         
         if(ea < sa) 
         {
@@ -541,14 +551,24 @@ void organisation::program::cross(program &a, program &b, int middle)
         // ***
 
         length = bg[i]->size() - 1;
+        if(length < 0) 
+            return false;
 
         int sb = 0, eb = 0;
 
-        do
+        if(length > 0)
         {
-            sb = (std::uniform_int_distribution<int>{ 0, length })(generator);
-            eb = (std::uniform_int_distribution<int>{ 0, length })(generator);
-        } while(sb == eb);
+            do
+            {
+                sb = (std::uniform_int_distribution<int>{ 0, length })(generator);
+                eb = (std::uniform_int_distribution<int>{ 0, length })(generator);
+            } while(sb == eb);
+        }
+        else
+        {
+            sb = 0;
+            eb = 1;
+        }
         
         if(eb < sb) 
         {
@@ -561,8 +581,10 @@ void organisation::program::cross(program &a, program &b, int middle)
 
         dest[i]->copy(ag[i], 0, sa, 0); // dest idx, start = 0, len = sa        
         dest[i]->copy(bg[i], sb, eb, sa); // dest idx, start = sa, len - eb -sb
-        dest[i]->copy(ag[i], eb, ag[i]->size(), (eb - sb) + sa); //(eb-sb) + sa, len, ag[i] - 
+        dest[i]->copy(ag[i], ea, ag[i]->size(), (eb - sb) + sa); //(eb-sb) + sa, len, ag[i] - 
     }
+
+    return true;
     //std::vector<int> lengths1;// = { (int)cache.size(), (int)movements.size(), (int)collisions.size() };
     //std::vector<int> lengths2;
     
