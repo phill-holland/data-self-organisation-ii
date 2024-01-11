@@ -4,6 +4,7 @@
 #include "program.h"
 #include "schema.h"
 #include "data.h"
+#include "output.h"
 
 #ifndef _PARALLEL_PROGRAM
 #define _PARALLEL_PROGRAM
@@ -48,13 +49,8 @@ namespace organisation
 
             int size() { return length; }
         };
-
-        class output
-        {
-        public:
-            std::vector<std::string> values;
-        };
-        
+    
+#warning needs to inherit from public templates::programs
         class program
         {
             ::parallel::device *dev;

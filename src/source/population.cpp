@@ -171,14 +171,14 @@ organisation::populations::results organisation::populations::population::execut
     programs->set(positions, settings.q);
     programs->run(settings.q);
 
-    std::vector<organisation::parallel::output> values = programs->get(settings.mappings, settings.q);
+    std::vector<organisation::output> values = programs->get(settings.mappings, settings.q);
     
     
     results result;
     std::vector<std::string> current;
 
     int i = 0;
-    std::vector<organisation::parallel::output>::iterator it;    
+    std::vector<organisation::output>::iterator it;    
     for(i = 0, it = values.begin(); it != values.end(); it++, i++)    
     {
         buffer[i]->compute(combine(expected, it->values));

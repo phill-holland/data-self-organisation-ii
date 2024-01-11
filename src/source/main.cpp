@@ -1,6 +1,5 @@
 #include "population.h"
 #include "data.h"
-#include "history.h"
 #include "general.h"
 #include <iostream>
 #include <string.h>
@@ -8,6 +7,7 @@
 #include "fifo.h"
 #include "schema.h"
 #include "vector.h"
+#include "output.h"
 
 #include "parallel/device.hpp"
 #include "parallel/queue.hpp"
@@ -111,7 +111,7 @@ bool single(organisation::schema &schema, organisation::data &mappings, organisa
 
     p_program.run(q);
 
-    std::vector<organisation::parallel::output> results = p_program.get(mappings, q);
+    std::vector<organisation::output> results = p_program.get(mappings, q);
     
     int index = 0;
     for(std::vector<std::string>::iterator it = expected.begin(); it != expected.end(); ++it)

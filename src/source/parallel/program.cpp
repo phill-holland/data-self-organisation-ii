@@ -314,7 +314,7 @@ void organisation::parallel::program::set(std::vector<sycl::float4> positions, :
     */
 }
 
-std::vector<organisation::parallel::output> organisation::parallel::program::get(organisation::data &mappings, ::parallel::queue *q)
+std::vector<organisation::output> organisation::parallel::program::get(organisation::data &mappings, ::parallel::queue *q)
 {    
     std::vector<output> results(clients);
 /*

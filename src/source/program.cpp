@@ -50,43 +50,6 @@ void organisation::program::generate(data &source)
     {
         genes[i]->generate(source);
     }
-/*
-    const int max_repeats = 2;
-    const int max_cache = source.maximum();
-
-    std::vector<int> raw = source.all();
-    
-    for(auto &it: raw)
-    {
-        int n = (std::uniform_int_distribution<int>{0, max_repeats})(generator);
-        for(int i = 0; i < n; ++i)
-        {
-            point p1;
-            p1.generate(_width, _height, _depth);
-            int index = ((_width * _height) * p1.z) + ((p1.y * _width) + p1.x);
-            if(points.find(index) == points.end())
-            {
-                cache.push_back(std::tuple<int,point>(it,p1));
-                if(cache.size() >= max_cache) return;
-            }
-        }
-    }
-
-    const int max_duplicate_insert = 2;
-    int n = (std::uniform_int_distribution<int>{1, max_duplicate_insert})(generator);
-    for(int i = 0; i <= n; ++i)
-    {
-        movement m1;
-        m1.generate(_width, _height, _depth);
-        movements.push_back(m1);
-    }
-
-    for(int i = 0; i <= 27; ++i)
-    {
-        int value = (std::uniform_int_distribution<int>{0, 27})(generator);
-        collisions.push_back(value);
-    }
-*/
 }
 
 void organisation::program::mutate(data &source)
@@ -102,57 +65,10 @@ void organisation::program::mutate(data &source)
     const int components = sizeof(genes) / sizeof(templates::genetic*);
 
     const int idx = (std::uniform_int_distribution<int>{0, components - 1})(generator);
-    std::cout << "idx " << idx << "\r\n";
-    genes[idx]->mutate(source);
-
-
-    /*
-    std::vector<int> lengths = { (int)cache.size(), (int)movements.size(), (int)collisions.size() };
-    int total = 0;
-    for(int i = 0; i < lengths.size(); ++i)
-    {
-        total += lengths[i];
-    }
-
-    int j = (std::uniform_int_distribution<int>{0, total - 1})(generator);
-    int index = 0;
-    int running = lengths[0];
-    for(int i = 1; i < lengths.size(); ++i)
-    {
-        if(j < running) break;
-        ++index;
-        running += lengths[i];
-    }
-
-    int offset = j - running;
-
-    if(index == 0)
-    {
-        int value = std::get<0>(cache[offset]);
-        point p1;
-
-        p1.generate(_width, _height, _depth);
-        int index = ((_width * _height) * p1.z) + ((p1.y * _width) + p1.x);
-
-        if(points.find(index) != points.end()) p1 = std::get<1>(cache[offset]);
-
-        std::vector<int> all = source.all();
-        int t1 = (std::uniform_int_distribution<int>{0, (int)(all.size() - 1)})(generator);
-        value = all[t1];
-    }
-    else if(index == 1)
-    {
-        movements[offset].mutate(_width, _height, _depth);
-    }
-    else if(index == 2)
-    {
-        int value = (std::uniform_int_distribution<int>{0, 27})(generator);
-        collisions[offset] = value;
-    }
-    */
+    genes[idx]->mutate(source);    
 }
 
-std::string organisation::program::run(std::string input, data &source, int max, history *destination)
+std::string organisation::program::run(std::string input, data &source, int max)
 {
     auto offset = [this](point &src)
     {
@@ -584,69 +500,7 @@ bool organisation::program::cross(program &a, program &b, int middle)
         dest[i]->copy(ag[i], ea, ag[i]->size(), (eb - sb) + sa); //(eb-sb) + sa, len, ag[i] - 
     }
 
-    return true;
-    //std::vector<int> lengths1;// = { (int)cache.size(), (int)movements.size(), (int)collisions.size() };
-    //std::vector<int> lengths2;
-    
-    /*
-    lengths1.push_back(a.cache.size());    
-    for(auto &it:a.movements)
-    {
-        lengths1.push_back(it.directions.size() + 1);
-    }
-    lengths1.push_back(a.collisions.size());
-
-    lengths2.push_back(b.cache.size());    
-    for(auto &it: b.movements)
-    {
-        lengths2.push_back(it.directions.size() + 1);
-    }
-    lengths2.push_back(b.collisions.size());
-    */
-    /*
-    if((a.length != b.length)||(length != a.length)) return;
-
-    int a1 = 0, b1 = 0;
-    if(middle < 0)
-    {
-        while(a1 == b1)
-        {
-            a1 = (std::uniform_int_distribution<int>{0, (int)(length - 1)})(generator);
-            b1 = (std::uniform_int_distribution<int>{0, (int)(length - 1)})(generator);
-        };
-
-        if(a1 > b1)
-        {
-            int temp = a1;
-            a1 = b1;
-            b1 = temp;
-        }
-    }
-    else
-    {
-        a1 = middle;
-        b1 = length;
-    }
-
-    int index = 0;
-    for(int i = 0; i < a1; ++i)
-    {
-        cells[index].copy(a.cells[i]);
-		++index;
-    }
-
-    for(int i = a1; i < b1; ++i)
-    {
-        cells[index].copy(b.cells[i]);
-        ++index;
-    }
-
-    for(int i = b1; i < length; ++i)
-    {
-        cells[index].copy(a.cells[i]);
-        ++index;
-    } 
-    */   
+    return true;    
 }
 
 std::string organisation::program::serialise()

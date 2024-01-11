@@ -1,6 +1,5 @@
 #include "data.h"
 #include "point.h"
-#include "history.h"
 #include "genetic/movement.h"
 #include "genetic/cache.h"
 #include "genetic/collisions.h"
@@ -12,8 +11,8 @@
 #include <unordered_map>
 #include <tuple>
 
-#ifndef _ORGANISATION_PROGRAM
-#define _ORGANISATION_PROGRAM
+#ifndef _ORGANISATION_PARALLEL_PROGRAM
+#define _ORGANISATION_PARALLEL_PROGRAM
 
 namespace organisation
 {    
@@ -63,7 +62,7 @@ namespace organisation
         void generate(data &source);  
         void mutate(data &source);
 
-        std::string run(std::string input, data &source, int max = MAX, history *destination = NULL);        
+        std::string run(std::string input, data &source, int max = MAX);
 
         bool validate(data &source);
 

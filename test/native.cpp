@@ -191,10 +191,8 @@ TEST(BasicProgramCross, BasicAssertions)
     std::vector<std::string> strings = organisation::split(input);
     organisation::data d(strings);
 
-    for(int i = 0; i < 100; ++i)
+    for(int i = 0; i < 1000; ++i)
     {
-std::cout << "i " << i << "\r\n";
-
         organisation::program p1(width, height, depth);
         organisation::program p2(width, height, depth);
         organisation::program p3(width, height, depth);
@@ -208,166 +206,11 @@ std::cout << "i " << i << "\r\n";
         EXPECT_FALSE(p3.equals(p2));
         EXPECT_TRUE(p3.validate(d));
     }
-
-    // run validation after test!
-    // test new program does not equal source p1 and source p2
-    // p3 != p1 
-    // p3 != p2
-    // validate p3
-    // mock random numbers??
 }
 
 /*
-TEST(BasicProgramCrossD, BasicAssertions)
-{
-    GTEST_SKIP();
-    
-    const int width = 10, height = 10, depth = 10;
-    organisation::program p1(width,height,depth), p2(width,height,depth);
 
-    std::vector<std::string> expected = organisation::split("daisy daisy give me your answer do . I'm half crazy for the love of you .");
-    
-    std::vector<std::string> strings1 = organisation::split("daisy daisy give me your answer do .");
-    organisation::data d(expected);
 
-    organisation::vector up = { 0,1,0 } ,left = { 1,0,0 };
-    organisation::vector down = { 0,-1,0 } ,right = { -1,0,0 };
-
-    std::vector<organisation::vector> in1 = { up, up, left, up, left, up, left, up };
-    std::vector<organisation::vector> out1 = { down, right, down, right, down, right, down, right };
-
-    int x = width - 1;
-    int y = height - 1;
-    int z = depth - 1;
-
-    int magnitude = 1;
-
-    for(int i = 0; i < strings1.size(); ++i)
-    {
-        int value = d.map(strings1[i]);
-        
-        organisation::vector _out = out1[i];
-
-        //p1.set(in1[i], _out, magnitude, x, y, z);
-        //p1.set(value, x, y, z);
-
-        x += _out.x;
-        y += _out.y;
-        z += _out.z;
-    }
-
-    // ***
-    int offset = (z * (width * height)) + (width * y) + x;
-
-    std::vector<std::string> strings2 = organisation::split("I'm half crazy for the love of you .");
-
-    organisation::vector back = { 0, 0, -1 };
-    organisation::vector forward = { 0, 0, 1 };
-
-    std::vector<organisation::vector> in2 = { left, forward, forward, forward, forward, forward, forward, forward, forward };
-    std::vector<organisation::vector> out2 = { back, back, back, back, back, back, back, back, back };
-    
-    for(int i = 0; i < strings2.size(); ++i)
-    {
-        int value = d.map(strings2[i]);
-
-        organisation::vector _out = out2[i];
-
-        //p2.set(in2[i], _out, magnitude, x, y, z);
-        //p2.set(value, x, y, z);
-
-        x += _out.x;
-        y += _out.y;
-        z += _out.z;
-    }
-    
-    // ***
-
-    organisation::program result(width,height,depth);
-    result.cross(p2, p1, offset + 1);
-
-    std::vector<std::string> outputs = organisation::split(result.run(0, d));
-
-    EXPECT_EQ(result.count(), 17);
-    EXPECT_EQ(outputs, expected);    
-    
-}
-
-TEST(BasicProgramExecutionWithMagnitude, BasicAssertions)
-{    
-    GTEST_SKIP();
-
-    const int width = 10, height = 10, depth = 10;
-    organisation::program p(width,height,depth);
-
-    std::vector<std::string> expected = organisation::split("daisy daisy give me");
-    
-    std::vector<std::string> strings = organisation::split("daisy daisy give me");
-    organisation::data d(strings);
-
-    organisation::vector up = { 0,1,0 } ,left = { 1,0,0 };
-    organisation::vector down = { 0,-1,0 } ,right = { -1,0,0 };
-
-    std::vector<organisation::vector> in = { up, up, left, up  };
-    std::vector<organisation::vector> out = { down, right, down, right };
-
-    int x = width - 1;
-    int y = height - 1;
-    int z = depth - 1;
-
-    int magnitude = 2;
-
-    for(int i = 0; i < strings.size(); ++i)
-    {
-        int value = d.map(strings[i]);
-        
-        organisation::vector out1 = out[i];
-
-        //p.set(in[i], out1, magnitude, x, y, z);
-        //p.set(value, x, y, z);
-
-        x += (out1.x * magnitude);
-        y += (out1.y * magnitude);
-        z += (out1.z * magnitude);
-    }
-
-    std::vector<std::string> outputs = organisation::split(p.run(0, d));
-
-    EXPECT_EQ(p.count(), 4);
-    EXPECT_EQ(outputs, expected);        
-}
-
-TEST(BasicProgramGenerationAndMutation, BasicAssertions)
-{
-    GTEST_SKIP();
-
-std::string source = R"(daisy daisy give me your answer do .
-I'm half crazy for the love of you .
-it won't be a stylish marriage .
-I can't afford a carriage .
-but you'll look sweet upon the seat .
-of a bicycle built for two .
-)";
-
-    const int width = 10, height = 10, depth = 10;
-    organisation::program p1(width,height,depth), p2(width,height,depth);
-        
-    std::vector<std::string> strings = organisation::split(source);
-    organisation::data d(strings);
-
-    p1.generate(d);
-
-    EXPECT_TRUE(p1.validate(d));
-
-    p2.copy(p1);
-
-    EXPECT_TRUE(p1.equals(p2));
-
-    p2.mutate(d);
-
-    EXPECT_TRUE(p2.validate(d));   
-    EXPECT_FALSE(p2.equals(p1));   
-}
 
 TEST(BasicProgramScores, BasicAssertions)
 {

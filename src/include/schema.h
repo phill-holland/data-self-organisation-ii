@@ -25,7 +25,7 @@ namespace organisation
 
     public:
         schema(int width, int height, int depth) : prog(width, height, depth) { makeNull(); reset(); }        
-        schema(const schema &source) : prog(1,1,1) { copy(source); }
+        //schema(const schema &source) : prog(1,1,1) { copy(source); }
         ~schema() { cleanup(); }
 
     public:
@@ -52,7 +52,7 @@ namespace organisation
         void mutate(data &source);
 
     public:
-        std::string run(int epoch, std::string input, std::string expected, data &source, history *destination = NULL);           
+        std::string run(int epoch, std::string input, std::string expected, data &source);
 
     public:
         void copy(const schema &source);
