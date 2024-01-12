@@ -19,29 +19,21 @@ namespace organisation
             const static int HEIGHT = 5;
             const static int DEPTH = 5;
 
-            const static int IN = 3;
-            const static int OUT = 3;
-
             const static int EPOCHS = 1;
 
             int length;
 
         public:
             int width, height, depth;
-            int in, out;
             int epochs;
 
         public:
-            parameters(int _width = WIDTH, int _height = HEIGHT, int _depth = DEPTH, 
-                       int _in = IN, int _out = OUT, int _epochs = EPOCHS) 
+            parameters(int _width = WIDTH, int _height = HEIGHT, int _depth = DEPTH, int _epochs = EPOCHS) 
             {
                 width = _width;
                 height = _height;
                 depth = _depth;
                 
-                in = _in;
-                out = _out;
-
                 length = _width * _height * _depth;
 
                 epochs = EPOCHS;

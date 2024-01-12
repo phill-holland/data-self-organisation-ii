@@ -33,12 +33,11 @@ const int device = 0;
 const int rounds = 15;
 const int population = 4000, clients = 3500;
 const int iterations = 1000;
+const int width = 5, height = 5, depth = 5;
 
 organisation::parallel::parameters get()
-{
-    const int width = 5, height = 5, depth = 5, in = 15, out = 10;
-
-    organisation::parallel::parameters parameters(width, height, depth, in, out);
+{    
+    organisation::parallel::parameters parameters(width, height, depth);
     parameters.epochs = expected.size();
     return parameters; 
 }
@@ -49,22 +48,25 @@ organisation::schema run(organisation::parallel::parameters parameters, organisa
 	::parallel::queue *q = new parallel::queue(*dev);
     
     organisation::populations::parameters settings;
-    settings.params = parameters;
-    settings.dev = dev;
-    settings.q = q;
+    //settings.params = parameters;
+    //settings.dev = dev;
+    //settings.q = q;
     settings.expected = expected;
+    settings.width = width;
+    settings.height = height;
+    settings.depth = depth;
     settings.mappings = mappings;
     settings.clients = clients;
     settings.size = population;
     
-    organisation::populations::population p(settings);
+    organisation::populations::population p(NULL, settings);
 
     int actual = 0;
 
     p.clear();
     p.generate();
 
-    organisation::schema best(settings.params.width,settings.params.height,settings.params.depth);
+    organisation::schema best(width,height,depth);
     best.copy(p.go(expected, actual, iterations));
 
     if(actual <= iterations) 

@@ -9,10 +9,11 @@
 
 std::mt19937_64 organisation::populations::population::generator(std::random_device{}());
 
-void organisation::populations::population::reset(parameters &params)
+void organisation::populations::population::reset(templates::programs *programs, parameters &params)
 {
     init = false; cleanup();
 
+    this->programs = programs;
     settings = params;
 
     dimensions = 0;
@@ -23,7 +24,7 @@ void organisation::populations::population::reset(parameters &params)
         dimensions += (t.size() * 2) + 1;
     }
 
-    schemas = new organisation::schemas(settings.params.width, settings.params.height, settings.params.depth, settings.size);
+    schemas = new organisation::schemas(settings.width, settings.height, settings.depth, settings.size);
     if (schemas == NULL) return;
     if (!schemas->initalised()) return;
 
@@ -32,7 +33,7 @@ void organisation::populations::population::reset(parameters &params)
     for(int i = 0; i < settings.clients; ++i) intermediateA[i] = NULL;
     for(int i = 0; i < settings.clients; ++i)
     {
-        intermediateA[i] = new organisation::schema(settings.params.width, settings.params.height, settings.params.depth);
+        intermediateA[i] = new organisation::schema(settings.width, settings.height, settings.depth);
         if(intermediateA[i] == NULL) return;
         if(!intermediateA[i]->initalised()) return;
     }
@@ -42,7 +43,7 @@ void organisation::populations::population::reset(parameters &params)
     for(int i = 0; i < settings.clients; ++i) intermediateB[i] = NULL;
     for(int i = 0; i < settings.clients; ++i)
     {
-        intermediateB[i] = new organisation::schema(settings.params.width, settings.params.height, settings.params.depth);
+        intermediateB[i] = new organisation::schema(settings.width, settings.height, settings.depth);
         if(intermediateB[i] == NULL) return;
         if(!intermediateB[i]->initalised()) return;
     }
@@ -52,14 +53,16 @@ void organisation::populations::population::reset(parameters &params)
     for(int i = 0; i < settings.clients; ++i) intermediateC[i] = NULL;
     for(int i = 0; i < settings.clients; ++i)
     {
-        intermediateC[i] = new organisation::schema(settings.params.width, settings.params.height, settings.params.depth);
+        intermediateC[i] = new organisation::schema(settings.width, settings.height, settings.depth);
         if(intermediateC[i] == NULL) return;
         if(!intermediateC[i]->initalised()) return;
     }
 
+    /*
     programs = new parallel::program(*settings.dev, settings.params, settings.clients);
     if (programs == NULL) return;
     if (!programs->initalised()) return;
+    */
 
     init = true;
 }
@@ -80,7 +83,7 @@ organisation::schema organisation::populations::population::go(std::vector<std::
     bool finished = false;
     count = 0;
 
-    schema res(settings.params.width, settings.params.height, settings.params.depth);
+    schema res(settings.width, settings.height, settings.depth);
 
     organisation::schema **set = intermediateC, **run = intermediateA, **get = intermediateB;
 
@@ -151,21 +154,21 @@ organisation::populations::results organisation::populations::population::execut
 
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();   
 
-    int x1 = settings.params.width / 2;
-    int y1 = settings.params.height / 2;
-    int z1 = settings.params.depth / 2;
+    int x1 = settings.width / 2;
+    int y1 = settings.height / 2;
+    int z1 = settings.depth / 2;
 
     organisation::vector w {0,1,0};
 
-    std::vector<sycl::float4> positions;
-
+    //std::vector<sycl::float4> positions;
+/*
     int j = 0;
     for(std::vector<std::string>::iterator it = expected.begin(); it != expected.end(); ++it)
     {
         positions.push_back( { x1 + j, y1, z1, w.encode() } );
         ++j;
     }
-
+    
     programs->clear(settings.q);
     programs->copy(buffer, settings.clients, settings.q);
     programs->set(positions, settings.q);
@@ -173,6 +176,15 @@ organisation::populations::results organisation::populations::population::execut
 
     std::vector<organisation::output> values = programs->get(settings.mappings, settings.q);
     
+    */
+
+    programs->clear();
+    programs->copy(buffer, settings.clients);
+    #warning need to set program inputs and expected values
+    //programs->set();
+    programs->run(settings.mappings);
+
+    std::vector<organisation::output> values = programs->get(settings.mappings);
     
     results result;
     std::vector<std::string> current;

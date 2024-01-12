@@ -3,6 +3,7 @@
 #include "schema.h"
 #include "data.h"
 #include "output.h"
+#include "input.h"
 
 #ifndef _ORGANISATION_SEQUENTIAL_PROGRAM
 #define _ORGANISATION_SEQUENTIAL_PROGRAM
@@ -45,6 +46,8 @@ namespace organisation
             parameters params;
 
             ::organisation::schema **schemas;
+            ::organisation::output *results;
+            ::organisation::inputs::input *inputs;
 
             int clients;
             
@@ -63,7 +66,9 @@ namespace organisation
 
             void clear();
 
-            void run();        
+            void run(organisation::data &mappings);        
+
+            void set(std::vector<inputs::input> &source);
             std::vector<output> get(organisation::data &mappings);
 
         public:

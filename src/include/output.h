@@ -10,6 +10,12 @@ namespace organisation
     {
     public:
         std::vector<std::string> values;
+
+    public:
+        void clear()
+        {
+            values.clear();
+        }
     };
 };
 

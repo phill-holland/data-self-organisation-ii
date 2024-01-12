@@ -1,11 +1,13 @@
+#include "templates/programs.h"
 #include "schema.h"
 #include "data.h"
 #include "fifo.h"
 #include "schemas.h"
-#include "parallel/program.hpp"
+//#include "parallel/program.hpp"
 #include "parameters.h"
 #include "region.h"
 #include "results.h"
+
 #include <random>
 #include <atomic>
 
@@ -25,7 +27,8 @@ namespace organisation
             organisation::schemas *schemas;            
             organisation::schema **intermediateA, **intermediateB, **intermediateC;
 
-            parallel::program *programs;
+            templates::programs *programs;
+            //parallel::program *programs;
 
             int dimensions;
 
@@ -34,11 +37,11 @@ namespace organisation
             bool init;
 
         public:
-            population(parameters &params) { makeNull(); reset(params); }
+            population(templates::programs *programs, parameters &params) { makeNull(); reset(programs, params); }
             ~population() { cleanup(); }
 
             bool initalised() { return init; }
-            void reset(parameters &params);
+            void reset(templates::programs *programs, parameters &params);
 
             void clear();
                     

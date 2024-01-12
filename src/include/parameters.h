@@ -11,11 +11,12 @@ namespace organisation
         class parameters
         {
         public:
-            ::parallel::device *dev;
-            ::parallel::queue *q;
+            //::parallel::device *dev;
+            //::parallel::queue *q;
             
-            parallel::parameters params;
-        
+            //parallel::parameters params;
+            int width, height, depth;
+
             organisation::data mappings;
             std::vector<std::string> expected;
 

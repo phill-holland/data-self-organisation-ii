@@ -18,7 +18,7 @@ namespace organisation
 
         public:
             virtual void clear() = 0;
-            virtual void run() = 0;
+            virtual void run(organisation::data &mappings) = 0;
 
             virtual std::vector<output> get(organisation::data &mappings) = 0;
 
