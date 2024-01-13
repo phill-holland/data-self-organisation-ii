@@ -3,11 +3,10 @@
 #include "data.h"
 #include "fifo.h"
 #include "schemas.h"
-//#include "parallel/program.hpp"
 #include "parameters.h"
 #include "region.h"
+#include "input.h"
 #include "results.h"
-
 #include <random>
 #include <atomic>
 
@@ -28,7 +27,6 @@ namespace organisation
             organisation::schema **intermediateA, **intermediateB, **intermediateC;
 
             templates::programs *programs;
-            //parallel::program *programs;
 
             int dimensions;
 
@@ -45,7 +43,7 @@ namespace organisation
 
             void clear();
                     
-            organisation::schema go(std::vector<std::string> expected, int &count, int iterations = 0);
+            organisation::schema go(int &count, int iterations = 0);
 
         void generate();
 
@@ -62,7 +60,7 @@ namespace organisation
             void push(organisation::schema **buffer, region r);
 
         protected:
-            results execute(organisation::schema **buffer, std::vector<std::string> expected);
+            results execute(organisation::schema **buffer);
             
         protected:
             void makeNull();

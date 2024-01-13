@@ -1,4 +1,5 @@
 #include "templates/programs.h"
+#include "parameters.h"
 #include "program.h"
 #include "schema.h"
 #include "data.h"
@@ -12,42 +13,13 @@ namespace organisation
 {    
     namespace sequential
     {
-        class parameters
-        {
-            const static int WIDTH = 5;
-            const static int HEIGHT = 5;
-            const static int DEPTH = 5;
-
-            const static int EPOCHS = 1;
-
-            int length;
-
-        public:
-            int width, height, depth;
-            int epochs;
-
-        public:
-            parameters(int _width = WIDTH, int _height = HEIGHT, int _depth = DEPTH, int _epochs = EPOCHS) 
-            {
-                width = _width;
-                height = _height;
-                depth = _depth;
-                
-                length = _width * _height * _depth;
-
-                epochs = EPOCHS;
-            }            
-
-            int size() { return length; }
-        };
-    
         class programs : public templates::programs
         {
             parameters params;
 
-            ::organisation::schema **schemas;
-            ::organisation::output *results;
-            ::organisation::inputs::input *inputs;
+            schema **schemas;
+            output *results;
+            inputs::input input;
 
             int clients;
             
@@ -68,7 +40,7 @@ namespace organisation
 
             void run(organisation::data &mappings);        
 
-            void set(std::vector<inputs::input> &source);
+            void set(inputs::input &source);
             std::vector<output> get(organisation::data &mappings);
 
         public:

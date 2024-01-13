@@ -11,7 +11,7 @@ void organisation::parallel::program::reset(::parallel::device &dev, parameters 
     sycl::queue q = ::parallel::queue(dev).get();
 
     this->clients = clients;
-    this->length = settings.size() * clients;
+    this->length = settings.length() * clients;
 
     deviceValues = sycl::malloc_device<int>(length, q);
     if(deviceValues == NULL) return;
@@ -28,7 +28,7 @@ void organisation::parallel::program::reset(::parallel::device &dev, parameters 
     */
     // ***
 
-    hostValues = sycl::malloc_host<int>(settings.size() * HOST_BUFFER, q);
+    hostValues = sycl::malloc_host<int>(settings.length() * HOST_BUFFER, q);
     if(hostValues == NULL) return;
     
     /*
@@ -72,11 +72,11 @@ void organisation::parallel::program::reset(::parallel::device &dev, parameters 
 
     // ***
 
-    deviceSourceReadPositions = sycl::malloc_device<sycl::float4>(settings.epochs, q);
-    if(deviceSourceReadPositions == NULL) return;
+    //deviceSourceReadPositions = sycl::malloc_device<sycl::float4>(settings.epochs, q);
+    //if(deviceSourceReadPositions == NULL) return;
 
-    hostSourceReadPositions = sycl::malloc_host<sycl::float4>(settings.epochs, q);
-    if(hostSourceReadPositions == NULL) return;
+    //hostSourceReadPositions = sycl::malloc_host<sycl::float4>(settings.epochs, q);
+    //if(hostSourceReadPositions == NULL) return;
 
     // ***
 

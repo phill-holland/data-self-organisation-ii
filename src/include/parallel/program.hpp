@@ -1,6 +1,7 @@
 #include <CL/sycl.hpp>
 #include "parallel/device.hpp"
 #include "parallel/queue.hpp"
+#include "parameters.h"
 #include "program.h"
 #include "schema.h"
 #include "data.h"
@@ -13,35 +14,7 @@ namespace organisation
 {    
     namespace parallel
     {
-        class parameters
-        {
-            const static int WIDTH = 5;
-            const static int HEIGHT = 5;
-            const static int DEPTH = 5;
-
-            const static int EPOCHS = 1;
-
-            int length;
-
-        public:
-            int width, height, depth;
-            int epochs;
-
-        public:
-            parameters(int _width = WIDTH, int _height = HEIGHT, int _depth = DEPTH, int _epochs = EPOCHS) 
-            {
-                width = _width;
-                height = _height;
-                depth = _depth;
-                
-                length = _width * _height * _depth;
-
-                epochs = EPOCHS;
-            }            
-
-            int size() { return length; }
-        };
-    
+        
 #warning needs to inherit from public templates::programs
         class program
         {

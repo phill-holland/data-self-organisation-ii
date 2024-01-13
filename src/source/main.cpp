@@ -7,6 +7,7 @@
 #include "fifo.h"
 #include "schema.h"
 #include "vector.h"
+#include "input.h"
 #include "output.h"
 
 #include "parallel/device.hpp"
@@ -27,7 +28,7 @@ of a bicycle built for two .
 )";
 */
 
-std::vector<std::string> expected = { "daisy daisy give me your answer do .", "I'm half crazy for the love of you ." };
+//std::vector<std::string> expected = { "daisy daisy give me your answer do .", "I'm half crazy for the love of you ." };
 
 const int device = 0;
 const int rounds = 15;
@@ -35,23 +36,27 @@ const int population = 4000, clients = 3500;
 const int iterations = 1000;
 const int width = 5, height = 5, depth = 5;
 
-organisation::parallel::parameters get()
+/*
+organisation::parameters get()
 {    
-    organisation::parallel::parameters parameters(width, height, depth);
+    organisation::parameters parameters(width, height, depth);
     parameters.epochs = expected.size();
     return parameters; 
 }
+*/
 
-organisation::schema run(organisation::parallel::parameters parameters, organisation::data &mappings, std::vector<std::string> expected, int round = 0)
+organisation::schema run(organisation::data &mappings, organisation::inputs::input input, int round = 0)
 {         
 	::parallel::device *dev = new ::parallel::device(device);
 	::parallel::queue *q = new parallel::queue(*dev);
     
-    organisation::populations::parameters settings;
+    organisation::parameters settings(width, height, depth);
+    //organisation::parameters settings;
     //settings.params = parameters;
     //settings.dev = dev;
     //settings.q = q;
-    settings.expected = expected;
+    //settings.expected = expected;
+    settings.input = input;
     settings.width = width;
     settings.height = height;
     settings.depth = depth;
@@ -67,7 +72,7 @@ organisation::schema run(organisation::parallel::parameters parameters, organisa
     p.generate();
 
     organisation::schema best(width,height,depth);
-    best.copy(p.go(expected, actual, iterations));
+    best.copy(p.go(actual, iterations));
 
     if(actual <= iterations) 
     {
@@ -81,7 +86,8 @@ organisation::schema run(organisation::parallel::parameters parameters, organisa
     return best;
 }
 
-bool single(organisation::schema &schema, organisation::data &mappings, organisation::parallel::parameters parameters, std::vector<std::string> expected)
+/*
+bool single(organisation::schema &schema, organisation::data &mappings, organisation::parameters parameters, std::vector<std::string> expected)
 {          
 	::parallel::device *dev = new ::parallel::device(0);
 	::parallel::queue *q = new parallel::queue(*dev);
@@ -136,7 +142,7 @@ bool single(organisation::schema &schema, organisation::data &mappings, organisa
 
     return true;
 }
-
+*/
 int main(int argc, char *argv[])
 {  
     std::vector<std::string> devices = ::parallel::device::enumerate();
@@ -148,12 +154,21 @@ int main(int argc, char *argv[])
     auto strings = organisation::split(source);
     organisation::data mappings(strings);
     
-    organisation::parallel::parameters parameters = get();
+    //std::vector<std::string> expected = { "daisy daisy give me your answer do .", "I'm half crazy for the love of you ." };
+    organisation::inputs::input input;
+
+    organisation::inputs::epoch a { "hello", "moo" };
+    organisation::inputs::epoch b { "hello", "moo" };
+
+    input.push_back(a);
+    input.push_back(b);
+    
+    //organisation::parameters parameters = get();
         
     for(int i = 0; i < rounds; ++i)
     {
-        organisation::schema best = run(parameters, mappings, expected, i);
-        single(best, mappings, parameters, expected);
+        organisation::schema best = run(mappings, input, i);
+        //single(best, mappings, parameters, expected);
     }
     
     return 0;

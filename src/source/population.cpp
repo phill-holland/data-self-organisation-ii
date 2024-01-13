@@ -16,13 +16,9 @@ void organisation::populations::population::reset(templates::programs *programs,
     this->programs = programs;
     settings = params;
 
-    dimensions = 0;
-    std::vector<std::vector<std::string>> d;
-    for(std::vector<std::string>::iterator it = settings.expected.begin(); it != settings.expected.end(); ++it)
-    {
-        std::vector<std::string> t = split(*it);        
-        dimensions += (t.size() * 2) + 1;
-    }
+    if(settings.input.size() == 0) return;
+    dimensions = settings.input.dimensions();
+    if(dimensions == 0) return;
 
     schemas = new organisation::schemas(settings.width, settings.height, settings.depth, settings.size);
     if (schemas == NULL) return;
@@ -77,7 +73,7 @@ void organisation::populations::population::generate()
     schemas->generate(settings.mappings);
 }
 
-organisation::schema organisation::populations::population::go(std::vector<std::string> expected, int &count, int iterations)
+organisation::schema organisation::populations::population::go(int &count, int iterations)
 {    
     float highest = 0.0f;
     bool finished = false;
@@ -96,7 +92,7 @@ organisation::schema organisation::populations::population::go(std::vector<std::
     {
         auto r1 = std::async(&organisation::populations::population::push, this, set, rset);
         auto r2 = std::async(&organisation::populations::population::pull, this, get, rget);
-        auto r3 = std::async(&organisation::populations::population::execute, this, run, expected);
+        auto r3 = std::async(&organisation::populations::population::execute, this, run);
 
         r1.wait();
         r2.wait();
@@ -135,8 +131,9 @@ organisation::schema organisation::populations::population::go(std::vector<std::
     return res;
 }
 
-organisation::populations::results organisation::populations::population::execute(organisation::schema **buffer, std::vector<std::string> expected)
+organisation::populations::results organisation::populations::population::execute(organisation::schema **buffer)
 {  
+    /*
     auto combine = [](std::vector<std::string> expected, std::vector<std::string> output)
     {
         std::vector<std::tuple<std::string,std::string>> result(expected.size());
@@ -151,14 +148,15 @@ organisation::populations::results organisation::populations::population::execut
 
         return result;
     };
+    */
 
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();   
 
-    int x1 = settings.width / 2;
-    int y1 = settings.height / 2;
-    int z1 = settings.depth / 2;
+    //int x1 = settings.width / 2;
+    //int y1 = settings.height / 2;
+    //int z1 = settings.depth / 2;
 
-    organisation::vector w {0,1,0};
+    //organisation::vector w {0,1,0};
 
     //std::vector<sycl::float4> positions;
 /*
@@ -180,8 +178,7 @@ organisation::populations::results organisation::populations::population::execut
 
     programs->clear();
     programs->copy(buffer, settings.clients);
-    #warning need to set program inputs and expected values
-    //programs->set();
+    programs->set(settings.input);
     programs->run(settings.mappings);
 
     std::vector<organisation::output> values = programs->get(settings.mappings);
@@ -193,7 +190,8 @@ organisation::populations::results organisation::populations::population::execut
     std::vector<organisation::output>::iterator it;    
     for(i = 0, it = values.begin(); it != values.end(); it++, i++)    
     {
-        buffer[i]->compute(combine(expected, it->values));
+        //buffer[i]->compute(combine(expected, it->values));
+        buffer[i]->compute(settings.input.combine(it->values));
 
         float score = buffer[i]->sum();
         if(score > result.best)

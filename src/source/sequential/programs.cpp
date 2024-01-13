@@ -18,9 +18,6 @@ void organisation::sequential::programs::reset(parameters settings, int clients)
     results = new ::organisation::output[clients];
     if(results == NULL) return;
 
-    inputs = new organisation::inputs::input[clients];
-    if(inputs == NULL) return;
-
     init = true;
 }
 
@@ -28,8 +25,7 @@ void organisation::sequential::programs::clear()
 {
     for(int i = 0; i < clients; ++i)
     {
-        results[i].clear();
-        inputs[i].clear();
+        results[i].clear();     
     }
 }
 
@@ -37,28 +33,22 @@ void organisation::sequential::programs::run(organisation::data &mappings)
 {
     for(int i = 0; i < clients; ++i)
     {
-        for(int j = 0; j < params.epochs; ++j)
+        //for(int j = 0; j < params.epochs; ++j)
+        for(int j = 0; j < params.input.size(); ++j)
         {
-            std::string input = inputs[i].values[j].input;
-            #warning pass down expected from ppopulation::parameters::expected
-            std::string expected;
-            //std::string expected = inputs[i].values[j].expected;            
-            std::string output = schemas[i]->run(j, input, expected, mappings);
-
-            results[i].values.push_back(output);
+            inputs::epoch epoch;
+            if(input.get(epoch, j))
+            {
+                std::string output = schemas[i]->run(j, epoch.input, epoch.expected, mappings);
+                results[i].values.push_back(output);
+            }
         }
     }
 }
 
-void organisation::sequential::programs::set(std::vector<inputs::input> &source)
+void organisation::sequential::programs::set(inputs::input &source)
 {
-    int temp = source.size();
-    if(source.size() > clients) temp = clients;
-
-    for(int i = 0; i < temp; ++i)
-    {
-        inputs[i] = source[i];
-    }
+    input = source;
 }
 
 std::vector<organisation::output> organisation::sequential::programs::get(organisation::data &mappings)
@@ -88,12 +78,10 @@ void organisation::sequential::programs::makeNull()
 {
     schemas = NULL;
     results = NULL;
-    inputs = NULL;
 }
 
 void organisation::sequential::programs::cleanup()
 {
-    if(inputs != NULL) delete inputs;
     if(results != NULL) delete results;
     if(schemas != NULL) delete schemas;
 }
