@@ -1,6 +1,7 @@
 #include <CL/sycl.hpp>
 #include "parallel/device.hpp"
 #include "parallel/queue.hpp"
+#include "templates/programs.h"
 #include "parameters.h"
 #include "program.h"
 #include "schema.h"
@@ -20,7 +21,17 @@ namespace organisation
         {
             ::parallel::device *dev;
 
+            // ***
+            sycl::float4 *devicePositions;
             int *deviceValues;
+            int *deviceMovementIdx;
+            int *deviceClient;
+
+            sycl::float4 *deviceMovements;
+            sycl::float4 *deviceCollisions;
+            // ***
+            
+            //int *deviceValues;
             //int *deviceInGates;
             //int *deviceOutGates;
             //int *deviceMagnitudes;
