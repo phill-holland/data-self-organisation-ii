@@ -7,6 +7,7 @@
 #include "schema.h"
 #include "data.h"
 #include "output.h"
+#include "input.h"
 
 #ifndef _PARALLEL_PROGRAM
 #define _PARALLEL_PROGRAM
@@ -14,52 +15,48 @@
 namespace organisation
 {    
     namespace parallel
-    {
-        
-#warning needs to inherit from public templates::programs
-        class program
+    {        
+        class program : public templates::programs
         {
             ::parallel::device *dev;
+            ::parallel::queue *queue;
 
             // ***
             sycl::float4 *devicePositions;
             int *deviceValues;
-            int *deviceMovementIdx;
+            int *deviceMovement;
             int *deviceClient;
 
             sycl::float4 *deviceMovements;
             sycl::float4 *deviceCollisions;
             // ***
             
-            //int *deviceValues;
-            //int *deviceInGates;
-            //int *deviceOutGates;
-            //int *deviceMagnitudes;
 
+            sycl::float4 *hostPositions;
             int *hostValues;
-            //int *hostInGates;
-            //int *hostOutGates;
-            //int *hostMagnitudes;
+            int *hostMovement;
+            int *hostClient;
 
+            /*
             int *deviceOutput;
             int *deviceOutputIteration;
-            int *deviceOutputEpoch;
+            //int *deviceOutputEpoch;
             int *deviceOutputEndPtr;
 
             int *hostOutput;
             int *hostOutputIteration;
-            int *hostOutputEpoch;
+            //int *hostOutputEpoch;
             int *hostOutputEndPtr;
 
             sycl::float4 *deviceReadPositionsA;
             sycl::float4 *deviceReadPositionsB;
-            int *deviceReadPositionsEpochA;
-            int *deviceReadPositionsEpochB;
+            //int *deviceReadPositionsEpochA;
+            //int *deviceReadPositionsEpochB;
             int *deviceReadPositionsEndPtr;
 
             sycl::float4 *hostSourceReadPositions;
             sycl::float4 *deviceSourceReadPositions;
-
+            */
             parameters params;
 
             int clients;
@@ -72,20 +69,24 @@ namespace organisation
             const static int HOST_BUFFER = 20;
             
         public:
-            program(::parallel::device &dev, parameters settings, int clients) { makeNull(); reset(dev, settings, clients); }
+            program(::parallel::device &dev, ::parallel::queue *q, parameters settings, int clients) 
+            { 
+                makeNull(); 
+                reset(dev, q, settings, clients); 
+            }
             ~program() { cleanup(); }
 
             bool initalised() { return init; }
-            void reset(::parallel::device &dev, parameters settings, int clients);
+            void reset(::parallel::device &dev, ::parallel::queue *q, parameters settings, int clients);
 
-            void clear(::parallel::queue *q = NULL);
+            void clear();
 
-            void run(::parallel::queue *q = NULL);        
-            void set(std::vector<sycl::float4> positions, ::parallel::queue *q = NULL);
-            std::vector<output> get(organisation::data &mappings, ::parallel::queue *q = NULL);
+            void run(organisation::data &mappings);        
+            void set(inputs::input &source);
+            std::vector<output> get(organisation::data &mappings);
 
         public:
-            void copy(::organisation::schema **source, int source_size, ::parallel::queue *q = NULL);
+            void copy(::organisation::schema **source, int source_size);
             
         public:
             void outputarb(int *source, int length);
