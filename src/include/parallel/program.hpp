@@ -33,6 +33,9 @@ namespace organisation
             sycl::float4 *deviceNextHalfPositions;
             int *deviceValues;
             int *deviceInputData;
+            int *deviceInserts;
+
+            //int *deviceNextInsertIdx;
 
             int *deviceMovementIdx;            
             int *deviceInsertsIdx;
@@ -48,6 +51,7 @@ namespace organisation
             sycl::float4 *hostPositions;
             int *hostValues;
             int *hostInputData;
+            int *hostInserts;
             sycl::float4 *hostMovements;
             sycl::float4 *hostCollisions;
             int *hostClient;
