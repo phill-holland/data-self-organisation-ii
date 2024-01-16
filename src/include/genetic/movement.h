@@ -22,7 +22,7 @@ namespace organisation
         public:
             std::vector<organisation::vector> directions;
 
-    public:
+        public:
             size_t size() { return directions.size(); }
 
             void clear() 

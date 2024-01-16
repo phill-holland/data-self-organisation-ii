@@ -46,7 +46,7 @@ void organisation::sequential::programs::run(organisation::data &mappings)
     }
 }
 
-void organisation::sequential::programs::set(inputs::input &source)
+void organisation::sequential::programs::set(organisation::data &mappings, inputs::input &source)
 {
     input = source;
 }

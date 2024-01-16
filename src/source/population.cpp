@@ -54,12 +54,6 @@ void organisation::populations::population::reset(templates::programs *programs,
         if(!intermediateC[i]->initalised()) return;
     }
 
-    /*
-    programs = new parallel::program(*settings.dev, settings.params, settings.clients);
-    if (programs == NULL) return;
-    if (!programs->initalised()) return;
-    */
-
     init = true;
 }
 
@@ -133,52 +127,11 @@ organisation::schema organisation::populations::population::go(int &count, int i
 
 organisation::populations::results organisation::populations::population::execute(organisation::schema **buffer)
 {  
-    /*
-    auto combine = [](std::vector<std::string> expected, std::vector<std::string> output)
-    {
-        std::vector<std::tuple<std::string,std::string>> result(expected.size());
-
-        int i = 0;
-        for(std::vector<std::string>::iterator it = expected.begin(); it != expected.end(); ++it)
-        {            
-            std::tuple<std::string,std::string> temp(*it,output.at(i));
-            result[i] = temp;
-            ++i;
-        }
-
-        return result;
-    };
-    */
-
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();   
-
-    //int x1 = settings.width / 2;
-    //int y1 = settings.height / 2;
-    //int z1 = settings.depth / 2;
-
-    //organisation::vector w {0,1,0};
-
-    //std::vector<sycl::float4> positions;
-/*
-    int j = 0;
-    for(std::vector<std::string>::iterator it = expected.begin(); it != expected.end(); ++it)
-    {
-        positions.push_back( { x1 + j, y1, z1, w.encode() } );
-        ++j;
-    }
-    
-    programs->clear(settings.q);
-    programs->copy(buffer, settings.clients, settings.q);
-    programs->set(positions, settings.q);
-    programs->run(settings.q);
-
-    std::vector<organisation::output> values = programs->get(settings.mappings, settings.q);
-    
-    */
 
     programs->clear();
     programs->copy(buffer, settings.clients);
-    programs->set(settings.input);
+    programs->set(settings.mappings, settings.input);
     programs->run(settings.mappings);
 
     std::vector<organisation::output> values = programs->get(settings.mappings);
@@ -190,7 +143,6 @@ organisation::populations::results organisation::populations::population::execut
     std::vector<organisation::output>::iterator it;    
     for(i = 0, it = values.begin(); it != values.end(); it++, i++)    
     {
-        //buffer[i]->compute(combine(expected, it->values));
         buffer[i]->compute(settings.input.combine(it->values));
 
         float score = buffer[i]->sum();

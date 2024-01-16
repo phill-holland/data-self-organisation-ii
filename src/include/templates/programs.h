@@ -21,7 +21,7 @@ namespace organisation
             virtual void clear() = 0;
             virtual void run(organisation::data &mappings) = 0;
 
-            virtual void set(inputs::input &source) = 0;
+            virtual void set(organisation::data &mappings, inputs::input &source) = 0;
             virtual std::vector<output> get(organisation::data &mappings) = 0;
 
             virtual void copy(::organisation::schema **source, int source_size) = 0;

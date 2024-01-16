@@ -18,23 +18,38 @@ namespace organisation
     {        
         class program : public templates::programs
         {
+            const static int MAX_VALUES = 20;
+            const static int MAX_MOVEMENTS = 30;
+            const static int MAX_COLLISIONS = 26;
+            const static int MAX_INSERTS = 10;
+            const static int MAX_INPUT_DATA =  15;
+
             ::parallel::device *dev;
             ::parallel::queue *queue;
 
             // ***
             sycl::float4 *devicePositions;
+            sycl::float4 *deviceNextPositions;
+            sycl::float4 *deviceNextHalfPositions;
             int *deviceValues;
-            int *deviceMovement;
+            int *deviceInputData;
+
+            int *deviceMovementIdx;            
+            int *deviceInsertsIdx;
             int *deviceClient;
 
             sycl::float4 *deviceMovements;
             sycl::float4 *deviceCollisions;
-            // ***
             
+            // ***
+            //sycl::int2 *deviceSearchIndices;
+            // ***
 
             sycl::float4 *hostPositions;
             int *hostValues;
-            int *hostMovement;
+            int *hostInputData;
+            sycl::float4 *hostMovements;
+            sycl::float4 *hostCollisions;
             int *hostClient;
 
             /*
@@ -60,7 +75,7 @@ namespace organisation
             parameters params;
 
             int clients;
-            int length;
+            //int length;
 
             bool init;
 
@@ -82,7 +97,7 @@ namespace organisation
             void clear();
 
             void run(organisation::data &mappings);        
-            void set(inputs::input &source);
+            void set(organisation::data &mappings, inputs::input &source);
             std::vector<output> get(organisation::data &mappings);
 
         public:

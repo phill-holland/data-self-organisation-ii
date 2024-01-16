@@ -40,7 +40,7 @@ namespace organisation
 
             void run(organisation::data &mappings);        
 
-            void set(inputs::input &source);
+            void set(organisation::data &mappings, inputs::input &source);
             std::vector<output> get(organisation::data &mappings);
 
         public:
