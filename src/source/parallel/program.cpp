@@ -400,13 +400,15 @@ std::vector<organisation::output> organisation::parallel::program::get(organisat
     return results;
 }
 
-void organisation::parallel::program::insert()
+void organisation::parallel::program::insert(int epoch)
 {
     // REMMBER TO MEMSET _InputData to -1 before populatiin OK
     // REMMBER TO MEMSET _Inserts to -1 before populatiin OK
 
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
     sycl::range num_items{(size_t)clients};
+
+    auto epoch_offset = epoch * params.input.size();
 
     qt.submit([&](auto &h) 
     {        
@@ -423,6 +425,8 @@ void organisation::parallel::program::insert()
         auto _positions = devicePositions;
         auto _client = deviceClient;
 
+        auto _epoch_offset = epoch_offset;
+
         auto _max_inserts = MAX_INSERTS;
         auto _max_values = MAX_VALUES;
         
@@ -436,7 +440,7 @@ void organisation::parallel::program::insert()
             {
                 _insertsIdx[client]++;
                 int b = _inputIdx[client];
-                int newValueToInsert = _inputData[b + offset];
+                int newValueToInsert = _inputData[b + epoch_offset];
                 _inputIdx[client]++;
 
                 if(_inputData[_inputIdx[client]] == -1)

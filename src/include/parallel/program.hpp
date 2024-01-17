@@ -108,7 +108,7 @@ namespace organisation
             std::vector<output> get(organisation::data &mappings);
 
         protected:
-            void insert();
+            void insert(int epoch);
             void update();
 
         public:
