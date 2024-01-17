@@ -34,16 +34,19 @@ namespace organisation
             int *deviceValues;
             int *deviceInputData;
             int *deviceInserts;
-
-            //int *deviceNextInsertIdx;
+            int *deviceInsertsClone;
 
             int *deviceMovementIdx;            
             int *deviceInsertsIdx;
+            int *deviceInputIdx;
             int *deviceClient;
 
             sycl::float4 *deviceMovements;
             sycl::float4 *deviceCollisions;
-            
+
+            int *deviceTotalValues;
+            int *hostTotalValues;
+
             // ***
             //sycl::int2 *deviceSearchIndices;
             // ***
@@ -103,6 +106,9 @@ namespace organisation
             void run(organisation::data &mappings);        
             void set(organisation::data &mappings, inputs::input &source);
             std::vector<output> get(organisation::data &mappings);
+
+        protected:
+            void insert();
 
         public:
             void copy(::organisation::schema **source, int source_size);
