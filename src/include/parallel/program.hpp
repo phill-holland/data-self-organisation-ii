@@ -109,6 +109,7 @@ namespace organisation
 
         protected:
             void insert();
+            void update();
 
         public:
             void copy(::organisation::schema **source, int source_size);

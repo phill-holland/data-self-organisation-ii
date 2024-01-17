@@ -159,39 +159,6 @@ void organisation::parallel::program::run(organisation::data &mappings)
         int iterations = 0;
         while(iterations++ < ITERATIONS)
         {
-            /*
-            int a = deviceInsertsIdx[client];
-            deviceInserts[a]--;
-            if(deviceInserts[a] <= 0)
-            {
-                deviceInsertsIdx[client]++;
-                int b = deviceInputIdx[client];
-                int newValueToInsert = deviceInputData[b];
-                deviceInputIdx[client]++;
-
-                if(deviceInputIdx[deviceInputIdx[client]] == -1)
-                    deviceInputIdx[client] = 0;
-
-                if(deviceInserts[deviceInsertsIdx[client]] == -1)
-                    deviceInsertsIdx[client] = 0;
-                
-            }*/
-
-//  need bounds checking for DeviceInserts (size value inputted somehwere?)
-// and DeviceInputData (size value inputted somewhere?)
-
-                // push to array (need atomic value!!)
-                // maintain endPoint to DeviceValues
-            //}
-            //      int newValueToInsert = deviceInputData[deviceInsertsIdx[client]];
-            //      deviceInsertsIdx[client]++;
-            // }
-            
-            // update deviceInsertsIdx (if zero, get next insert delay from deviceInserts,
-            // insert from deviceInputData[]
-            // decrement deviceInsertsIdx[client]
-            // check if any inserts are needed (deviceInsertsIdx)
-            // check 
             qt.submit([&](auto &h) 
             {        
                 h.parallel_for(num_items, [=](auto i) 
@@ -490,9 +457,50 @@ void organisation::parallel::program::insert()
                     _values[dest] = newValueToInsert;
                     _client[dest] = client;
                     _positions[dest] = { 10.0f, 10.0f, 10.0f, 10.0f };     
-                    // HMM NEED TO ENSURE INSERT POINT IS NOT OCCUPIED ON CLIENT               
+                    // HMM NEED TO ENSURE INSERT POINT IS NOT OCCUPIED ON CLIENT  
+                    // NEED TO PASS IN STARTING POINT HERE             
                 }
             }
+        });
+    }).wait();
+
+    qt.memcpy(hostTotalValues, deviceTotalValues, sizeof(int)).wait();
+    // hostTotalValues can be used in main run function, for num_items!!
+}
+
+void organisation::parallel::program::update()
+{
+    // needs to be collision detection aware here, basic implementation!!
+    sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
+    sycl::range num_items{(size_t)hostTotalValues[0]};
+
+// ***
+// ENSURE MOVEMENTS ARRAY, END POINTS.W ARE INITALISED with -1
+// ***
+
+    qt.submit([&](auto &h) 
+    {
+        auto _values = deviceValues;
+        auto _positions = devicePositions;
+        auto _client = deviceClient;
+        auto _movementIdx = deviceMovementIdx;
+        auto _movements = deviceMovements;
+
+        auto _max_movements = MAX_MOVEMENTS;
+
+        h.parallel_for(num_items, [=](auto i) 
+        {  
+            int client = _client[i];
+            int a = _movementIdx[client];
+            int offset = _max_movements * client;
+
+            sycl::float4 direction = _movements[a + offset];
+            _positions[i] += direction;
+
+            _movementIdx[client]++;      
+            int temp = _movementIdx[client];          
+            if((temp >= _max_movements)||(_movements[temp + offset].w() == -1))
+                _movementIdx[client] = 0;            
         });
     }).wait();
 }
@@ -530,7 +538,7 @@ void organisation::parallel::program::copy(::organisation::schema **source, int 
         }
 
         hostTotalValues[0] = d_count;
-        qt.memcpy(hostTotalValues, deviceTotalValues, sizeof(int)).wait();
+        qt.memcpy(deviceTotalValues, hostTotalValues, sizeof(int)).wait();
 
         int m_count = 0;
         for(auto &it: prog->movement.directions)
