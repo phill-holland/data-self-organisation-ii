@@ -29,7 +29,6 @@ jobs:
         include:
           - os: ubuntu-latest
             cpp_compiler: icpx
-            flags: -nocudalib
 
     steps:
     - uses: actions/checkout@v3
@@ -40,14 +39,7 @@ jobs:
       with:
         path: |
           /opt/intel/oneapi
-          /usr/local/cuda-11.5
         key: install-apt
-
-    #- name: Install Cuda
-    #  if: steps.cache-install.outputs.cache-hit != 'true'  
-    #  timeout-minutes: 10
-    #  run: |
-    #    sh -c .github/workflows/cuda.sh
 
     - name: Install oneAPI    
       if: steps.cache-install.outputs.cache-hit != 'true'  
@@ -69,12 +61,10 @@ jobs:
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
-      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      # -DCMAKE_CXX_FLAGS=${{ matrix.flags }}      
+      # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type    
       run: >        
         cmake -B ${{ steps.strings.outputs.build-output-dir }}        
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
-        -DCMAKE_CXX_FLAGS=${{ matrix.flags }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
 
