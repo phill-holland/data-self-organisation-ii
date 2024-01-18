@@ -53,6 +53,12 @@ void organisation::parallel::program::reset(::parallel::device &dev, ::parallel:
     deviceTotalValues = sycl::malloc_device<int>(1, qt);
     if(deviceTotalValues == NULL) return;
 
+    deviceNewInserts = sycl::malloc_device<int>(MAX_VALUES, qt);
+    if(deviceNewInserts == NULL) return;
+
+    deviceTotalNewInserts = sycl::malloc_device<int>(1, qt);
+    if(deviceTotalNewInserts == NULL) return;
+
     // ***
     
     hostPositions = sycl::malloc_host<sycl::float4>(MAX_VALUES * HOST_BUFFER, qt);
@@ -78,6 +84,9 @@ void organisation::parallel::program::reset(::parallel::device &dev, ::parallel:
 
     hostTotalValues = sycl::malloc_host<int>(1, qt);
     if(hostTotalValues == NULL) return;
+
+    hostTotalNewInserts = sycl::malloc_host<int>(1, qt);
+    if(hostTotalNewInserts == NULL) return;
 
     // ***
 
@@ -404,6 +413,8 @@ void organisation::parallel::program::insert(int epoch)
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
     sycl::range num_items{(size_t)clients};
 
+    qt.memset(deviceTotalNewInserts, 0, sizeof(int)).wait();
+
     auto epoch_offset = epoch * params.input.size();
 
     qt.submit([&](auto &h) 
@@ -415,11 +426,12 @@ void organisation::parallel::program::insert(int epoch)
         auto _inputData = deviceInputData;
         auto _inputIdx = deviceInputIdx;
 
-        auto _totalValues = deviceTotalValues;
+        auto _totalNewInserts = deviceNewInserts;
 
-        auto _values = deviceValues;
-        auto _positions = devicePositions;
-        auto _client = deviceClient;
+        // need to replace with localInsertValues!
+        //auto _values = deviceValues;
+        //auto _positions = devicePositions;
+        //auto _client = deviceClient;
 
         auto _epoch_offset = epoch_offset;
 
@@ -464,7 +476,7 @@ void organisation::parallel::program::insert(int epoch)
         });
     }).wait();
 
-    qt.memcpy(hostTotalValues, deviceTotalValues, sizeof(int)).wait();
+    qt.memcpy(hostTotalNewInserts, deviceTotalNewInserts, sizeof(int)).wait();
     // hostTotalValues can be used in main run function, for num_items!!
 }
 
@@ -701,6 +713,9 @@ void organisation::parallel::program::makeNull()
 
     deviceTotalValues = NULL;
 
+    deviceNewInserts = NULL;
+    deviceTotalnewInserts = NULL;
+
     hostPositions = NULL;
     hostValues = NULL;
     hostInputData = NULL;
@@ -709,6 +724,7 @@ void organisation::parallel::program::makeNull()
     hostCollisions = NULL;
     hostClient = NULL;
     hostTotalValues = NULL;
+    hostTotalNewInserts = NULL;
     /*
     deviceOutput = NULL;
     deviceOutputIteration = NULL;
@@ -737,6 +753,8 @@ void organisation::parallel::program::cleanup()
     {   
         sycl::queue q = ::parallel::queue(*dev).get();
 
+        if(hostTotalNewInserts != NULL) sycl::free(hostTotalNewInserts, q);
+        if(hostTotalValues != NULL) sycl::free(hostTotalValues, q);
         if(hostClient != NULL) sycl::free(hostClient, q);
         if(hostCollisions != NULL) sycl::free(hostCollisions, q);
         if(hostMovements != NULL) sycl::free(hostMovements, q);
@@ -744,6 +762,10 @@ void organisation::parallel::program::cleanup()
         if(hostInputData != NULL) sycl::free(hostInputData, q);
         if(hostValues != NULL) sycl::free(hostValues, q);
         if(hostPositions != NULL) sycl::free(hostPositions, q);
+
+        if(deviceTotalNewInserts != NULL) sycl::free(deviceTotalNewInserts, q);
+        if(deviceNewInserts != NULL) sycl::free(deviceNewInserts, q);        
+        if(deviceTotalValues != NULL) sycl::free(deviceTotalValues, q);
 
         if(deviceCollisions != NULL) sycl::free(deviceCollisions, q);
         if(deviceMovements != NULL) sycl::free(deviceMovements, q);

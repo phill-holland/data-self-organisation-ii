@@ -47,6 +47,10 @@ namespace organisation
             int *deviceTotalValues;
             int *hostTotalValues;
 
+            int *deviceNewInserts;
+            int *deviceTotalNewInserts;
+            int *hostTotalNewInserts;
+            
             // ***
             //sycl::int2 *deviceSearchIndices;
             // ***
