@@ -16,11 +16,11 @@ add_library(${BINARY}_lib STATIC ${SOURCES})
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 
-target_compile_options(${PROJECT_NAME} PRIVATE -fsycl -fsycl-targets=nvptx64-nvidia-cuda,spir64_gen)
-target_compile_options(${BINARY}_lib PRIVATE -fsycl -fsycl-targets=nvptx64-nvidia-cuda,spir64_gen)
+#target_compile_options(${PROJECT_NAME} PRIVATE -fsycl -fsycl-targets=nvptx64-nvidia-cuda,spir64_gen)
+#target_compile_options(${BINARY}_lib PRIVATE -fsycl -fsycl-targets=nvptx64-nvidia-cuda,spir64_gen)
 
 target_link_libraries(${PROJECT_NAME} "${CMAKE_THREAD_LIBS_INIT}")
-target_link_libraries(${PROJECT_NAME} sycl)
+#target_link_libraries(${PROJECT_NAME} sycl)
 
 target_link_options(${PROJECT_NAME} PUBLIC -fsycl -fsycl-targets=nvptx64-nvidia-cuda)
 
