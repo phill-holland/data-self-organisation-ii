@@ -11,7 +11,6 @@
             "program": "${workspaceRoot}/build/src/data-self-organisation",
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [{"name": "LD_LIBRARY_PATH", "value": "/home/phill/sycl_workspace/llvm/build/lib"}],
             "externalConsole": false,
             "MIMode": "gdb",
             "setupCommands": [
@@ -31,7 +30,6 @@
             "program": "${workspaceRoot}/build/test/data-self-organisation_test",
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [{"name": "LD_LIBRARY_PATH", "value": "/home/phill/sycl_workspace/llvm/build/lib"}],
             "externalConsole": false,
             "MIMode": "gdb",
             "setupCommands": [
@@ -54,7 +52,6 @@
             "args": [ "test", "0" ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
-            "environment": [{"name": "LD_LIBRARY_PATH", "value": "/home/phill/sycl_workspace/llvm/build/lib"}],
             "externalConsole": false,
             "MIMode": "gdb",
             "miDebuggerPath": "gdb-oneapi",
