@@ -159,12 +159,8 @@ void organisation::parallel::program::run(organisation::data &mappings)
         int iterations = 0;
         while(iterations++ < ITERATIONS)
         {
-            qt.submit([&](auto &h) 
-            {        
-                h.parallel_for(num_items, [=](auto i) 
-                {
-                });
-        }).wait();
+            insert(epoch);
+            update();
         };
     }
     /*
