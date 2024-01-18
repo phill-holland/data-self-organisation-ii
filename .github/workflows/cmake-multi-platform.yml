@@ -43,11 +43,11 @@ jobs:
           /usr/local/cuda-11.5
         key: install-apt
 
-    - name: Install Cuda
-      if: steps.cache-install.outputs.cache-hit != 'true'  
-      timeout-minutes: 10
-      run: |
-        sh -c .github/workflows/cuda.sh
+    #- name: Install Cuda
+    #  if: steps.cache-install.outputs.cache-hit != 'true'  
+    #  timeout-minutes: 10
+    #  run: |
+    #    sh -c .github/workflows/cuda.sh
 
     - name: Install oneAPI    
       if: steps.cache-install.outputs.cache-hit != 'true'  
@@ -74,6 +74,7 @@ jobs:
       run: >        
         cmake -B ${{ steps.strings.outputs.build-output-dir }}        
         -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
+        -DCMAKE_CXX_FLAGS=${{ matrix.flags }}
         -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
         -S ${{ github.workspace }}
 

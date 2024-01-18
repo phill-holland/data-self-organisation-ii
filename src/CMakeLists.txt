@@ -18,6 +18,6 @@ set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 20)
 
 target_link_libraries(${PROJECT_NAME} "${CMAKE_THREAD_LIBS_INIT}")
 
-target_link_options(${PROJECT_NAME} PUBLIC -fsycl -fsycl-targets=nvptx64-nvidia-cuda)
+#target_link_options(${PROJECT_NAME} PUBLIC -fsycl -fsycl-targets=nvptx64-nvidia-cuda)
 
 
