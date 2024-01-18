@@ -34,6 +34,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
+    - name: Install oneAPI      
+      timeout-minutes: 10
+      run: |
+        sh-c .guthub/workflows/oneapi.sh
+            
     - name: Set reusable strings
       # Turn repeated input strings (such as the build output directory) into step outputs. These step outputs can be used throughout the workflow file.
       id: strings
