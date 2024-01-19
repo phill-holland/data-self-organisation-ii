@@ -20,7 +20,7 @@ void organisation::populations::population::reset(templates::programs *programs,
     dimensions = settings.input.dimensions();
     if(dimensions == 0) return;
 
-    schemas = new organisation::schemas(settings.width, settings.height, settings.depth, settings.size);
+    schemas = new organisation::schemas(settings.width, settings.height, settings.depth, settings.population);
     if (schemas == NULL) return;
     if (!schemas->initalised()) return;
 
@@ -77,8 +77,8 @@ organisation::schema organisation::populations::population::go(int &count, int i
 
     organisation::schema **set = intermediateC, **run = intermediateA, **get = intermediateB;
 
-    region rset = { 0, (settings.size / 2) - 1 };
-    region rget = { (settings.size / 2), settings.size - 1 };
+    region rset = { 0, (settings.population / 2) - 1 };
+    region rget = { (settings.population / 2), settings.population - 1 };
 
     pull(intermediateA, rset);
 
@@ -182,9 +182,9 @@ organisation::populations::results organisation::populations::population::execut
 bool organisation::populations::population::get(schema &destination, region r)
 {
     const float mutate_rate_in_percent = 20.0f;
-    const float mutation = (((float)settings.size) / 100.0f) * mutate_rate_in_percent;
+    const float mutation = (((float)settings.population) / 100.0f) * mutate_rate_in_percent;
 
-    int t = (std::uniform_int_distribution<int>{0, settings.size - 1})(generator);
+    int t = (std::uniform_int_distribution<int>{0, settings.population - 1})(generator);
 
     if(((float)t) <= mutation) 
     {

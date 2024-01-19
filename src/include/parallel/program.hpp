@@ -18,11 +18,13 @@ namespace organisation
     {        
         class program : public templates::programs
         {
+            /*
             const static int MAX_VALUES = 20;
             const static int MAX_MOVEMENTS = 30;
             const static int MAX_COLLISIONS = 26;
             const static int MAX_INSERTS = 10;
             const static int MAX_INPUT_DATA =  15;
+            */
 
             ::parallel::device *dev;
             ::parallel::queue *queue;
@@ -32,13 +34,13 @@ namespace organisation
             sycl::float4 *deviceNextPositions;
             sycl::float4 *deviceNextHalfPositions;
             int *deviceValues;
-            int *deviceInputData;
-            int *deviceInserts;
-            int *deviceInsertsClone;
+            //int *deviceInputData;
+            //int *deviceInserts;
+            //int *deviceInsertsClone;
 
             int *deviceMovementIdx;            
-            int *deviceInsertsIdx;
-            int *deviceInputIdx;
+            //int *deviceInsertsIdx;
+            //int *deviceInputIdx;
             int *deviceClient;
 
             sycl::float4 *deviceMovements;
@@ -47,9 +49,9 @@ namespace organisation
             int *deviceTotalValues;
             int *hostTotalValues;
 
-            int *deviceNewInserts;
-            int *deviceTotalNewInserts;
-            int *hostTotalNewInserts;
+            //int *deviceNewInserts;
+            //int *deviceTotalNewInserts;
+            //int *hostTotalNewInserts;
             
             // ***
             //sycl::int2 *deviceSearchIndices;
@@ -83,9 +85,9 @@ namespace organisation
             sycl::float4 *hostSourceReadPositions;
             sycl::float4 *deviceSourceReadPositions;
             */
-            parameters params;
+            parameters settings;
 
-            int clients;
+            //int clients;
             //int length;
 
             bool init;
@@ -95,15 +97,15 @@ namespace organisation
             const static int HOST_BUFFER = 20;
             
         public:
-            program(::parallel::device &dev, ::parallel::queue *q, parameters settings, int clients) 
+            program(::parallel::device &dev, ::parallel::queue *q, parameters settings) 
             { 
                 makeNull(); 
-                reset(dev, q, settings, clients); 
+                reset(dev, q, settings); 
             }
             ~program() { cleanup(); }
 
             bool initalised() { return init; }
-            void reset(::parallel::device &dev, ::parallel::queue *q, parameters settings, int clients);
+            void reset(::parallel::device &dev, ::parallel::queue *q, parameters settings);
 
             void clear();
 
@@ -112,7 +114,7 @@ namespace organisation
             std::vector<output> get(organisation::data &mappings);
 
         protected:
-            void insert(int epoch);
+            //void insert(int epoch);
             void update();
 
         public:
