@@ -21,6 +21,8 @@ namespace organisation
     
         const static int HOST_BUFFER = 20;
 
+        const static int ITERATIONS = 20;
+
     public:
         int max_values;
         int max_movements;
@@ -30,6 +32,8 @@ namespace organisation
 
         int host_buffer;
 
+        int iterations;
+    
     public:
         int width, height, depth;
 
@@ -56,6 +60,8 @@ namespace organisation
             max_input_data = MAX_INPUT_DATA;
         
             host_buffer = HOST_BUFFER;
+
+            iterations = ITERATIONS;
 
             starting.x = width / 2;
             starting.y = height / 2;

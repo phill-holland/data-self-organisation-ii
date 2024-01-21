@@ -1,4 +1,4 @@
-#include "parallel/map.hpp"
+#include "parallel/map/map.hpp"
 #include <CL/sycl.hpp>
 
 bool MapIsZero(const sycl::float4 a)
@@ -524,7 +524,7 @@ void ScanMap(sycl::int4 *result, const sycl::float4 *values,
 	}
 }
 
-void parallel::map::reset(::parallel::device &dev, 
+void parallel::mapper::map::reset(::parallel::device &dev, 
                           ::parallel::parameters c, ::parallel::parameters g, scale coarse,
                           scale medium, scale fine, scale diameter, organisation::point origin,
                           long minimum, long maximum)
@@ -658,7 +658,7 @@ void parallel::map::reset(::parallel::device &dev,
 	init = true;
 }
 
-void parallel::map::clear(::parallel::queue *q)
+void parallel::mapper::map::clear(::parallel::queue *q)
 {
     value = 0;
 
@@ -687,7 +687,7 @@ void parallel::map::clear(::parallel::queue *q)
     }).wait();        
 }
 
-void parallel::map::build(sycl::float4 *points, sycl::int4 *clients,
+void parallel::mapper::map::build(sycl::float4 *points, sycl::int4 *clients,
                           const int length, ::parallel::queue *q)
 {        
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, q);
@@ -741,7 +741,7 @@ void parallel::map::build(sycl::float4 *points, sycl::int4 *clients,
     }).wait();        
 }
 
-void parallel::map::search(sycl::float4 *search, sycl::int4 *clients, int *result,
+void parallel::mapper::map::search(sycl::float4 *search, sycl::int4 *clients, int *result,
                            const int length, const bool self, int *collided,
                            int index, ::parallel::queue *q)
 {
@@ -786,7 +786,7 @@ void parallel::map::search(sycl::float4 *search, sycl::int4 *clients, int *resul
         }).wait();
 }
 
-void parallel::map::search(sycl::float4 *search, sycl::int4 *clients,
+void parallel::mapper::map::search(sycl::float4 *search, sycl::int4 *clients,
                            sycl::int2 *result, const int length, const bool self,
                            const bool symetrical, const bool inverse, int *collided,
                            int index, ::parallel::queue *q)
@@ -832,7 +832,7 @@ void parallel::map::search(sycl::float4 *search, sycl::int4 *clients,
         }).wait();
 }
 
-std::string parallel::map::outputarb(int *source, int length)
+std::string parallel::mapper::map::outputarb(int *source, int length)
 {
     std::string result;
 
@@ -860,7 +860,7 @@ std::string parallel::map::outputarb(int *source, int length)
     return result;
 }
 
-void parallel::map::makeNull()
+void parallel::mapper::map::makeNull()
 {
     dev = NULL;
 
@@ -876,7 +876,7 @@ void parallel::map::makeNull()
 	deviceBucketLengths = NULL;
 }
 
-void parallel::map::cleanup()
+void parallel::mapper::map::cleanup()
 {
     if(dev != NULL)
     {
