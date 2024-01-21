@@ -13,11 +13,17 @@ namespace organisation
     {        
         class program;
 
+        class value
+        {
+        public:
+            point position;
+            int value;
+            int client;
+        };
+
         class inserts
         {            
             friend class program;
-
-            const static int HOST_BUFFER = 20;
 
             ::parallel::device *dev;
             ::parallel::queue *queue;
@@ -33,11 +39,11 @@ namespace organisation
 
             int *deviceInputIdx;
 
-            int *deviceNewInserts;
             int *deviceTotalNewInserts;
             int *hostTotalNewInserts;
 
             int *hostInputData;
+            int *hostInserts;
 
             parameters settings;
 
@@ -63,12 +69,17 @@ namespace organisation
                        int length);
 
             void clear();
-            void insert(int epoch);
+            int insert(int epoch);
 
             void set(organisation::data &mappings, inputs::input &source);
+            std::vector<value> get();
 
         public:
             void copy(::organisation::schema **source, int source_size);
+
+        protected:
+            std::vector<int> get(int *source, int length);
+            std::vector<sycl::float4> get(sycl::float4 *source, int length);
 
         protected:
             void makeNull();

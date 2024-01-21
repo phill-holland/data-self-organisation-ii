@@ -1,5 +1,6 @@
 #include "data.h"
 #include "input.h"
+#include "point.h"
 
 #ifndef _ORGANISATION_PARAMETERS
 #define _ORGANISATION_PARAMETERS
@@ -18,12 +19,16 @@ namespace organisation
         const static int MAX_INSERTS = 10;
         const static int MAX_INPUT_DATA =  15;
     
+        const static int HOST_BUFFER = 20;
+
     public:
         int max_values;
         int max_movements;
         int max_collisions;
         int max_inserts;
         int max_input_data;
+
+        int host_buffer;
 
     public:
         int width, height, depth;
@@ -34,6 +39,8 @@ namespace organisation
 
         int clients;
         int population;
+
+        point starting;
 
     public:
         parameters(int _width = WIDTH, int _height = HEIGHT, int _depth = DEPTH) 
@@ -47,6 +54,12 @@ namespace organisation
             max_collisions = MAX_COLLISIONS;
             max_inserts = MAX_INSERTS;
             max_input_data = MAX_INPUT_DATA;
+        
+            host_buffer = HOST_BUFFER;
+
+            starting.x = width / 2;
+            starting.y = height / 2;
+            starting.z = depth / 2;
         }            
 
         int length()

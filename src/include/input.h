@@ -14,6 +14,13 @@ namespace organisation
         public:
             std::string input;
             std::string expected;
+
+        public:
+            epoch(std::string _input = "", std::string _expected = "")
+            {
+                input = _input;
+                expected = _expected;
+            }
         };
 
         class input
@@ -43,7 +50,7 @@ namespace organisation
             {
                 if((index < 0)&&(index > values.size())) return false;
 
-                destination = values[0];
+                destination = values[index];
 
                 return true;
             }

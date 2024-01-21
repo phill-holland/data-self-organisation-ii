@@ -59,8 +59,8 @@ namespace organisation
 
             sycl::float4 *hostPositions;
             int *hostValues;
-            int *hostInputData;
-            int *hostInserts;
+            //int *hostInputData;
+            //int *hostInserts;
             sycl::float4 *hostMovements;
             sycl::float4 *hostCollisions;
             int *hostClient;

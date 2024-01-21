@@ -67,11 +67,11 @@ void organisation::parallel::program::reset(::parallel::device &dev, ::parallel:
     hostValues = sycl::malloc_host<int>(settings.max_values * HOST_BUFFER, qt);
     if(hostValues == NULL) return;
     
-    hostInputData = sycl::malloc_host<int>(settings.max_input_data * settings.input.size(), qt);
-    if(hostInputData == NULL) return;
+    //hostInputData = sycl::malloc_host<int>(settings.max_input_data * settings.input.size(), qt);
+    //if(hostInputData == NULL) return;
 
-    hostInserts = sycl::malloc_host<int>(settings.max_values * HOST_BUFFER, qt);
-    if(hostInserts == NULL) return;
+    //hostInserts = sycl::malloc_host<int>(settings.max_values * HOST_BUFFER, qt);
+    //if(hostInserts == NULL) return;
 
     hostMovements = sycl::malloc_host<sycl::float4>(settings.max_movements * HOST_BUFFER, qt);
     if(hostMovements == NULL) return;
@@ -725,8 +725,8 @@ void organisation::parallel::program::makeNull()
 
     hostPositions = NULL;
     hostValues = NULL;
-    hostInputData = NULL;
-    hostInserts = NULL;
+    //hostInputData = NULL;
+    //hostInserts = NULL;
     hostMovements = NULL;
     hostCollisions = NULL;
     hostClient = NULL;
@@ -765,8 +765,8 @@ void organisation::parallel::program::cleanup()
         if(hostClient != NULL) sycl::free(hostClient, q);
         if(hostCollisions != NULL) sycl::free(hostCollisions, q);
         if(hostMovements != NULL) sycl::free(hostMovements, q);
-        if(hostInserts != NULL) sycl::free(hostInserts, q);
-        if(hostInputData != NULL) sycl::free(hostInputData, q);
+        //if(hostInserts != NULL) sycl::free(hostInserts, q);
+        //if(hostInputData != NULL) sycl::free(hostInputData, q);
         if(hostValues != NULL) sycl::free(hostValues, q);
         if(hostPositions != NULL) sycl::free(hostPositions, q);
 

@@ -19,11 +19,13 @@ namespace organisation
     namespace parallel
     {
         class program;
+        class inserts;
     };
         
     class program
     {      
         friend class parallel::program;
+        friend class parallel::inserts;
           
         static std::mt19937_64 generator;
 
@@ -56,7 +58,7 @@ namespace organisation
         void set(genetic::movement &source) { movement = source; }
         void set(genetic::collisions &source) { collisions = source; }
         void set(genetic::insert &source) { insert = source; }
-
+        
     public:
         void clear();
         void generate(data &source);  

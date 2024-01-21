@@ -23,7 +23,7 @@ void organisation::parallel::inserts::reset(::parallel::device &dev,
     deviceNewClient = sycl::malloc_device<int>(length, qt);
     if(deviceNewClient == NULL) return;
 
-    deviceInputData = sycl::malloc_device<int>(settings.max_input_data * settings.epochs() , qt);
+    deviceInputData = sycl::malloc_device<int>(settings.max_input_data * settings.epochs(), qt);
     if(deviceInputData == NULL) return;
 
     deviceInserts = sycl::malloc_device<int>(settings.max_inserts * settings.clients, qt);
@@ -38,9 +38,6 @@ void organisation::parallel::inserts::reset(::parallel::device &dev,
     deviceInputIdx = sycl::malloc_device<int>(settings.clients, qt);
     if(deviceInputIdx == NULL) return;
 
-    deviceNewInserts = sycl::malloc_device<int>(length, qt);
-    if(deviceNewInserts == NULL) return;
-
     deviceTotalNewInserts = sycl::malloc_device<int>(1, qt);
     if(deviceTotalNewInserts == NULL) return;
 
@@ -50,24 +47,44 @@ void organisation::parallel::inserts::reset(::parallel::device &dev,
     hostInputData = sycl::malloc_host<int>(settings.max_input_data * settings.input.size(), qt);
     if(hostInputData == NULL) return;
 
+    hostInserts = sycl::malloc_host<int>(settings.max_inserts * settings.host_buffer, qt);
+    if(hostInserts == NULL) return;
+
+    clear();
+
     init = true;
 }
 
 void organisation::parallel::inserts::clear()
 {
+    sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
+
+    std::vector<sycl::event> events;
+
+    events.push_back(qt.memset(deviceNewPositions, 0, sizeof(sycl::float4) * length));
+    events.push_back(qt.memset(deviceNewValues, -1, sizeof(int) * length));
+    events.push_back(qt.memset(deviceNewClient, -1, sizeof(int) * length));
+
+    events.push_back(qt.memset(deviceInputData, -1, settings.max_input_data * settings.epochs()));
+    events.push_back(qt.memset(deviceInserts, -1, sizeof(int) * settings.max_inserts * settings.clients));
+    events.push_back(qt.memset(deviceInsertsClone, -1, sizeof(int) * settings.max_inserts * settings.clients));
+
+    sycl::event::wait(events);
 }
 
-void organisation::parallel::inserts::insert(int epoch)
+int organisation::parallel::inserts::insert(int epoch)
 {
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
     sycl::range num_items{(size_t)settings.clients};
 
-#warning do this somewhere, I don't know where!?!?!
-//qt.memcpy(deviceInsertsClone, deviceInserts, sizeof(int) * MAX_INPUT_DATA * params.input.size()).wait();
+// don't clear this, until copied into main program!!!
+// no no, this has to get cleared each loop!! (otherwise get two client inserts
+// at once!!
 
     qt.memset(deviceTotalNewInserts, 0, sizeof(int)).wait();
 
     auto epoch_offset = epoch * settings.epochs();
+    sycl::float4 starting = { (float)settings.starting.x, (float)settings.starting.y, (float)settings.starting.z, 0.0f };
 
     qt.submit([&](auto &h) 
     {        
@@ -78,11 +95,13 @@ void organisation::parallel::inserts::insert(int epoch)
         auto _inputData = deviceInputData;
         auto _inputIdx = deviceInputIdx;
 
-        auto _totalNewInserts = deviceNewInserts;
+        auto _totalNewInserts = deviceTotalNewInserts;
         
         auto _values = deviceNewValues;
         auto _positions = deviceNewPositions;
-        auto _client = deviceNewClient;
+        auto _clients = deviceNewClient;
+
+        auto _starting = starting;
 
         auto _epoch_offset = epoch_offset;
 
@@ -95,7 +114,7 @@ void organisation::parallel::inserts::insert(int epoch)
             int a = _insertsIdx[client];
             _inserts[a + offset]--;
 
-            if(_inserts[a + offset] <= 0)
+            if(_inserts[a + offset] < 0)
             {
                 _insertsIdx[client]++;
                 int b = _inputIdx[client];
@@ -118,33 +137,38 @@ void organisation::parallel::inserts::insert(int epoch)
                 if(dest < _max_values)                
                 {
                     _values[dest] = newValueToInsert;
-                    _client[dest] = client;
-                    _positions[dest] = { 10.0f, 10.0f, 10.0f, 10.0f };     
+                    _positions[dest] = starting;
+                    _clients[dest] = client;
                 }
             }
         });
     }).wait();
 
     qt.memcpy(hostTotalNewInserts, deviceTotalNewInserts, sizeof(int)).wait();
+
+    return hostTotalNewInserts[0];
 }
 
 void organisation::parallel::inserts::set(organisation::data &mappings, inputs::input &source)
 {
-    memset(hostInputData, -1, settings.max_input_data * settings.epochs());
+    memset(hostInputData, -1, sizeof(int) * settings.max_input_data * settings.epochs());
 
+    int offset = 0;
     for(int i = 0; i < source.size(); ++i)
-    {
-        inputs::epoch e;
-        if(source.get(e, i))
+    {        
+        inputs::epoch epoch;
+        if(source.get(epoch, i))
         {
-            std::vector<int> temp = mappings.get(e.input);
+            std::vector<int> temp = mappings.get(epoch.input);
             int len = temp.size();
             if(len > settings.max_input_data) len = settings.max_input_data;
 
             for(int j = 0; j < len; ++j)
             {
-                hostInputData[j + (i * settings.max_input_data)] = temp[j];
+                hostInputData[j + offset] = temp[j];
             }
+
+            offset += settings.max_input_data;
         }
     }
     
@@ -152,18 +176,38 @@ void organisation::parallel::inserts::set(organisation::data &mappings, inputs::
     qt.memcpy(deviceInputData, hostInputData, sizeof(int) * settings.max_input_data * settings.epochs()).wait();
 }
 
+std::vector<organisation::parallel::value> organisation::parallel::inserts::get()
+{
+    std::vector<value> result;
+
+    std::vector<int> values = get(deviceNewValues, length);
+    std::vector<int> clients = get(deviceNewClient, length);
+    std::vector<sycl::float4> positions = get(deviceNewPositions, length);
+
+    if(values.size() == clients.size() == positions.size() == hostTotalNewInserts[0])
+    {
+        int len = values.size();
+        for(int i = 0; i < len; ++i)
+        {
+            value temp;
+
+            temp.value = values[i];
+            temp.client = clients[i];
+            temp.position = point(positions[i].x(), positions[i].y(), positions[i].z());
+
+            result.push_back(temp);
+        }
+    }
+
+    return result;
+}
+
 void organisation::parallel::inserts::copy(::organisation::schema **source, int source_size)
 {
-    /*
-        //memset(hostPositions, -1, sizeof(sycl::float4) * MAX_VALUES * HOST_BUFFER);
-    //memset(hostValues, -1, sizeof(int) * MAX_VALUES * HOST_BUFFER);
-    memset(hostInserts, -1, sizeof(int) * MAX_INSERTS * HOST_BUFFER);
-    //memset(hostMovements, -1, sizeof(sycl::float4) * MAX_MOVEMENTS * HOST_BUFFER);
-    //memset(hostCollisions, -1, sizeof(sycl::float4) * MAX_COLLISIONS * HOST_BUFFER);
-    memset(hostClient, -1, sizeof(int) * MAX_VALUES * HOST_BUFFER);
+    memset(hostInserts, -1, sizeof(int) * settings.max_inserts * settings.host_buffer);
 
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
-    sycl::range num_items{(size_t)clients};
+    sycl::range num_items{(size_t)settings.clients};
 
     int dest_index = 0;
     int index = 0;
@@ -175,28 +219,24 @@ void organisation::parallel::inserts::copy(::organisation::schema **source, int 
         int i_count = 0;
         for(auto &it: prog->insert.values)
         {
-            hostInserts[d_count + (index * MAX_INSERTS)] = it;
+            hostInserts[i_count + (index * settings.max_inserts)] = it;
 
             ++i_count;
-            if(i_count > MAX_INSERTS) break;
+            if(i_count > settings.max_inserts) break;
         }
 
-        hostClient[index] = dest_index;
-
         ++index;
-        if(index >= HOST_BUFFER)
+        if(index >= settings.host_buffer)
         {
             std::vector<sycl::event> events;
 
-            events.push_back(qt.memcpy(&deviceInserts[dest_index * MAX_INSERTS], hostInserts, sizeof(int) * MAX_INSERTS * index));
-            //events.push_back(qt.memcpy(&deviceClient[dest_index], hostClient, sizeof(int) * index));
+            events.push_back(qt.memcpy(&deviceInserts[dest_index * settings.max_inserts], hostInserts, sizeof(int) * settings.max_inserts * index));
 
-            memset(hostInserts, -1, sizeof(int) * MAX_INSERTS * HOST_BUFFER);
-            //memset(hostClient, -1, sizeof(int) * MAX_VALUES * HOST_BUFFER);
+            memset(hostInserts, -1, sizeof(int) * settings.max_inserts * settings.host_buffer);
 
             sycl::event::wait(events);
 
-            dest_index += HOST_BUFFER;
+            dest_index += settings.host_buffer;
             index = 0;            
         }
     }
@@ -205,12 +245,62 @@ void organisation::parallel::inserts::copy(::organisation::schema **source, int 
     {
         std::vector<sycl::event> events;
 
-        events.push_back(qt.memcpy(&deviceInserts[dest_index * MAX_INSERTS], hostInserts, sizeof(int) * MAX_INSERTS * index));
-        //events.push_back(qt.memcpy(&deviceClient[dest_index], hostClient, sizeof(int) * index));
+        events.push_back(qt.memcpy(&deviceInserts[dest_index * settings.max_inserts], hostInserts, sizeof(int) * settings.max_inserts * index));
 
         sycl::event::wait(events);
     }   
-    */ 
+
+    qt.memcpy(deviceInsertsClone, deviceInserts, sizeof(int) * settings.max_inserts * settings.clients).wait();
+}
+
+std::vector<int> organisation::parallel::inserts::get(int *source, int length)
+{
+	int *temp = new int[length];
+	if (temp == NULL) return { };
+
+    sycl::queue q = ::parallel::queue(*dev).get();
+
+    q.memcpy(temp, source, sizeof(int) * length).wait();
+
+    std::vector<int> result;
+
+	for (int i = 0; i < length; ++i)
+	{
+		if (temp[i] != -1)
+            result.push_back(temp[i]);
+	}
+
+	delete[] temp;
+
+    return result;
+}
+
+std::vector<sycl::float4> organisation::parallel::inserts::get(sycl::float4 *source, int length)
+{
+    sycl::float4 *temp = new sycl::float4[length];
+    if (temp == NULL) return { };
+
+    sycl::queue q = ::parallel::queue(*dev).get();
+
+    q.memcpy(temp, source, sizeof(sycl::float4) * length).wait();
+
+    std::vector<sycl::float4> result;
+    
+	for (int i = 0; i < length; ++i)
+	{
+        int ix = (int)(temp[i].x() * 100.0f);
+        int iy = (int)(temp[i].y() * 100.0f);
+        int iz = (int)(temp[i].z() * 100.0f);
+
+        if ((ix != 0) || (iy != 0) || (iz != 0))
+        {
+            result.push_back(temp[i]);			
+		}
+	}
+	
+	delete[] temp;
+
+    return result;
 }
 
 void organisation::parallel::inserts::makeNull()
@@ -228,11 +318,11 @@ void organisation::parallel::inserts::makeNull()
     
     deviceInputIdx = NULL;
 
-    deviceNewInserts = NULL;
     deviceTotalNewInserts = NULL;
 
     hostTotalNewInserts = NULL;    
     hostInputData = NULL;
+    hostInserts = NULL;
 }
 
 void organisation::parallel::inserts::cleanup()
@@ -241,10 +331,10 @@ void organisation::parallel::inserts::cleanup()
     {   
         sycl::queue q = ::parallel::queue(*dev).get();
 
+        if(hostInserts != NULL) sycl::free(hostInserts, q);
         if(hostInputData != NULL) sycl::free(hostInputData, q);
         if(hostTotalNewInserts != NULL) sycl::free(hostTotalNewInserts, q);        
         if(deviceTotalNewInserts != NULL) sycl::free(deviceTotalNewInserts, q);
-        if(deviceNewInserts != NULL) sycl::free(deviceNewInserts, q);      
         if(deviceInputIdx != NULL) sycl::free(deviceInputIdx, q);
         if(deviceInsertsIdx != NULL) sycl::free(deviceInsertsIdx, q); 
         if(deviceInsertsClone != NULL) sycl::free(deviceInsertsClone, q);
