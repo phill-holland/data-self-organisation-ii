@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 #include "parallel/inserts.hpp"
 #include "parallel/program.hpp"
+#include "parallel/map/configuration.hpp"
 #include "general.h"
 #include "data.h"
 #include "schema.h"
@@ -8,7 +9,7 @@
 
 TEST(BasicProgramInsertParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 10, height = 10, depth = 10;
 
@@ -70,6 +71,93 @@ TEST(BasicProgramInsertParallel, BasicAssertions)
     // 3) test input stop after end of sentence!!!
     // 4) PROGRAM COPY FROM INSERTS INTO POPULATION
     // *****    
+}
+
+TEST(BasicProgramMovementParallel, BasicAssertions)
+{    
+    //GTEST_SKIP();
+
+    const int width = 10, height = 10, depth = 10;
+
+    std::string input1("daisy daisy give me your answer do .");
+    std::string input2("monkey monkey eat my face .");
+    //std::vector<std::string> expected = organisation::split("daisy daisy daisy daisy me daisy daisy do");
+
+    std::vector<std::string> strings = organisation::split(input1 + " " + input2);
+    organisation::data d(strings);
+
+	::parallel::device *device = new ::parallel::device(0);
+	::parallel::queue *queue = new parallel::queue(*device);
+
+    organisation::parameters parameters(width, height, depth);
+    
+    parameters.clients = 1;
+    parameters.iterations = 12;
+
+    organisation::inputs::epoch epoch1(input1);
+    organisation::inputs::epoch epoch2(input2);
+
+    parameters.input.push_back(epoch1);
+    parameters.input.push_back(epoch2);
+
+    //organisation::parallel::inserts inserts(*device, queue, parameters, 100);
+    parallel::mapper::configuration mapper;
+
+    organisation::parallel::program program(*device, queue, mapper, parameters);
+
+    organisation::schema s1(width, height, depth);
+
+    organisation::genetic::insert insert;
+    insert.values = { 1,2,3 };    
+
+    organisation::genetic::movement movement;
+    movement.directions = { { 1,0,0 }, { 0,0,1 } };
+
+    s1.prog.set(insert);
+    s1.prog.set(movement);
+
+    std::vector<organisation::schema*> source = { &s1 };
+    
+    program.copy(source.data(), source.size());
+    program.set(d, parameters.input);
+
+    program.run(d);
+    
+// need to check final positions of data here!!
+// some will have (hopefully) gone out of boundaries
+// SHIT, need to check for data going out of bounds
+// and pushing up data to be congitious
+// (shuffler!!)
+// for(int i = 0; i < length -1; ++i)
+//{
+// if(thing[i+1] == dead) thing[i] = thing[i+1];
+//}
+// need to get the output here, when collision detection
+// is written!!!
+
+
+    //inserts.copy(source.data(), source.size());
+    //inserts.set(d, parameters.input);
+    
+    //std::vector<int> expected = { 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0 };
+    //std::vector<int> output;
+
+    //std::vector<organisation::parallel::value> moo;
+/*
+    for(int i = 0; i < 12; ++i)
+    {
+        //std::cout << "loop " << i << "\r\n";
+
+        int count = inserts.insert(0);
+        output.push_back(count);
+
+        //auto baa = inserts.get();
+        //std::copy(baa.begin(),baa.end(),std::back_inserter(moo));
+        //std::cout << "inserted " << count << "\r\n";
+    }
+    
+    EXPECT_EQ(expected, output);
+*/    
 }
 
 /*

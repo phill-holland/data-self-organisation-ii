@@ -36,4 +36,6 @@ namespace parallel
             configuration();
         };
     };
-}l
+};
+
+#endif

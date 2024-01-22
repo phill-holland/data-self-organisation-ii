@@ -1,7 +1,11 @@
 #include "parallel/program.hpp"
+#include "parallel/parameters.hpp"
 #include <algorithm>
 
-void organisation::parallel::program::reset(::parallel::device &dev, ::parallel::queue *q, parameters settings)
+void organisation::parallel::program::reset(::parallel::device &dev, 
+                                            ::parallel::queue *q, 
+                                            ::parallel::mapper::configuration &mapper,
+                                            parameters settings)
 {
     init = false; cleanup();
 
@@ -52,14 +56,12 @@ void organisation::parallel::program::reset(::parallel::device &dev, ::parallel:
 
     // ***
 
-    impacter = new map(*device, 
-					   client, global, 
-					   coarse, medium, fine,
-					   diameter, origin,
-					   minimum, maximum,
-					   validation);
-	if (impacter == NULL) return;	
-	if (!impacter->initalised()) return;
+    ::parallel::parameters global(settings.width * settings.clients, settings.height, settings.depth);
+    ::parallel::parameters client(settings.width, settings.height, settings.depth);
+
+    //impacter = new ::parallel::mapper::map(dev, client, global, mapper);
+	//if (impacter == NULL) return;	
+	//if (!impacter->initalised()) return;
 
     inserter = new inserts(dev, q, settings, 100);
     if(inserter == NULL) return;
@@ -136,12 +138,17 @@ void organisation::parallel::program::run(organisation::data &mappings)
             // implement deviceSearchIndices int2
             // change impacter to have int client number
 
-            impacter->build(deviceNextPosition, deviceClient, settings.max_values * settings.clients, q);
-	        impacter->search(deviceNextPosition, deviceClient, deviceSearchIndices, settings.max_values * settings.clients, true, true, false, NULL, 0, q);
-	        impacter->search(deviceNextHalfPosition, deviceClient, deviceSearchIndices, settings.max_values * settings.clients, true, true, false, NULL, 0, q);		
+            //impacter->build(deviceNextPosition, deviceClient, settings.max_values * settings.clients, q);
+	        //impacter->search(deviceNextPosition, deviceClient, deviceSearchIndices, settings.max_values * settings.clients, true, true, false, NULL, 0, q);
+	        //impacter->search(deviceNextHalfPosition, deviceClient, deviceSearchIndices, settings.max_values * settings.clients, true, true, false, NULL, 0, q);		
 
 
             update();
+
+            // check to see if data cells have gone out of boundaries
+            // shuffle up cells to be continious
+            // reduce dataTotalValues by number removed
+            // (do I need to do this...just flag them as "ignore"??)
         };
     }    
 }

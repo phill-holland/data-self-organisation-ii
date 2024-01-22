@@ -3,7 +3,8 @@
 #include "parallel/queue.hpp"
 #include "templates/programs.h"
 #include "parallel/inserts.hpp"
-#include "parallel/map.hpp"
+#include "parallel/map/map.hpp"
+#include "parallel/map/configuration.hpp"
 #include "parameters.h"
 #include "program.h"
 #include "schema.h"
@@ -40,7 +41,7 @@ namespace organisation
             sycl::float4 *hostCollisions;
             int *hostClient;
             
-            map *impacter;
+            ::parallel::mapper::map *impacter;
             inserts *inserter;
 
             parameters settings;
@@ -50,15 +51,21 @@ namespace organisation
             bool init;
             
         public:
-            program(::parallel::device &dev, ::parallel::queue *q, parameters settings) 
+            program(::parallel::device &dev, 
+                    ::parallel::queue *q, 
+                    ::parallel::mapper::configuration &mapping,
+                    parameters settings) 
             { 
                 makeNull(); 
-                reset(dev, q, settings); 
+                reset(dev, q, mapping, settings); 
             }
             ~program() { cleanup(); }
 
             bool initalised() { return init; }
-            void reset(::parallel::device &dev, ::parallel::queue *q, parameters settings);
+            void reset(::parallel::device &dev, 
+                       ::parallel::queue *q,                        
+                       ::parallel::mapper::configuration &mapping,
+                       parameters settings);
 
             void clear();
 

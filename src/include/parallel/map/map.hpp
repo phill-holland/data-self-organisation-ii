@@ -1,4 +1,5 @@
 #include <CL/sycl.hpp>
+#include "parallel/map/configuration.hpp"
 #include "parallel/device.hpp"
 #include "parallel/queue.hpp"
 #include "parallel/parameters.hpp"
@@ -55,14 +56,10 @@ namespace parallel
 		public:
 			map(::parallel::device &dev,
 				::parallel::parameters c, ::parallel::parameters g,
-				scale coarse, scale medium, scale fine,
-				scale diameter, organisation::point origin,
-				long minimum, long maximum)
+				configuration &settings)
 				{
 					makeNull();
-					reset(dev, c, g, coarse, medium, fine,
-						diameter, origin,
-						minimum, maximum);
+					reset(dev, c, g, settings);
 				}
 			~map() { cleanup(); }
 
@@ -70,9 +67,7 @@ namespace parallel
 
 			void reset(::parallel::device &dev,
 					::parallel::parameters c, ::parallel::parameters g,
-					scale coarse, scale medium, scale fine,
-					scale diameter, organisation::point origin,
-					long minimum, long maximum);
+					configuration &settings);
 
 			void clear(::parallel::queue *q = NULL);
 
