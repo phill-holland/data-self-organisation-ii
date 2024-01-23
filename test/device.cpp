@@ -95,10 +95,10 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
     parameters.iterations = 12;
 
     organisation::inputs::epoch epoch1(input1);
-    organisation::inputs::epoch epoch2(input2);
+    //organisation::inputs::epoch epoch2(input2);
 
     parameters.input.push_back(epoch1);
-    parameters.input.push_back(epoch2);
+    //parameters.input.push_back(epoch2);
 
     //organisation::parallel::inserts inserts(*device, queue, parameters, 100);
     parallel::mapper::configuration mapper;

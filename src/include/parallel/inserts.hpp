@@ -82,6 +82,9 @@ namespace organisation
             std::vector<sycl::float4> get(sycl::float4 *source, int length);
 
         protected:
+            void outputarb(int *source, int length);
+
+        protected:
             void makeNull();
             void cleanup();
         };

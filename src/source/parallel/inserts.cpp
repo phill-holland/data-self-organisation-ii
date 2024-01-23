@@ -64,10 +64,9 @@ void organisation::parallel::inserts::clear()
     events.push_back(qt.memset(deviceNewPositions, 0, sizeof(sycl::float4) * length));
     events.push_back(qt.memset(deviceNewValues, -1, sizeof(int) * length));
     events.push_back(qt.memset(deviceNewClient, -1, sizeof(int) * length));
-
-    events.push_back(qt.memset(deviceInputData, -1, settings.max_input_data * settings.epochs()));
-    events.push_back(qt.memset(deviceInserts, -1, sizeof(int) * settings.max_inserts * settings.clients));
-    events.push_back(qt.memset(deviceInsertsClone, -1, sizeof(int) * settings.max_inserts * settings.clients));
+    //events.push_back(qt.memset(deviceInputData, -1, settings.max_input_data * settings.epochs()));
+    //events.push_back(qt.memset(deviceInserts, -1, sizeof(int) * settings.max_inserts * settings.clients));
+    //events.push_back(qt.memset(deviceInsertsClone, -1, sizeof(int) * settings.max_inserts * settings.clients));
 
     sycl::event::wait(events);
 }
@@ -174,6 +173,10 @@ void organisation::parallel::inserts::set(organisation::data &mappings, inputs::
     
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
     qt.memcpy(deviceInputData, hostInputData, sizeof(int) * settings.max_input_data * settings.epochs()).wait();
+
+std::cout << "input data insersts ";
+outputarb(deviceInputData, settings.max_input_data * settings.epochs());
+
 }
 
 std::vector<organisation::parallel::value> organisation::parallel::inserts::get()
@@ -301,6 +304,34 @@ std::vector<sycl::float4> organisation::parallel::inserts::get(sycl::float4 *sou
 	delete[] temp;
 
     return result;
+}
+
+void organisation::parallel::inserts::outputarb(int *source, int length)
+{
+	int *temp = new int[length];
+	if (temp == NULL) return;
+
+    sycl::queue q = ::parallel::queue(*dev).get();
+
+    q.memcpy(temp, source, sizeof(int) * length).wait();
+
+    std::string result("");
+	for (int i = 0; i < length; ++i)
+	{
+		if ((temp[i] != -1)&&(temp[i]!=0))
+		{
+			result += std::string("[");
+			result += std::to_string(i);
+			result += std::string("]");
+			result += std::to_string(temp[i]);
+			result += std::string(",");
+		}
+	}
+	result += std::string("\r\n");
+	
+    std::cout << result;
+
+	delete[] temp;
 }
 
 void organisation::parallel::inserts::makeNull()
