@@ -28,16 +28,19 @@ namespace organisation
             sycl::float4 *deviceNextPositions;
             sycl::float4 *deviceNextHalfPositions;
             int *deviceValues;
+            sycl::float4 *deviceNextDirections;
 
             int *deviceMovementIdx;            
             int *deviceClient;
 
             sycl::float4 *deviceMovements;
+            int *deviceMovementsCounts;
             sycl::float4 *deviceCollisions;
 
             sycl::float4 *hostPositions;
             int *hostValues;
             sycl::float4 *hostMovements;
+            int *hostMovementsCounts;
             sycl::float4 *hostCollisions;
             int *hostClient;
             
@@ -73,8 +76,10 @@ namespace organisation
             void set(organisation::data &mappings, inputs::input &source);
             std::vector<output> get(organisation::data &mappings);
 
-        protected:
+        protected:            
             void update();
+            void positions();
+            void next();
 
         public:
             void copy(::organisation::schema **source, int source_size);
