@@ -61,7 +61,7 @@ organisation::schema run(organisation::data &mappings, organisation::inputs::inp
     settings.height = height;
     settings.depth = depth;
     settings.mappings = mappings;
-    settings.clients = clients;
+    //settings.clients = clients;
     settings.population = population;
     
     organisation::populations::population p(NULL, settings);

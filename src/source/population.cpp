@@ -24,30 +24,30 @@ void organisation::populations::population::reset(templates::programs *programs,
     if (schemas == NULL) return;
     if (!schemas->initalised()) return;
 
-    intermediateA = new organisation::schema*[settings.clients];
+    intermediateA = new organisation::schema*[settings.clients()];
     if (intermediateA == NULL) return;
-    for(int i = 0; i < settings.clients; ++i) intermediateA[i] = NULL;
-    for(int i = 0; i < settings.clients; ++i)
+    for(int i = 0; i < settings.clients(); ++i) intermediateA[i] = NULL;
+    for(int i = 0; i < settings.clients(); ++i)
     {
         intermediateA[i] = new organisation::schema(settings.width, settings.height, settings.depth);
         if(intermediateA[i] == NULL) return;
         if(!intermediateA[i]->initalised()) return;
     }
 
-    intermediateB = new organisation::schema*[settings.clients];
+    intermediateB = new organisation::schema*[settings.clients()];
     if (intermediateB == NULL) return;
-    for(int i = 0; i < settings.clients; ++i) intermediateB[i] = NULL;
-    for(int i = 0; i < settings.clients; ++i)
+    for(int i = 0; i < settings.clients(); ++i) intermediateB[i] = NULL;
+    for(int i = 0; i < settings.clients(); ++i)
     {
         intermediateB[i] = new organisation::schema(settings.width, settings.height, settings.depth);
         if(intermediateB[i] == NULL) return;
         if(!intermediateB[i]->initalised()) return;
     }
 
-    intermediateC = new organisation::schema*[settings.clients];
+    intermediateC = new organisation::schema*[settings.clients()];
     if (intermediateC == NULL) return;
-    for(int i = 0; i < settings.clients; ++i) intermediateC[i] = NULL;
-    for(int i = 0; i < settings.clients; ++i)
+    for(int i = 0; i < settings.clients(); ++i) intermediateC[i] = NULL;
+    for(int i = 0; i < settings.clients(); ++i)
     {
         intermediateC[i] = new organisation::schema(settings.width, settings.height, settings.depth);
         if(intermediateC[i] == NULL) return;
@@ -130,7 +130,7 @@ organisation::populations::results organisation::populations::population::execut
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();   
 
     programs->clear();
-    programs->copy(buffer, settings.clients);
+    programs->copy(buffer, settings.clients());
     programs->set(settings.mappings, settings.input);
     programs->run(settings.mappings);
 
@@ -295,7 +295,7 @@ void organisation::populations::population::pull(organisation::schema **buffer, 
 {
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();   
 
-    for(int i = 0; i < settings.clients; ++i)
+    for(int i = 0; i < settings.clients(); ++i)
     {
         get(*buffer[i], r);
     }    
@@ -309,7 +309,7 @@ void organisation::populations::population::push(organisation::schema **buffer, 
 {
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();
     
-    for(int i = 0; i < settings.clients; ++i)
+    for(int i = 0; i < settings.clients(); ++i)
     {
         set(*buffer[i], r);
     }
@@ -334,7 +334,7 @@ void organisation::populations::population::cleanup()
     
     if(intermediateC != NULL)
     {
-        for(int i = settings.clients - 1; i >= 0; --i)
+        for(int i = settings.clients() - 1; i >= 0; --i)
         {
             if(intermediateC[i] != NULL) delete intermediateC[i];
         }
@@ -343,7 +343,7 @@ void organisation::populations::population::cleanup()
  
     if(intermediateB != NULL)
     {
-        for(int i = settings.clients - 1; i >= 0; --i)
+        for(int i = settings.clients() - 1; i >= 0; --i)
         {
             if(intermediateB[i] != NULL) delete intermediateB[i];
         }
@@ -352,7 +352,7 @@ void organisation::populations::population::cleanup()
 
    if(intermediateA != NULL)
     {
-        for(int i = settings.clients - 1; i >= 0; --i)
+        for(int i = settings.clients() - 1; i >= 0; --i)
         {
             if(intermediateA[i] != NULL) delete intermediateA[i];
         }

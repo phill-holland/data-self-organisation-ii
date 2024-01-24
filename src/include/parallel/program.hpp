@@ -31,18 +31,20 @@ namespace organisation
             sycl::float4 *deviceNextDirections;
 
             int *deviceMovementIdx;            
-            int *deviceClient;
+            sycl::int4 *deviceClient;
 
             sycl::float4 *deviceMovements;
             int *deviceMovementsCounts;
             sycl::float4 *deviceCollisions;
+
+            sycl::int2 *deviceCollisionKeys;
 
             sycl::float4 *hostPositions;
             int *hostValues;
             sycl::float4 *hostMovements;
             int *hostMovementsCounts;
             sycl::float4 *hostCollisions;
-            int *hostClient;
+            sycl::int4 *hostClient;
             
             ::parallel::mapper::map *impacter;
             inserts *inserter;
@@ -86,6 +88,8 @@ namespace organisation
             
         public:
             void outputarb(int *source, int length);
+            void outputarb(sycl::int2 *source, int length);
+            void outputarb(sycl::int4 *source, int length);
             void outputarb(sycl::float4 *source, int length);
 
         protected:

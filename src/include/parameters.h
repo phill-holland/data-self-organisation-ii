@@ -37,11 +37,10 @@ namespace organisation
     public:
         int width, height, depth;
 
-
         organisation::data mappings;
         inputs::input input;
 
-        int clients;
+        point dim_clients;
         int population;
 
         point starting;
@@ -76,6 +75,11 @@ namespace organisation
         int epochs() 
         {
             return input.size();
+        }
+
+        int clients()
+        {
+            return dim_clients.x * dim_clients.y * dim_clients.z;
         }
     };
 };

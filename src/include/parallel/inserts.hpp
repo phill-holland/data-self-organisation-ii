@@ -30,7 +30,7 @@ namespace organisation
 
             sycl::float4 *deviceNewPositions;
             int *deviceNewValues;
-            int *deviceNewClient;
+            sycl::int4 *deviceNewClient;
 
             int *deviceInputData;
             int *deviceInserts;
