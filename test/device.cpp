@@ -25,7 +25,8 @@ TEST(BasicProgramInsertParallel, BasicAssertions)
 
     organisation::parameters parameters(width, height, depth);
     
-    parameters.clients = 1;
+    //parameters.clients = 1;
+    parameters.dim_clients = organisation::point(1,1,1);
 
     organisation::inputs::epoch epoch1(input1);
     organisation::inputs::epoch epoch2(input2);
@@ -91,7 +92,8 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
 
     organisation::parameters parameters(width, height, depth);
     
-    parameters.clients = 1;
+    //parameters.clients = 1;
+    parameters.dim_clients = organisation::point(1,1,1);
     parameters.iterations = 12;
 
     organisation::inputs::epoch epoch1(input1);

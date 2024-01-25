@@ -2,12 +2,13 @@
 
 sycl::int4 MapClientIdx(const int index, const sycl::int4 dimensions)
 {
-    int r = index % (dimensions.x() * dimensions.y());
-    float z = (float)((index / 9) - 1);
+    int n = dimensions.x() * dimensions.y();
+    int r = index % n;
+    float z = (float)((index / n));
 
     int j = r % dimensions.x();
-    float y = (float)((r / dimensions.x()) - 1);
-    float x = (float)(j - 1);
+    float y = (float)((r / dimensions.x()));
+    float x = (float)(j);
 
     return { x, y, z, index };
 }
@@ -75,7 +76,7 @@ void organisation::parallel::inserts::clear()
 
     events.push_back(qt.memset(deviceNewPositions, 0, sizeof(sycl::float4) * length));
     events.push_back(qt.memset(deviceNewValues, -1, sizeof(int) * length));
-    events.push_back(qt.memset(deviceNewClient, -1, sizeof(sycl::int4) * length));
+    events.push_back(qt.memset(deviceNewClient, 0, sizeof(sycl::int4) * length));
 
     sycl::event::wait(events);
 }

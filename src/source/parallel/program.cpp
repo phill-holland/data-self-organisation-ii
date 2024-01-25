@@ -76,6 +76,7 @@ void organisation::parallel::program::reset(::parallel::device &dev,
 
 #warning htere?
     ::parallel::parameters global(settings.width * settings.clients(), settings.height, settings.depth);
+    global.length = settings.max_values * settings.clients(); // global length seems to be the only variable used in this class!
     ::parallel::parameters client(settings.width, settings.height, settings.depth);
 
     //impacter = new ::parallel::mapper::map(dev, client, global, mapper);
@@ -158,6 +159,8 @@ outputarb(deviceClient,settings.max_values * settings.clients());
 
 std::cout << "inserters values ";
 outputarb(inserter->deviceNewValues, sizeof(int) * count);
+std::cout << "inserters clients ";
+outputarb(inserter->deviceNewClient,settings.max_values * settings.clients());
 
 std::cout << "input data ";
 outputarb(inserter->deviceInputData, settings.max_input_data * settings.epochs());
@@ -507,12 +510,12 @@ void organisation::parallel::program::outputarb(sycl::int2 *source, int length)
 
 void organisation::parallel::program::outputarb(sycl::int4 *source, int length)
 {
-    sycl::float4 *temp = new sycl::float4[length];
+    sycl::int4 *temp = new sycl::int4[length];
     if (temp == NULL) return;
 
     sycl::queue q = ::parallel::queue(*dev).get();
 
-    q.memcpy(temp, source, sizeof(sycl::float4) * length).wait();
+    q.memcpy(temp, source, sizeof(sycl::int4) * length).wait();
 
     std::string result("");
 	for (int i = 0; i < length; ++i)
