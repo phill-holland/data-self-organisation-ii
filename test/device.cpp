@@ -78,7 +78,7 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
 {    
     //GTEST_SKIP();
 
-    const int width = 10, height = 10, depth = 10;
+    const int width = 20, height = 20, depth = 20;
 
     std::string input1("daisy daisy give me your answer do .");
     std::string input2("monkey monkey eat my face .");
@@ -94,7 +94,7 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
     
     //parameters.clients = 1;
     parameters.dim_clients = organisation::point(1,1,1);
-    parameters.iterations = 12;
+    parameters.iterations = 20;
 
     organisation::inputs::epoch epoch1(input1);
     //organisation::inputs::epoch epoch2(input2);
@@ -113,10 +113,23 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
     insert.values = { 1,2,3 };    
 
     organisation::genetic::movement movement;
-    movement.directions = { { 1,0,0 }, { 0,0,1 } };
+    movement.directions = { { 1,0,0 }, { 1,0,0 } };
 
+    organisation::genetic::cache cache(width, height, depth);
+    cache.set(0, organisation::point(18,10,10));
+
+    organisation::genetic::collisions collisions;
+
+    collisions.values.resize(27);
+    organisation::vector up(-1,0,0);
+    organisation::vector rebound(0,1,0);
+    //collisions.values[up.encode()] = rebound.encode();
+    collisions.values[10] = rebound.encode();
+
+    s1.prog.set(cache);
     s1.prog.set(insert);
     s1.prog.set(movement);
+    s1.prog.set(collisions);
 
     std::vector<organisation::schema*> source = { &s1 };
     

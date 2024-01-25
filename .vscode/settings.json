@@ -74,7 +74,9 @@
         "future": "cpp",
         "complex": "cpp",
         "typeindex": "cpp",
-        "coroutine": "cpp"
+        "coroutine": "cpp",
+        "strstream": "cpp",
+        "cfenv": "cpp"
     },
     "editor.suggest.insertMode": "insert"
 }
