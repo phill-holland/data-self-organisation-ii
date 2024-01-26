@@ -118,19 +118,21 @@ int organisation::parallel::inserts::insert(int epoch)
         
         h.parallel_for(num_items, [=](auto client) 
         {
-            int offset = (client * _max_inserts);
-            int a = _insertsIdx[client];
+            if(_inputData[_inputIdx[client]] == -1) return;
+            
+            int offset = (client * _max_inserts);            
+            int a = _insertsIdx[client];            
             _inserts[a + offset]--;
 
             if(_inserts[a + offset] < 0)
-            {
+            {                
                 _insertsIdx[client]++;
                 int b = _inputIdx[client];
                 int newValueToInsert = _inputData[b + epoch_offset];
                 _inputIdx[client]++;
 
-                if(_inputData[_inputIdx[client]] == -1)
-                    _inputIdx[client] = 0;
+                //if(_inputData[_inputIdx[client]] == -1)
+                    //_inputIdx[client] = 0;
 
                 if(_inserts[_insertsIdx[client]] == -1)
                     _insertsIdx[client] = 0;
