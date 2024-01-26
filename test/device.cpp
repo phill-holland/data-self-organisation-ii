@@ -81,7 +81,7 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
     const int width = 20, height = 20, depth = 20;
 
 // bug with two words, doesn't insert on second inserts interval correctly!!!
-    std::string input1("daisy");// give");// daisy give me your answer do .");
+    std::string input1("daisy give");// daisy give me your answer do .");
     std::string input2("monkey monkey eat my face .");
     //std::vector<std::string> expected = organisation::split("daisy daisy daisy daisy me daisy daisy do");
 
@@ -95,7 +95,7 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
     
     //parameters.clients = 1;
     parameters.dim_clients = organisation::point(1,1,1);
-    parameters.iterations = 10;
+    parameters.iterations = 11;
 
     organisation::inputs::epoch epoch1(input1);
     //organisation::inputs::epoch epoch2(input2);
@@ -111,7 +111,7 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
     organisation::schema s1(width, height, depth);
 
     organisation::genetic::insert insert;
-    insert.values = { 1,5,30 };    
+    insert.values = { 0,1,1 };    
 
     organisation::genetic::movement movement;
     movement.directions = { { 1,0,0 }, { 1,0,0 } };
@@ -122,11 +122,12 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
     organisation::genetic::collisions collisions;
 
     collisions.values.resize(27);
-    organisation::vector up(-1,0,0);
-    organisation::vector rebound(0,1,0);
-    //collisions.values[up.encode()] = rebound.encode();
-    collisions.values[10] = rebound.encode();
-
+    organisation::vector up(1,0,0);
+    //organisation::vector rebound(0,1,0);//sycl::stream out(1024, 256, h);
+    organisation::vector rebound(-1,-1,-1);
+    collisions.values[up.encode()] = rebound.encode();
+    //collisions.values[10] = rebound.encode();
+std::cout << "UP " << up.encode() << "\r\n";
     s1.prog.set(cache);
     s1.prog.set(insert);
     s1.prog.set(movement);

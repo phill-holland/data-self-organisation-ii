@@ -354,7 +354,7 @@ void organisation::parallel::program::update()
             if(_positions[i].w() == 0)
             {
                 sycl::int2 key = _collisionKeys[i];
-                if((key.x() == 0)||(key.y() == i && key.x() == 1))
+                if(key.x() == 0)//||(key.y() == i && key.x() == 1))
                 //if((key.y() == i && key.x() == 1))
                     _positions[i] += _nextDirections[i];
             }
@@ -411,6 +411,8 @@ void organisation::parallel::program::next()
         auto _max_movements = settings.max_movements;
         auto _max_collisions = settings.max_collisions;
 
+sycl::stream out(1024, 256, h);
+
         h.parallel_for(num_items, [=](auto i) 
         {  
             if(_positions[i].w() == 0)
@@ -420,11 +422,13 @@ void organisation::parallel::program::next()
                 int offset = _max_movements * client;
 
                 sycl::int2 collision = _collisionKeys[i];
-                if((collision.x() > 0)&&(collision.y() != i))
+                if(collision.x() > 0)//&&(collision.y() != i))
                 {
                     int key = GetCollidedKey(_positions[i], _nextPositions[i]);
                     sycl::float4 direction = _collisions[(client * _max_collisions) + key];                    
                     _nextDirections[i] = direction;
+
+                    out << "KEYEYEYEYEYE " << key << "\n";
                 }
                 else
                 {
