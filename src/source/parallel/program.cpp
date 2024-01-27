@@ -380,11 +380,11 @@ void organisation::parallel::program::positions()
             _nextPosition[i].y() = _position[i].y() + _nextDirection[i].y();
             _nextPosition[i].z() = _position[i].z() + _nextDirection[i].z();
 
-            _nextHalfPosition[i].x() = sycl::floor(
+            _nextHalfPosition[i].x() = sycl::round(
                 _position[i].x() + (_nextDirection[i].x() / 2.0f));
-            _nextHalfPosition[i].y() = sycl::floor(
+            _nextHalfPosition[i].y() = sycl::round(
                 _position[i].y() + (_nextDirection[i].y() / 2.0f));
-            _nextHalfPosition[i].z() = sycl::floor(
+            _nextHalfPosition[i].z() = sycl::round(
                 _position[i].z() + (_nextDirection[i].z() / 2.0f));
         });
     }).wait();        
