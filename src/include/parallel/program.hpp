@@ -39,6 +39,8 @@ namespace organisation
 
             sycl::int2 *deviceCollisionKeys;
 
+            int *deviceTotalValues;
+
             sycl::float4 *hostPositions;
             int *hostValues;
             sycl::float4 *hostMovements;
@@ -46,6 +48,8 @@ namespace organisation
             sycl::float4 *hostCollisions;
             sycl::int4 *hostClient;
             
+            int *hostTotalValues;
+
             ::parallel::mapper::map *impacter;
             inserts *inserter;
 
@@ -82,10 +86,12 @@ namespace organisation
             void update();
             void positions();
             void next();
+            void insert(int epoch);
 
         public:
             void copy(::organisation::schema **source, int source_size);
             
+
         public:
             void outputarb(int *source, int length);
             void outputarb(sycl::int2 *source, int length);
