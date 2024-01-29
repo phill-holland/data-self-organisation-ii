@@ -38,23 +38,39 @@ namespace organisation
             sycl::float4 *deviceCollisions;
 
             sycl::int2 *deviceCollisionKeys;
-
-            int *deviceTotalValues;
-
+            
             sycl::float4 *hostPositions;
             int *hostValues;
             sycl::float4 *hostMovements;
             int *hostMovementsCounts;
             sycl::float4 *hostCollisions;
             sycl::int4 *hostClient;
+
+            // ***
+
+            int *deviceOutputValues;
+            int *deviceOutputIndex;
+            sycl::float4 *deviceOutputClient;
+
+            int *deviceOutputTotalValues; // single int
             
+            int *hostOutputValues;
+            int *hostOutputIndex; // host iteration output
+            sycl::float4 *hostOutputClient;
+
+            int *hostOutputTotalValues;
+
+            // ***
+            int *deviceTotalValues;            
             int *hostTotalValues;
+            // ***
 
             ::parallel::mapper::map *impacter;
             inserts *inserter;
 
             parameters settings;
 
+            int totalOutputValues;
             int totalValues;
 
             bool init;
@@ -85,7 +101,7 @@ namespace organisation
         protected:            
             void update();
             void positions();
-            void next();
+            void next(int iteration);
             void insert(int epoch);
 
         public:
