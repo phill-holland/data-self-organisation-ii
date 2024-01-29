@@ -1,14 +1,14 @@
 #include "input.h"
 #include "general.h"
 
-std::vector<std::tuple<std::string,std::string>> organisation::inputs::input::combine(std::vector<std::string> output)
+std::vector<std::tuple<std::string,std::string>> organisation::inputs::input::combine(std::vector<outputs::data> output)
 {
     std::vector<std::tuple<std::string,std::string>> result(values.size());
 
         int i = 0;
         for(auto &it: values)
         {            
-            std::tuple<std::string,std::string> temp(it.expected,output.at(i));
+            std::tuple<std::string,std::string> temp(it.expected,output.at(i).value);
             result[i] = temp;
             ++i;
         }

@@ -1,6 +1,7 @@
 #include <vector>
 #include <tuple>
 #include <string>
+#include "output.h"
 
 #ifndef _ORGANISATION_INPUT
 #define _ORGANISATION_INPUT
@@ -55,7 +56,7 @@ namespace organisation
                 return true;
             }
 
-            std::vector<std::tuple<std::string,std::string>> combine(std::vector<std::string> output);
+            std::vector<std::tuple<std::string,std::string>> combine(std::vector<organisation::outputs::data> output);
 
             int dimensions();
 

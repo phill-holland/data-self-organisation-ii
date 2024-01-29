@@ -18,7 +18,7 @@ namespace organisation
             parameters params;
 
             schema **schemas;
-            output *results;
+            outputs::output *results;
             inputs::input input;
 
             int clients;
@@ -41,7 +41,7 @@ namespace organisation
             void run(organisation::data &mappings);        
 
             void set(organisation::data &mappings, inputs::input &source);
-            std::vector<output> get(organisation::data &mappings);
+            std::vector<outputs::output> get(organisation::data &mappings);
 
         public:
             void copy(::organisation::schema **source, int source_size);

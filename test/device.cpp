@@ -139,6 +139,9 @@ std::cout << "UP " << up.encode() << "\r\n";
     program.set(d, parameters.input);
 
     program.run(d);
+
+    std::vector<organisation::outputs::output> results = program.get(d);
+    
     
 // need to check final positions of data here!!
 // some will have (hopefully) gone out of boundaries

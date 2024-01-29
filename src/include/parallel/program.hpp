@@ -73,6 +73,8 @@ namespace organisation
             int totalOutputValues;
             int totalValues;
 
+            std::vector<organisation::outputs::output> outputs;
+
             bool init;
             
         public:
@@ -96,9 +98,10 @@ namespace organisation
 
             void run(organisation::data &mappings);        
             void set(organisation::data &mappings, inputs::input &source);
-            std::vector<output> get(organisation::data &mappings);
+            std::vector<outputs::output> get(organisation::data &mappings);
 
-        protected:            
+        protected:     
+            void move(organisation::data &mappings);       
             void update();
             void positions();
             void next(int iteration);
@@ -107,7 +110,6 @@ namespace organisation
         public:
             void copy(::organisation::schema **source, int source_size);
             
-
         public:
             void outputarb(int *source, int length);
             void outputarb(sycl::int2 *source, int length);

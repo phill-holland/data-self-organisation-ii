@@ -134,13 +134,13 @@ organisation::populations::results organisation::populations::population::execut
     programs->set(settings.mappings, settings.input);
     programs->run(settings.mappings);
 
-    std::vector<organisation::output> values = programs->get(settings.mappings);
+    std::vector<organisation::outputs::output> values = programs->get(settings.mappings);
     
     results result;
-    std::vector<std::string> current;
+    std::vector<outputs::data> current;
 
     int i = 0;
-    std::vector<organisation::output>::iterator it;    
+    std::vector<organisation::outputs::output>::iterator it;    
     for(i = 0, it = values.begin(); it != values.end(); it++, i++)    
     {
         buffer[i]->compute(settings.input.combine(it->values));
@@ -158,9 +158,9 @@ organisation::populations::results organisation::populations::population::execut
 
 
     std::cout << "result.index [" << result.index << "] " << result.best << "\r\n";
-    for(std::vector<std::string>::iterator it = current.begin(); it != current.end(); ++it)
+    for(std::vector<outputs::data>::iterator it = current.begin(); it != current.end(); ++it)
     {
-        std::string temp = *it;
+        std::string temp = it->value;
         if(temp.size() > 80)
         {
             temp.resize(80);

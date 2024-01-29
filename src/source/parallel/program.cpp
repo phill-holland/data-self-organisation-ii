@@ -330,6 +330,11 @@ outputarb(devicePositions,totalValues);//settings.max_values * settings.clients(
 
             std::cout << "\r\n\r\n";
         };
+
+        std::cout << "TOTAL OUTPUTS " << totalOutputValues << "\r\n";
+        move(mappings);            
+        qt.memset(deviceTotalValues, 0, sizeof(int)).wait();
+        totalOutputValues = 0;
     }    
 }
 
@@ -338,9 +343,43 @@ void organisation::parallel::program::set(organisation::data &mappings, inputs::
     inserter->set(mappings, source);
 }
 
-std::vector<organisation::output> organisation::parallel::program::get(organisation::data &mappings)
+std::vector<organisation::outputs::output> organisation::parallel::program::get(organisation::data &mappings)
+{
+    return outputs;    
+}
+
+void organisation::parallel::program::move(organisation::data &mappings)
 {    
-    std::vector<output> results(settings.clients());
+    // do I need to be concerned about epoch at this low level??
+    // balls, yes I do
+    //std::vector<outputs::output> results;//(settings.clients());
+
+    sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
+
+    std::vector<sycl::event> events;
+
+    events.push_back(qt.memcpy(hostOutputValues, deviceOutputValues, sizeof(int) * totalOutputValues));
+    events.push_back(qt.memcpy(hostOutputIndex, deviceOutputIndex, sizeof(int) * totalOutputValues));
+    events.push_back(qt.memcpy(hostOutputClient, deviceOutputClient, sizeof(sycl::float4) * totalOutputValues));
+
+    sycl::event::wait(events);
+
+    outputs::output out;
+
+    for(int i = 0; i < totalOutputValues; ++i)
+    {
+        outputs::data temp;
+
+        temp.value = mappings.map(hostOutputValues[i]);
+        temp.client = hostOutputClient[i].w();
+        temp.index = hostOutputIndex[i];
+
+        out.values.push_back(temp);
+    }
+
+    outputs.push_back(out);
+
+    //return results;
 /*
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, q);
 
@@ -389,7 +428,6 @@ std::vector<organisation::output> organisation::parallel::program::get(organisat
         }
     }
 */
-    return results;
 }
 
 void organisation::parallel::program::update()

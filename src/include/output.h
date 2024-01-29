@@ -6,16 +6,35 @@
 
 namespace organisation
 {
-    class output
+    namespace outputs
     {
-    public:
-        std::vector<std::string> values;
-
-    public:
-        void clear()
+        class data
         {
-            values.clear();
-        }
+        public:
+            std::string value;
+            int client;
+            int index;
+
+        public:
+            data(std::string _value = "", int _client = 0, int _index = 0)
+            {
+                value = _value;
+                client = _client;
+                index = _index;
+            }
+        };
+
+        class output
+        {
+        public:
+            std::vector<data> values;
+
+        public:
+            void clear()
+            {
+                values.clear();
+            }
+        };
     };
 };
 
