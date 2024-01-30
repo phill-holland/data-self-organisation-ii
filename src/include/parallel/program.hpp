@@ -65,6 +65,14 @@ namespace organisation
             int *hostTotalValues;
             // ***
 
+            // ***
+            sycl::float4 *deviceNewPositions;
+            int *deviceNewValues;
+            sycl::int4 *deviceNewClient;
+            sycl::float4 *deviceNewNextDirections;
+            int *deviceNewMovementIdx;
+            // ***
+
             ::parallel::mapper::map *impacter;
             inserts *inserter;
 
@@ -106,6 +114,7 @@ namespace organisation
             void positions();
             void next(int iteration);
             void insert(int epoch);
+            void boundaries();
 
         public:
             void copy(::organisation::schema **source, int source_size);
