@@ -95,7 +95,7 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
     
     //parameters.clients = 1;
     parameters.dim_clients = organisation::point(1,1,1);
-    parameters.iterations = 11;//20;
+    parameters.iterations = 30;//11;//20;
 
     organisation::inputs::epoch epoch1(input1);
     //organisation::inputs::epoch epoch2(input2);
@@ -110,7 +110,7 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
     organisation::schema s1(width, height, depth);
 
     organisation::genetic::insert insert;
-    insert.values = { 0,2,3 };    
+    insert.values = { 1,2,3 };    
 
     organisation::genetic::movement movement;
     movement.directions = { { 1,0,0 }, { 1,0,0 } };
@@ -123,6 +123,7 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
     collisions.values.resize(27);
     organisation::vector up(1,0,0);
     organisation::vector rebound(1,0,0);
+    //organisation::vector rebound(0,1,0); // what happens if rebound and up are the same??
     collisions.values[up.encode()] = rebound.encode();
 
     s1.prog.set(cache);
@@ -161,6 +162,12 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
 // 7) movements for existing cells is correctly identified (movementIdx is correct)
 // 8) large scale collision detection in ASCII console test
 // 9) input word bounds checking -- does it exceed settings.max_values?
+// 10) need to clean up cross breeding errors, validate() == false
+// 11) test inserts overlap with existing position
+// ***
+// TODO
+// 1) remove settings.max_values * clients() calculation to single max length
+// 2) create new configuration value for max_outputs
 
 /*
 TEST(BasicFrontTest, BasicAssertions)

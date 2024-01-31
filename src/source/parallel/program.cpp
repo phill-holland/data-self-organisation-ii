@@ -192,6 +192,8 @@ void organisation::parallel::program::clear()
     totalOutputValues = 0;
     totalValues = 0;
 
+    outputs.clear();
+
     sycl::event::wait(events);
 }
 
@@ -204,6 +206,7 @@ void organisation::parallel::program::run(organisation::data &mappings)
     {                
         // ***
         inserter->clear();
+        outputs.clear();
         // *** 
 
         int iterations = 0;
@@ -250,6 +253,28 @@ outputarb(deviceNextHalfPositions,totalValues);//settings.max_values * settings.
             update();
             next(iterations);
             
+            // push next_position into temp_next_position instead
+            // check temp_next_position
+            // collision with itself
+            // and with current_position
+
+            // if(temp_next_position[i] collides with position[i])
+            // if collision[i].y() {
+            // int idx_b = collision[i].y()
+            // if(position[idx_b] == temp_next_position[i])
+            // {
+                // it's not move
+                // this point should not move
+            // } 
+            // else
+            // {
+                // move point new_position[i] = temp_next_position[i] 
+            // }
+            //}
+            // if(position == temp_next_position)
+            //  // it didn't move
+            // 
+
             std::cout << "new positions ";
 outputarb(devicePositions,totalValues);//settings.max_values * settings.clients());
 
@@ -263,8 +288,9 @@ boundaries();
 
         std::cout << "TOTAL OUTPUTS " << totalOutputValues << "\r\n";
         move(mappings);            
+        
         qt.memset(deviceTotalValues, 0, sizeof(int)).wait();
-        totalOutputValues = 0;
+        
     }    
 }
 
@@ -280,30 +306,39 @@ std::vector<organisation::outputs::output> organisation::parallel::program::get(
 
 void organisation::parallel::program::move(organisation::data &mappings)
 {    
-    sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
-
-    std::vector<sycl::event> events;
-
-    events.push_back(qt.memcpy(hostOutputValues, deviceOutputValues, sizeof(int) * totalOutputValues));
-    events.push_back(qt.memcpy(hostOutputIndex, deviceOutputIndex, sizeof(int) * totalOutputValues));
-    events.push_back(qt.memcpy(hostOutputClient, deviceOutputClient, sizeof(sycl::float4) * totalOutputValues));
-
-    sycl::event::wait(events);
-
-    outputs::output out;
-
-    for(int i = 0; i < totalOutputValues; ++i)
+    if(totalOutputValues > 0)
     {
-        outputs::data temp;
+        sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
 
-        temp.value = mappings.map(hostOutputValues[i]);
-        temp.client = hostOutputClient[i].w();
-        temp.index = hostOutputIndex[i];
+        int output_length = totalOutputValues;
+        if(output_length > settings.max_values) output_length = settings.max_values;
 
-        out.values.push_back(temp);
+        std::vector<sycl::event> events;
+
+        events.push_back(qt.memcpy(hostOutputValues, deviceOutputValues, sizeof(int) * output_length));
+        events.push_back(qt.memcpy(hostOutputIndex, deviceOutputIndex, sizeof(int) * output_length));
+        events.push_back(qt.memcpy(hostOutputClient, deviceOutputClient, sizeof(sycl::float4) * output_length));
+
+        sycl::event::wait(events);
+
+        outputs::output out;
+
+        for(int i = 0; i < output_length; ++i)
+        {
+            outputs::data temp;
+
+            temp.value = mappings.map(hostOutputValues[i]);
+            temp.client = hostOutputClient[i].w();
+            temp.index = hostOutputIndex[i];
+
+            out.values.push_back(temp);
+        }
+
+        outputs.push_back(out);
+
+        qt.memset(deviceOutputTotalValues, 0, sizeof(int)).wait();
+        totalOutputValues = 0;
     }
-
-    outputs.push_back(out);
 }
 
 void organisation::parallel::program::update()
@@ -383,6 +418,8 @@ void organisation::parallel::program::next(int iteration)
         auto _outputClient = deviceOutputClient;
         auto _outputTotalValues = deviceOutputTotalValues;
 
+        auto _outputLength = settings.max_values;
+
         auto _iteration = iteration;
 
         auto _max_movements = settings.max_movements;
@@ -409,10 +446,12 @@ void organisation::parallel::program::next(int iteration)
 
                     int idx = ar.fetch_add(1);
 
-                    _outputValues[idx] = _values[collision.y()];
-                    _outputIndex[idx] = _iteration;
-                    _outputClient[idx] = _client[i];
-
+                    if(idx < _outputLength)
+                    {
+                        _outputValues[idx] = _values[collision.y()];
+                        _outputIndex[idx] = _iteration;
+                        _outputClient[idx] = _client[i];
+                    }
                 }
                 else
                 {
@@ -465,6 +504,8 @@ void organisation::parallel::program::insert(int epoch)
             
             auto _keys = deviceCollisionKeys;
 
+            auto _valuesLength = settings.max_values * settings.clients();
+
             auto _totalValues = deviceTotalValues;
 
             h.parallel_for(num_items, [=](auto i) 
@@ -477,15 +518,22 @@ void organisation::parallel::program::insert(int epoch)
 
                     int idx = ar.fetch_add(1);
 
-                    _positions[idx] = _srcPosition[i];
-                    _values[idx] = _srcValues[i];
-                    _client[idx] = _srcClient[i];
+                    if(idx < _valuesLength)
+                    {
+                        _positions[idx] = _srcPosition[i];
+                        _values[idx] = _srcValues[i];
+                        _client[idx] = _srcClient[i];
+                    }
                 }
             });
         }).wait();
         
         qt.memcpy(hostTotalValues, deviceTotalValues, sizeof(int)).wait();
+        
         totalValues = hostTotalValues[0];
+
+        if(totalValues > settings.max_values * settings.clients())
+            totalValues = settings.max_values * settings.clients();
     }
 }
 
@@ -545,6 +593,7 @@ void organisation::parallel::program::boundaries()
     {
         if(temp > 0)
         {
+            std::cout << "BING BANG " << temp << "\r\n";
             std::vector<sycl::event> events;
 
             events.push_back(qt.memcpy(devicePositions, deviceNewPositions, sizeof(sycl::float4) * temp));
