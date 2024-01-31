@@ -257,34 +257,6 @@ outputarb(devicePositions,totalValues);//settings.max_values * settings.clients(
             outputarb(deviceNextDirections, totalValues);//settings.max_values * settings.clients());
 
 boundaries();
-            // ***************
-            // update halfPositions
-            // check to see if data cells have gone out of boundaries
-            // shuffle up cells to be continious
-            // reduce dataTotalValues by number removed
-            // (do I need to do this...just flag them as "ignore"??)
-
-            // ****
-            // if CELL out of boundaries
-            // mark as invisible (w value???)
-            // and then ignore for rest of iterations
-            // rather than removing and updating totalValues???
-            // ****
-
-            // todo;
-            // out of boundaries logic
-            // cache loading
-            // ensure cache cells are marked as such .w() = -2? (and their position doesn't move?)
-            // collision logic
-            // insert collisions check
-            // ***
-            // OUTPUTS!!!! during collision!!!
-            // ***
-            // segregate collisons and directions into classes
-            // test epochs and many clients
-            // test for inserts, when data ends it should stop
-            // 
-            // ****
 
             std::cout << "\r\n\r\n";
         };
@@ -416,8 +388,6 @@ void organisation::parallel::program::next(int iteration)
         auto _max_movements = settings.max_movements;
         auto _max_collisions = settings.max_collisions;
 
-//sycl::stream out(1024, 256, h);
-
         h.parallel_for(num_items, [=](auto i) 
         {  
             if(_positions[i].w() == 0)
@@ -427,13 +397,11 @@ void organisation::parallel::program::next(int iteration)
                 int offset = _max_movements * client;
 
                 sycl::int2 collision = _collisionKeys[i];
-                if(collision.x() > 0)//&&(collision.y() != i))
+                if(collision.x() > 0)
                 {
                     int key = GetCollidedKey(_positions[i], _nextPositions[i]);
                     sycl::float4 direction = _collisions[(client * _max_collisions) + key];                    
                     _nextDirections[i] = direction;
-
-                    //out << "KEYEYEYEYEYE " << key << "\n";
 
                     cl::sycl::atomic_ref<int, cl::sycl::memory_order::relaxed, 
                     sycl::memory_scope::device, 
