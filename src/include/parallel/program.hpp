@@ -24,7 +24,7 @@ namespace organisation
             ::parallel::device *dev;
             ::parallel::queue *queue;
 
-            sycl::float4 *devicePositions;
+            sycl::float4 *devicePositions;            
             sycl::float4 *deviceNextPositions;
             sycl::float4 *deviceNextHalfPositions;
             int *deviceValues;
@@ -64,13 +64,17 @@ namespace organisation
             int *deviceTotalValues;            
             int *hostTotalValues;
             // ***
-
-            // ***
+                        
             sycl::float4 *deviceNewPositions;
             int *deviceNewValues;
             sycl::int4 *deviceNewClient;
             sycl::float4 *deviceNewNextDirections;
             int *deviceNewMovementIdx;
+            // ***
+
+            sycl::float4 *deviceOldPositions;
+            int *deviceOldUpdateCounter;
+            int *hostOldUpdateCounter;
             // ***
 
             ::parallel::mapper::map *impacter;
@@ -115,6 +119,7 @@ namespace organisation
             void next(int iteration);
             void insert(int epoch);
             void boundaries();
+            void corrections();
 
         public:
             void copy(::organisation::schema **source, int source_size);
