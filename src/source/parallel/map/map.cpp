@@ -684,6 +684,8 @@ void parallel::mapper::map::clear(::parallel::queue *q)
 void parallel::mapper::map::build(sycl::float4 *points, sycl::int4 *clients,
                           const int length, ::parallel::queue *q)
 {        
+    if(length == 0) return;
+
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, q);
     sycl::range num_items{(size_t)length};
 
@@ -735,6 +737,8 @@ void parallel::mapper::map::search(sycl::float4 *search, sycl::int4 *clients, in
                            const int length, const bool self, int *collided,
                            int index, ::parallel::queue *q)
 {
+    if(length == 0) return;
+
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, q);
     sycl::range num_items{(size_t)length};
 
@@ -769,7 +773,6 @@ void parallel::mapper::map::search(sycl::float4 *search, sycl::int4 *clients, in
                 _fineBuckets, _totalBuckets,
                 _client_dimensions, _clientTotals,
                 _value, self, collided, index, NULL, NULL, item);
-                //length, item);
         });
     }).wait();
 }
@@ -779,44 +782,46 @@ void parallel::mapper::map::search(sycl::float4 *search, sycl::int4 *clients,
                            const bool symetrical, const bool inverse, int *collided,
                            int index, ::parallel::queue *q)
 {
-        sycl::queue& qt = ::parallel::queue::get_queue(*dev, q);
-        sycl::range num_items{(size_t)length};
+    if(length == 0) return;
 
-        qt.submit([&](sycl::handler &cgh)
+    sycl::queue& qt = ::parallel::queue::get_queue(*dev, q);
+    sycl::range num_items{(size_t)length};
+
+    qt.submit([&](sycl::handler &cgh)
+    {
+        auto _coarseScaleMap = deviceCoarseScaleMap;
+        auto _mediumScaleMap = deviceMediumScaleMap;
+        auto _bucketIndices = deviceBucketIndices;
+        auto _bucketLengths = deviceBucketLengths;
+        auto _positions = (const sycl::float4 **)devicePositions;
+        auto _clients = (const sycl::int4 **)deviceClients;
+        auto _coarseScale = coarseScale;
+        auto _coarseDimension = coarseDimension;
+        auto _mediumScale = mediumScale;
+        auto _mediumDimension = mediumDimension;
+        auto _fineScale = fineScale;
+        auto _fineBuckets = fineBuckets;
+        auto _totalBuckets = totalBuckets;
+        auto _client_dimensions = client.dimensions;
+        auto _clientTotals = clientTotals;
+        auto _value = value;
+
+        cgh.parallel_for(num_items, [=](auto item) 
         {
-            auto _coarseScaleMap = deviceCoarseScaleMap;
-            auto _mediumScaleMap = deviceMediumScaleMap;
-            auto _bucketIndices = deviceBucketIndices;
-            auto _bucketLengths = deviceBucketLengths;
-            auto _positions = (const sycl::float4 **)devicePositions;
-            auto _clients = (const sycl::int4 **)deviceClients;
-            auto _coarseScale = coarseScale;
-            auto _coarseDimension = coarseDimension;
-            auto _mediumScale = mediumScale;
-            auto _mediumDimension = mediumDimension;
-            auto _fineScale = fineScale;
-            auto _fineBuckets = fineBuckets;
-            auto _totalBuckets = totalBuckets;
-            auto _client_dimensions = client.dimensions;
-            auto _clientTotals = clientTotals;
-            auto _value = value;
-
-            cgh.parallel_for(num_items, [=](auto item) 
-            {
-                ScanMap(
-                    result, search, clients, _coarseScaleMap,
-                    _mediumScaleMap, _bucketIndices,
-                    _bucketLengths, _positions,
-                    _clients, _coarseScale,
-                    _coarseDimension, _mediumScale,
-                    _mediumDimension, _fineScale,
-                    _fineBuckets, _totalBuckets,
-                    _client_dimensions, _clientTotals,
-                    _value, self, collided, index, symetrical,
-                    inverse, NULL, NULL, item);
-                    //length, item);
-            });
-        }).wait();
+            ScanMap(
+                result, search, clients, _coarseScaleMap,
+                _mediumScaleMap, _bucketIndices,
+                _bucketLengths, _positions,
+                _clients, _coarseScale,
+                _coarseDimension, _mediumScale,
+                _mediumDimension, _fineScale,
+                _fineBuckets, _totalBuckets,
+                _client_dimensions, _clientTotals,
+                _value, self, collided, index, symetrical,
+                inverse, NULL, NULL, item);
+                //length, item);
+        });
+    }).wait();
 }
 
 std::string parallel::mapper::map::outputarb(int *source, int length)

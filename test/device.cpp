@@ -228,6 +228,7 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
 // 9) input word bounds checking -- does it exceed settings.max_values?
 // 10) need to clean up cross breeding errors, validate() == false
 // 11) test inserts overlap with existing position
+// 12) check loading of schemas > HOST_BUFFER in number
 // ***
 // TODO
 // 1) remove settings.max_values * clients() calculation to single max length

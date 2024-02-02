@@ -90,7 +90,7 @@ int organisation::parallel::inserts::insert(int epoch)
 
     qt.memset(deviceTotalNewInserts, 0, sizeof(int)).wait();
 
-    auto epoch_offset = epoch * settings.epochs();
+    auto epoch_offset = (epoch > settings.epochs() ? settings.epochs() : epoch) * settings.max_input_data;
 
     sycl::float4 starting = { (float)settings.starting.x, (float)settings.starting.y, (float)settings.starting.z, 0.0f };
     sycl::int4 dim_clients = { settings.dim_clients.x, settings.dim_clients.y, settings.dim_clients.z, 0.0f };
@@ -117,10 +117,12 @@ int organisation::parallel::inserts::insert(int epoch)
         auto _max_inserts = settings.max_inserts;
         auto _max_values = settings.max_values;
         auto _dim_clients = dim_clients;
-        
+
+//sycl::stream out(1024, 256, h);
+
         h.parallel_for(num_items, [=](auto client) 
         {
-            if(_inputData[_inputIdx[client]] == -1) return;
+            if(_inputData[_inputIdx[client] + epoch_offset] == -1) return;
             
             int offset = (client * _max_inserts);            
             int a = _insertsIdx[client];            
@@ -133,6 +135,7 @@ int organisation::parallel::inserts::insert(int epoch)
                 int newValueToInsert = _inputData[b + epoch_offset];
                 _inputIdx[client]++;
 
+//out << "newVV " << newValueToInsert << " " << (b + epoch_offset) << "\n";
                 //if(_inputData[_inputIdx[client]] == -1)
                     //_inputIdx[client] = 0;
 

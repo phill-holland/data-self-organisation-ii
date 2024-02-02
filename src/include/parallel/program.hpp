@@ -33,14 +33,16 @@ namespace organisation
             int *deviceMovementIdx;            
             sycl::int4 *deviceClient;
 
+            sycl::float4 *deviceCachePositions;
+            int *deviceCacheValues;
             sycl::float4 *deviceMovements;
             int *deviceMovementsCounts;
             sycl::float4 *deviceCollisions;
 
             sycl::int2 *deviceCollisionKeys;
             
-            sycl::float4 *hostPositions;
-            int *hostValues;
+            sycl::float4 *hostCachePositions;
+            int *hostCacheValues;
             sycl::float4 *hostMovements;
             int *hostMovementsCounts;
             sycl::float4 *hostCollisions;
@@ -82,6 +84,7 @@ namespace organisation
 
             parameters settings;
 
+            int totalCacheValues;
             int totalOutputValues;
             int totalValues;
 
@@ -120,6 +123,7 @@ namespace organisation
             void insert(int epoch);
             void boundaries();
             void corrections();
+            void restart();
 
         public:
             void copy(::organisation::schema **source, int source_size);
