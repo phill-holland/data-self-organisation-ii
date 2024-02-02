@@ -415,7 +415,6 @@ void MapScanCollision(
                                                 sycl::access::address_space::ext_intel_global_device_space> ar(result[c1.w()].w());
 
                         ar.fetch_add(1);
-                        //sycl::atomic<int>(sycl::global_ptr<int>(&result[c1.w()].w())).fetch_add(1);
                     }
 					else
 					{
@@ -428,7 +427,6 @@ void MapScanCollision(
                                                 sycl::access::address_space::ext_intel_global_device_space> ar(result[idx].w());
 
                         ar.fetch_add(1);
-                        //sycl::atomic<int>(sycl::global_ptr<int>(&result[idx].w())).fetch_add(1);
                     }
 
 					if (symetrical)
@@ -444,7 +442,6 @@ void MapScanCollision(
                                                     sycl::access::address_space::ext_intel_global_device_space> ar(result[idx].w());
 
                             ar.fetch_add(1);
-                            //sycl::atomic<int>(sycl::global_ptr<int>(&result[idx].w())).fetch_add(1);
                         }
 						else
 						{
@@ -457,7 +454,6 @@ void MapScanCollision(
                                                     sycl::access::address_space::ext_intel_global_device_space> ar(result[c1.w()].w());
 
                             ar.fetch_add(1);
-                            //sycl::atomic<int>(sycl::global_ptr<int>(&result[c1.w()].w())).fetch_add(1);
                         }
 					}
 
@@ -484,12 +480,8 @@ void ScanMap(sycl::int4 *result, const sycl::float4 *values,
              const int collided_index, const bool symetrical,
              const bool inverse, const sycl::float4 *lcompare,
              const sycl::float4 *rcompare, const sycl::int4 min,
-             const sycl::int4 max, const int idx)
-             //const int N, sycl::nd_item<3> item_ct1)
+             const sycl::int4 max, const int idx)             
 {
-    //int idx = item_ct1.get_group(2) * item_ct1.get_local_range().get(2) +
-                //item_ct1.get_local_id(2);
-
     sycl::float4 source = values[idx];
     if (MapIsZero(source)) return;
 
@@ -686,18 +678,6 @@ void parallel::mapper::map::clear(::parallel::queue *q)
             }    
         });
 
-
-        /*
-        cgh.parallel_for(
-            sycl::nd_range<3>(sycl::range<3>(1, 1, client.grids) *
-                                    sycl::range<3>(1, 1, client.threads),
-                                sycl::range<3>(1, 1, client.threads)),
-            [=](sycl::nd_item<3> item_ct1) {
-                    ClearMap(cudaPositions_ct0, cudaClients_ct1,
-                                totalBuckets_ct2, client_length_ct3,
-                                item_ct1);
-        });
-        */
     }).wait();        
 }
 
@@ -705,7 +685,7 @@ void parallel::mapper::map::build(sycl::float4 *points, sycl::int4 *clients,
                           const int length, ::parallel::queue *q)
 {        
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, q);
-    sycl::range num_items{(size_t)global.length};
+    sycl::range num_items{(size_t)length};
 
 	if (++value == INT_MAX)
 	{
@@ -735,7 +715,6 @@ void parallel::mapper::map::build(sycl::float4 *points, sycl::int4 *clients,
         auto _client_dimensions = client.dimensions;
         auto _clientTotals = clientTotals;
         auto _value = value;
-        auto _global_length = global.length;
 
         cgh.parallel_for(num_items, [=](auto item) 
         {  
@@ -757,7 +736,7 @@ void parallel::mapper::map::search(sycl::float4 *search, sycl::int4 *clients, in
                            int index, ::parallel::queue *q)
 {
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, q);
-    sycl::range num_items{(size_t)global.length};
+    sycl::range num_items{(size_t)length};
 
     qt.submit([&](sycl::handler &cgh)
     {
@@ -801,7 +780,7 @@ void parallel::mapper::map::search(sycl::float4 *search, sycl::int4 *clients,
                            int index, ::parallel::queue *q)
 {
         sycl::queue& qt = ::parallel::queue::get_queue(*dev, q);
-        sycl::range num_items{(size_t)global.length};
+        sycl::range num_items{(size_t)length};
 
         qt.submit([&](sycl::handler &cgh)
         {

@@ -77,6 +77,8 @@ void organisation::parallel::inserts::clear()
     events.push_back(qt.memset(deviceNewPositions, 0, sizeof(sycl::float4) * length));
     events.push_back(qt.memset(deviceNewValues, -1, sizeof(int) * length));
     events.push_back(qt.memset(deviceNewClient, 0, sizeof(sycl::int4) * length));
+    events.push_back(qt.memset(deviceInsertsIdx, 0, sizeof(int) * settings.clients()));
+    events.push_back(qt.memset(deviceInputIdx, 0, sizeof(int) * settings.clients()));
 
     sycl::event::wait(events);
 }
@@ -155,7 +157,7 @@ int organisation::parallel::inserts::insert(int epoch)
     }).wait();
 
     qt.memcpy(hostTotalNewInserts, deviceTotalNewInserts, sizeof(int)).wait();
-
+std::cout << "mooooooo " << hostTotalNewInserts[0] << "\r\n";
     return hostTotalNewInserts[0];
 }
 

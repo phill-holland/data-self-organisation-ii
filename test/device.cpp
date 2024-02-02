@@ -74,38 +74,9 @@ TEST(BasicProgramInsertParallel, BasicAssertions)
     // *****    
 }
 
-TEST(BasicProgramMovementParallel, BasicAssertions)
-{    
-    //GTEST_SKIP();
-
+organisation::schema getSchema1()
+{
     const int width = 20, height = 20, depth = 20;
-
-    //std::string input1("daisy give");// daisy give me your answer do .");
-    std::string input1("daisy daisy give me your answer do .");
-    //std::string input2("monkey monkey eat my face .");
-    std::vector<std::string> expected = organisation::split("daisy daisy daisy daisy me daisy daisy do");
-
-    std::vector<std::string> strings = organisation::split(input1);// + " " + input2);
-    organisation::data d(strings);
-
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
-
-    organisation::parameters parameters(width, height, depth);
-    
-    //parameters.clients = 1;
-    parameters.dim_clients = organisation::point(1,1,1);
-    parameters.iterations = 30;//11;//20;
-
-    organisation::inputs::epoch epoch1(input1);
-    //organisation::inputs::epoch epoch2(input2);
-
-    parameters.input.push_back(epoch1);
-    //parameters.input.push_back(epoch2);
-
-    parallel::mapper::configuration mapper;
-
-    organisation::parallel::program program(*device, queue, mapper, parameters);
 
     organisation::schema s1(width, height, depth);
 
@@ -122,14 +93,105 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
 
     collisions.values.resize(27);
     organisation::vector up(1,0,0);
-    organisation::vector rebound(1,0,0);
-    //organisation::vector rebound(0,1,0); // what happens if rebound and up are the same??
+    organisation::vector rebound(0,1,0);
     collisions.values[up.encode()] = rebound.encode();
 
     s1.prog.set(cache);
     s1.prog.set(insert);
     s1.prog.set(movement);
     s1.prog.set(collisions);
+
+    return s1;
+}
+
+organisation::schema getSchema2()
+{
+    const int width = 20, height = 20, depth = 20;
+
+    organisation::schema s1(width, height, depth);
+
+    organisation::genetic::insert insert;
+    insert.values = { 1,2,3 };    
+
+    organisation::genetic::movement movement;
+    movement.directions = { { 0,1,0 }, { 0,1,0 } };
+
+    organisation::genetic::cache cache(width, height, depth);
+    cache.set(3, organisation::point(10,18,10));
+
+    organisation::genetic::collisions collisions;
+
+    collisions.values.resize(27);
+    organisation::vector up(0,1,0);
+    organisation::vector rebound(1,0,0);
+    collisions.values[up.encode()] = rebound.encode();
+
+    s1.prog.set(cache);
+    s1.prog.set(insert);
+    s1.prog.set(movement);
+    s1.prog.set(collisions);
+
+    return s1;
+}
+
+TEST(BasicProgramMovementParallel, BasicAssertions)
+{    
+    //GTEST_SKIP();
+
+    const int width = 20, height = 20, depth = 20;
+
+    std::string input1("daisy daisy give me your answer do .");
+    std::string input2("monkey monkey eat my face .");
+    std::vector<std::string> expected = organisation::split("daisy daisy daisy daisy daisy daisy daisy daisy");
+
+    std::vector<std::string> strings = organisation::split(input1 + " " + input2);
+    organisation::data d(strings);
+
+	::parallel::device *device = new ::parallel::device(0);
+	::parallel::queue *queue = new parallel::queue(*device);
+
+    organisation::parameters parameters(width, height, depth);
+    
+    //parameters.clients = 1;
+    parameters.dim_clients = organisation::point(1,1,1);
+    parameters.iterations = 30;//11;//20;
+
+    organisation::inputs::epoch epoch1(input1);
+    organisation::inputs::epoch epoch2(input2);
+
+    parameters.input.push_back(epoch1);
+    parameters.input.push_back(epoch2);
+
+    parallel::mapper::configuration mapper;
+
+    organisation::parallel::program program(*device, queue, mapper, parameters);
+
+    //organisation::schema s1(width, height, depth);
+
+/*
+    organisation::genetic::insert insert;
+    insert.values = { 1,2,3 };    
+
+    organisation::genetic::movement movement;
+    movement.directions = { { 1,0,0 }, { 1,0,0 } };
+
+    organisation::genetic::cache cache(width, height, depth);
+    cache.set(0, organisation::point(18,10,10));
+
+    organisation::genetic::collisions collisions;
+
+    collisions.values.resize(27);
+    organisation::vector up(1,0,0);
+    //organisation::vector rebound(1,0,0);
+    organisation::vector rebound(0,1,0); // what happens if rebound and up are the same??
+    collisions.values[up.encode()] = rebound.encode();
+
+    s1.prog.set(cache);
+    s1.prog.set(insert);
+    s1.prog.set(movement);
+    s1.prog.set(collisions);
+*/
+    organisation::schema s1 = getSchema1();
 
     std::vector<organisation::schema*> source = { &s1 };
     
@@ -139,15 +201,17 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
     program.run(d);
 
     std::vector<organisation::outputs::output> results = program.get(d);
+    int epochIdx = 0;
     for(auto &epoch: results)
     {
         std::string value;
         for(auto &output: epoch.values)
         {
-            value += output.value;
+            value += output.value + "(" + std::to_string(output.client) + ")";
         }
 
-        std::cout << "value " << value << "\r\n";
+        std::cout << "value (" << epochIdx << ") " << value << "\r\n";
+        ++epochIdx;
     }
     
 }
@@ -168,6 +232,10 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
 // TODO
 // 1) remove settings.max_values * clients() calculation to single max length
 // 2) create new configuration value for max_outputs
+// ***
+// test if direction and rebound the same
+//organisation::vector up(1,0,0);
+//organisation::vector rebound(1,0,0);
 
 /*
 TEST(BasicFrontTest, BasicAssertions)
