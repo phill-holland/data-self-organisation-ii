@@ -74,6 +74,9 @@ void organisation::parallel::program::reset(::parallel::device &dev,
     deviceCacheValues = sycl::malloc_device<int>(settings.max_values * settings.clients(), qt);
     if(deviceCacheValues == NULL) return;
 
+    deviceCacheClients = sycl::malloc_device<sycl::int4>(settings.max_values * settings.clients(), qt);
+    if(deviceCacheClients == NULL) return;
+
     deviceMovements = sycl::malloc_device<sycl::float4>(settings.max_movements * settings.clients(), qt);
     if(deviceMovements == NULL) return;
 
@@ -94,6 +97,9 @@ void organisation::parallel::program::reset(::parallel::device &dev,
     hostCacheValues = sycl::malloc_host<int>(settings.max_values * settings.host_buffer, qt);
     if(hostCacheValues == NULL) return;
     
+    hostCacheClients = sycl::malloc_host<sycl::int4>(settings.max_values * settings.host_buffer, qt);
+    if(hostCacheClients == NULL) return;
+
     hostMovements = sycl::malloc_host<sycl::float4>(settings.max_movements * settings.host_buffer, qt);
     if(hostMovements == NULL) return;
 
@@ -102,10 +108,7 @@ void organisation::parallel::program::reset(::parallel::device &dev,
 
     hostCollisions = sycl::malloc_host<sycl::float4>(settings.max_collisions * settings.host_buffer, qt);
     if(hostCollisions == NULL) return;
-
-    hostClient = sycl::malloc_host<sycl::int4>(settings.max_values * settings.host_buffer, qt);
-    if(hostClient == NULL) return;
-
+    
     // ***
     deviceOutputValues = sycl::malloc_device<int>(settings.max_values, qt);
     if(deviceOutputValues == NULL) return;
@@ -113,7 +116,7 @@ void organisation::parallel::program::reset(::parallel::device &dev,
     deviceOutputIndex = sycl::malloc_device<int>(settings.max_values, qt);
     if(deviceOutputIndex == NULL) return;
     
-    deviceOutputClient = sycl::malloc_device<sycl::float4>(settings.max_values, qt);
+    deviceOutputClient = sycl::malloc_device<sycl::int4>(settings.max_values, qt);
     if(deviceOutputClient == NULL) return;
 
     deviceOutputTotalValues = sycl::malloc_device<int>(1, qt);
@@ -126,7 +129,7 @@ void organisation::parallel::program::reset(::parallel::device &dev,
     hostOutputIndex = sycl::malloc_host<int>(settings.max_values, qt);
     if(hostOutputIndex == NULL) return;
     
-    hostOutputClient = sycl::malloc_host<sycl::float4>(settings.max_values, qt);
+    hostOutputClient = sycl::malloc_host<sycl::int4>(settings.max_values, qt);
     if(hostOutputClient == NULL) return;
 
     hostOutputTotalValues = sycl::malloc_host<int>(1, qt);
@@ -201,15 +204,18 @@ void organisation::parallel::program::clear()
     events.push_back(qt.memset(deviceNextDirections, 0, sizeof(sycl::float4) * settings.max_values * settings.clients()));
     events.push_back(qt.memset(deviceMovementIdx, 0, sizeof(int) * settings.max_values * settings.clients()));
     events.push_back(qt.memset(deviceClient, 0, sizeof(sycl::int4) * settings.max_values * settings.clients()));
+    
     events.push_back(qt.memset(deviceCachePositions, 0, sizeof(sycl::float4) * settings.max_values * settings.clients()));
     events.push_back(qt.memset(deviceCacheValues, 0, sizeof(int) * settings.max_values * settings.clients()));
+    events.push_back(qt.memset(deviceCacheClients, 0, sizeof(sycl::int4) * settings.max_values * settings.clients()));
+    
     events.push_back(qt.memset(deviceMovements, 0, sizeof(sycl::float4) * settings.max_movements * settings.clients()));
     events.push_back(qt.memset(deviceMovementsCounts, 0, sizeof(int) * settings.clients()));
     events.push_back(qt.memset(deviceCollisions, 0, sizeof(sycl::float4) * settings.max_collisions * settings.clients()));
 
     inserter->clear();
 
-    totalCacheValues = 0;
+    //totalCacheValues = 0;
     totalOutputValues = 0;
     totalValues = 0;
 
@@ -231,18 +237,57 @@ void organisation::parallel::program::restart()
     events1.push_back(qt.memset(deviceNextDirections, 0, sizeof(sycl::float4) * settings.max_values * settings.clients()));
     events1.push_back(qt.memset(deviceMovementIdx, 0, sizeof(int) * settings.max_values * settings.clients()));
     events1.push_back(qt.memset(deviceClient, 0, sizeof(sycl::int4) * settings.max_values * settings.clients()));
+    events1.push_back(qt.memset(deviceTotalValues, 0, sizeof(int)));
 
     inserter->clear();
 
     sycl::event::wait(events1);
 
-    events2.push_back(qt.memcpy(devicePositions, deviceCachePositions, sizeof(sycl::float4) * settings.max_values * settings.clients()));
-    events2.push_back(qt.memcpy(deviceValues, deviceCacheValues, sizeof(int) * settings.max_values * settings.clients()));
+    //events2.push_back(qt.memcpy(devicePositions, deviceCachePositions, sizeof(sycl::float4) * settings.max_values * settings.clients()));
+    //events2.push_back(qt.memcpy(deviceValues, deviceCacheValues, sizeof(int) * settings.max_values * settings.clients()));
 
-    sycl::event::wait(events2);
+    //sycl::event::wait(events2);
+
+    sycl::range num_items{(size_t)settings.max_values * settings.clients()};
+
+    qt.submit([&](auto &h) 
+    {     
+        auto _positions = devicePositions; 
+        auto _values = deviceValues;
+        auto _client = deviceClient;
+
+        auto _cachePositions = deviceCachePositions; 
+        auto _cacheValues = deviceCacheValues;
+        auto _cacheClient = deviceCacheClients;
+
+        auto _valuesLength = settings.max_values * settings.clients();
+        auto _newTotalValues = deviceTotalValues;
+        
+        h.parallel_for(num_items, [=](auto i) 
+        {  
+            if(_cacheValues[i] != -1)
+            {
+                cl::sycl::atomic_ref<int, cl::sycl::memory_order::relaxed, 
+                            sycl::memory_scope::device, 
+                            sycl::access::address_space::ext_intel_global_device_space> ar(_newTotalValues[0]);
+
+                int idx = ar.fetch_add(1);
+
+                if(idx < _valuesLength)
+                {
+                    _positions[idx] = _cachePositions[i];
+                    _values[idx] = _cacheValues[i];
+                    _client[idx] = _cacheClient[i];
+                }
+            }            
+        });
+    }).wait();
 
     totalOutputValues = 0;
-    totalValues = totalCacheValues;
+    qt.memcpy(hostTotalValues, deviceTotalValues, sizeof(int)).wait();
+    totalValues = hostTotalValues[0];
+    if(totalValues > settings.max_values * settings.clients())
+            totalValues = settings.max_values * settings.clients();
 }
 
 void organisation::parallel::program::run(organisation::data &mappings)
@@ -287,8 +332,8 @@ void organisation::parallel::program::run(organisation::data &mappings)
 
             positions();
 
-            //std::cout << "next positions ";
-//outputarb(deviceNextPositions,totalValues);//settings.max_values * settings.clients());
+            std::cout << "next positions ";
+outputarb(deviceNextPositions,totalValues);//settings.max_values * settings.clients());
 
 //std::cout << "next half positions ";
 //outputarb(deviceNextHalfPositions,totalValues);//settings.max_values * settings.clients());
@@ -387,7 +432,7 @@ void organisation::parallel::program::move(organisation::data &mappings)
 
         events.push_back(qt.memcpy(hostOutputValues, deviceOutputValues, sizeof(int) * output_length));
         events.push_back(qt.memcpy(hostOutputIndex, deviceOutputIndex, sizeof(int) * output_length));
-        events.push_back(qt.memcpy(hostOutputClient, deviceOutputClient, sizeof(sycl::float4) * output_length));
+        events.push_back(qt.memcpy(hostOutputClient, deviceOutputClient, sizeof(sycl::int4) * output_length));
 
         sycl::event::wait(events);
 
@@ -563,8 +608,8 @@ void organisation::parallel::program::insert(int epoch)
 
         qt.memset(deviceCollisionKeys, 0, sizeof(sycl::int2) * totalValues);
 
-        impacter->build(devicePositions, deviceClient, totalValues, queue, true);
-        impacter->search(inserter->deviceNewPositions, inserter->deviceNewClient, deviceCollisionKeys, count, false, false, false, NULL, 0, queue, true);
+        impacter->build(devicePositions, deviceClient, totalValues, queue, false);
+        impacter->search(inserter->deviceNewPositions, inserter->deviceNewClient, deviceCollisionKeys, count, false, false, false, NULL, 0, queue, false);
 std::cout << "total values before " << totalValues << "\r\n";            
         hostTotalValues[0] = totalValues;
         qt.memcpy(deviceTotalValues, hostTotalValues, sizeof(int)).wait();
@@ -767,16 +812,31 @@ std::cout << "THINGS clients ";
 
 void organisation::parallel::program::copy(::organisation::schema **source, int source_size)
 {
+    auto map = [](const int index, organisation::point dimensions)
+    {
+        int n = dimensions.x * dimensions.y;
+        int r = index % n;
+        float z = (float)((index / n));
+
+        int j = r % dimensions.x;
+        float y = (float)((r / dimensions.x));
+        float x = (float)(j);
+
+        return sycl::int4(x, y, z, index);
+    };
+
     memset(hostCachePositions, 0, sizeof(sycl::float4) * settings.max_values * settings.host_buffer);
     memset(hostCacheValues, -1, sizeof(int) * settings.max_values * settings.host_buffer);
+    memset(hostCacheClients, 0, sizeof(sycl::int4) * settings.max_values * settings.host_buffer);
+
     memset(hostMovements, 0, sizeof(sycl::float4) * settings.max_movements * settings.host_buffer);
     memset(hostMovementsCounts, 0, sizeof(int) * settings.host_buffer);
     memset(hostCollisions, 0, sizeof(sycl::float4) * settings.max_collisions * settings.host_buffer);
-    memset(hostClient, 0, sizeof(sycl::int4) * settings.max_values * settings.host_buffer);
-
+    
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
     sycl::range num_items{(size_t)settings.clients()};
 
+    int client_index = 0;
     int dest_index = 0;
     int index = 0;
 
@@ -793,12 +853,15 @@ void organisation::parallel::program::copy(::organisation::schema **source, int 
             hostCachePositions[d_count + (index * settings.max_values)] = { (float)position.x, (float)position.y, (float)position.z, -2.0f };
             hostCacheValues[d_count + (index * settings.max_values)] = value;
 
+            auto m = map(client_index, settings.dim_clients);
+            hostCacheClients[d_count + (index * settings.max_values)] = m;
+
             ++d_count;
             if(d_count > settings.max_values) break;
         }
 
         // ***
-        totalCacheValues = d_count;
+       // totalCacheValues = d_count;
         // ***
 
         int m_count = 0;
@@ -821,28 +884,32 @@ void organisation::parallel::program::copy(::organisation::schema **source, int 
             if(c_count > settings.max_collisions) break;            
         }
 
-        #warning it's only one insert per client, this might not be needed?
-        hostClient[index].w() = dest_index;
+        //#warning it's only one insert per client, this might not be needed?
+        //hostClient[index].w() = dest_index;
 
         ++index;
+        ++client_index;
+
         if(index >= settings.host_buffer)
         {
             std::vector<sycl::event> events;
 
             events.push_back(qt.memcpy(&deviceCachePositions[dest_index * settings.max_values], hostCachePositions, sizeof(sycl::float4) * settings.max_values * index));
             events.push_back(qt.memcpy(&deviceCacheValues[dest_index * settings.max_values], hostCacheValues, sizeof(int) * settings.max_values * index));
-            events.push_back(qt.memcpy(&deviceMovements[dest_index * settings.max_movements], hostMovements, sizeof(int) * settings.max_movements * index));
+            events.push_back(qt.memcpy(&deviceCacheClients[dest_index], hostCacheClients, sizeof(sycl::int4) * settings.max_values * index));
+
+            events.push_back(qt.memcpy(&deviceMovements[dest_index * settings.max_movements], hostMovements, sizeof(sycl::float4) * settings.max_movements * index));
             events.push_back(qt.memcpy(&deviceMovementsCounts[dest_index], hostMovementsCounts, sizeof(int) * index));
             events.push_back(qt.memcpy(&deviceCollisions[dest_index * settings.max_collisions], hostCollisions, sizeof(sycl::float4) * settings.max_collisions * index));
-            events.push_back(qt.memcpy(&deviceClient[dest_index], hostClient, sizeof(sycl::int4) * index));
-
+            
             memset(hostCachePositions, 0, sizeof(sycl::float4) * settings.max_values * settings.host_buffer);
             memset(hostCacheValues, -1, sizeof(int) * settings.max_values * settings.host_buffer);
+            memset(hostCacheClients, 0, sizeof(sycl::int4) * settings.max_values * settings.host_buffer);
+            
             memset(hostMovements, 0, sizeof(sycl::float4) * settings.max_movements * settings.host_buffer);
             memset(hostMovementsCounts, 0, sizeof(int) * settings.host_buffer);
             memset(hostCollisions, 0, sizeof(sycl::float4) * settings.max_collisions * settings.host_buffer);
-            memset(hostClient, 0, sizeof(sycl::int4) * settings.max_values * settings.host_buffer);
-
+            
             sycl::event::wait(events);
 
             dest_index += settings.host_buffer;
@@ -860,10 +927,11 @@ std::cout << "laa " << (sizeof(sycl::float4) * settings.max_values * index) << "
 
         events.push_back(qt.memcpy(&deviceCachePositions[dest_index * settings.max_values], hostCachePositions, sizeof(sycl::float4) * settings.max_values * index));
         events.push_back(qt.memcpy(&deviceCacheValues[dest_index * settings.max_values], hostCacheValues, sizeof(int) * settings.max_values * index));
-        events.push_back(qt.memcpy(&deviceMovements[dest_index * settings.max_movements], hostMovements, sizeof(int) * settings.max_movements * index));
+        events.push_back(qt.memcpy(&deviceCacheClients[dest_index], hostCacheClients, sizeof(sycl::int4) * settings.max_values * index));
+
+        events.push_back(qt.memcpy(&deviceMovements[dest_index * settings.max_movements], hostMovements, sizeof(sycl::float4) * settings.max_movements * index));
         events.push_back(qt.memcpy(&deviceMovementsCounts[dest_index], hostMovementsCounts, sizeof(int) * index));
-        events.push_back(qt.memcpy(&deviceCollisions[dest_index * settings.max_collisions], hostCollisions, sizeof(sycl::float4) * settings.max_collisions * index));
-        events.push_back(qt.memcpy(&deviceClient[dest_index], hostClient, sizeof(sycl::int4) * index));
+        events.push_back(qt.memcpy(&deviceCollisions[dest_index * settings.max_collisions], hostCollisions, sizeof(sycl::float4) * settings.max_collisions * index));        
 
         sycl::event::wait(events);
     }    
@@ -872,10 +940,14 @@ std::cout << "movements ";
 outputarb(deviceMovements,settings.max_movements * settings.clients());
 std::cout << "collisions ";
 outputarb(deviceCollisions,settings.max_collisions * settings.clients());
-std::cout << "cache ";
+std::cout << "cache pos ";
 outputarb(deviceCachePositions, settings.max_values * settings.clients());
+std::cout << "cache values ";
+outputarb(deviceCacheValues, settings.max_values * settings.clients());
+std::cout << "cache client ";
+outputarb(deviceCacheClients, settings.max_values * settings.clients());
 
-    inserter->copy(source,source_size);
+    inserter->copy(source, source_size);
 }
 
 void organisation::parallel::program::outputarb(int *source, int length)
@@ -1026,6 +1098,8 @@ void organisation::parallel::program::makeNull()
 
     deviceCachePositions = NULL;
     deviceCacheValues = NULL;
+    deviceCacheClients = NULL;
+
     deviceMovements = NULL;
     deviceMovementsCounts = NULL;
     deviceCollisions = NULL;
@@ -1033,11 +1107,12 @@ void organisation::parallel::program::makeNull()
 
     hostCachePositions = NULL;
     hostCacheValues = NULL;
+    hostCacheClients = NULL; 
+
     hostMovements = NULL;
     hostMovementsCounts = NULL;
     hostCollisions = NULL;
-    hostClient = NULL; 
-
+    
     deviceOutputValues = NULL;
     deviceOutputIndex = NULL;
     deviceOutputClient = NULL;
@@ -1100,11 +1175,12 @@ void organisation::parallel::program::cleanup()
         if(hostOutputClient != NULL) sycl::free(hostOutputClient, q);
         if(hostOutputTotalValues != NULL) sycl::free(hostOutputTotalValues, q);
         
-// ***
-        if(hostClient != NULL) sycl::free(hostClient, q);
+// ***        
         if(hostCollisions != NULL) sycl::free(hostCollisions, q);
         if(hostMovementsCounts != NULL) sycl::free(hostMovementsCounts, q);
         if(hostMovements != NULL) sycl::free(hostMovements, q);
+        
+        if(hostCacheClients != NULL) sycl::free(hostCacheClients, q);
         if(hostCacheValues != NULL) sycl::free(hostCacheValues, q);
         if(hostCachePositions != NULL) sycl::free(hostCachePositions, q);
 
@@ -1112,6 +1188,8 @@ void organisation::parallel::program::cleanup()
         if(deviceCollisions != NULL) sycl::free(deviceCollisions, q);
         if(deviceMovementsCounts != NULL) sycl::free(deviceMovementsCounts, q);
         if(deviceMovements != NULL) sycl::free(deviceMovements, q);
+        
+        if(deviceCacheClients != NULL) sycl::free(deviceCacheClients, q);
         if(deviceCacheValues != NULL) sycl::free(deviceCacheValues, q);
         if(deviceCachePositions != NULL) sycl::free(deviceCachePositions, q);
         

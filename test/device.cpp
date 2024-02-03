@@ -148,7 +148,7 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
 
     organisation::parameters parameters(width, height, depth);
     
-    parameters.dim_clients = organisation::point(2,1,1);
+    parameters.dim_clients = organisation::point(2,1,1);//(2,1,1);
     parameters.iterations = 30;
 
     organisation::inputs::epoch epoch1(input1);
@@ -158,13 +158,15 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
     parameters.input.push_back(epoch2);
 
     parallel::mapper::configuration mapper;
+    // NOT SURE ABOUT ORIGIN ...??? COULD BE ORIGIN OF ALL CLIENTS
+    // NOT JUST SINGLE CLIENT?
     mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
 
 
     organisation::parallel::program program(*device, queue, mapper, parameters);
     
     organisation::schema s1 = getSchema1(width, height, depth);
-    organisation::schema s2 = getSchema1(width, height, depth);
+    organisation::schema s2 = getSchema2(width, height, depth);
 
     std::vector<organisation::schema*> source = { &s1, &s2 };
     
@@ -180,7 +182,7 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
         std::string value;
         for(auto &output: epoch.values)
         {
-            value += output.value + "(" + std::to_string(output.client) + ")";
+            value += output.value + "(" + std::to_string(output.client) + "," + std::to_string(output.index) + ")";
         }
 
         std::cout << "value (" << epochIdx << ") " << value << "\r\n";
@@ -204,6 +206,7 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
 // 10) need to clean up cross breeding errors, validate() == false
 // 11) test inserts overlap with existing position
 // 12) check loading of schemas > HOST_BUFFER in number
+// 13) test all programs are copied into device memory completely, for inserts, collisions, movements
 // ***
 // TODO
 // 1) remove settings.max_values * clients() calculation to single max length

@@ -35,6 +35,8 @@ namespace organisation
 
             sycl::float4 *deviceCachePositions;
             int *deviceCacheValues;
+            sycl::int4 *deviceCacheClients;
+
             sycl::float4 *deviceMovements;
             int *deviceMovementsCounts;
             sycl::float4 *deviceCollisions;
@@ -43,22 +45,24 @@ namespace organisation
             
             sycl::float4 *hostCachePositions;
             int *hostCacheValues;
+            sycl::int4 *hostCacheClients;
+
             sycl::float4 *hostMovements;
             int *hostMovementsCounts;
             sycl::float4 *hostCollisions;
-            sycl::int4 *hostClient;
+            
 
             // ***
 
             int *deviceOutputValues;
             int *deviceOutputIndex;
-            sycl::float4 *deviceOutputClient;
+            sycl::int4 *deviceOutputClient;
 
             int *deviceOutputTotalValues; // single int
             
             int *hostOutputValues;
             int *hostOutputIndex; // host iteration output
-            sycl::float4 *hostOutputClient;
+            sycl::int4 *hostOutputClient;
 
             int *hostOutputTotalValues;
 
@@ -84,7 +88,7 @@ namespace organisation
 
             parameters settings;
 
-            int totalCacheValues;
+            //int totalCacheValues;
             int totalOutputValues;
             int totalValues;
 
