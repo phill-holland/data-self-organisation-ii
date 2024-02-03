@@ -74,10 +74,8 @@ TEST(BasicProgramInsertParallel, BasicAssertions)
     // *****    
 }
 
-organisation::schema getSchema1()
+organisation::schema getSchema1(const int width, const int height, const int depth)
 {
-    const int width = 20, height = 20, depth = 20;
-
     organisation::schema s1(width, height, depth);
 
     organisation::genetic::insert insert;
@@ -104,10 +102,8 @@ organisation::schema getSchema1()
     return s1;
 }
 
-organisation::schema getSchema2()
+organisation::schema getSchema2(const int width, const int height, const int depth)
 {
-    const int width = 20, height = 20, depth = 20;
-
     organisation::schema s1(width, height, depth);
 
     organisation::genetic::insert insert;
@@ -152,9 +148,8 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
 
     organisation::parameters parameters(width, height, depth);
     
-    //parameters.clients = 1;
-    parameters.dim_clients = organisation::point(1,1,1);
-    parameters.iterations = 30;//11;//20;
+    parameters.dim_clients = organisation::point(2,1,1);
+    parameters.iterations = 30;
 
     organisation::inputs::epoch epoch1(input1);
     organisation::inputs::epoch epoch2(input2);
@@ -163,37 +158,15 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
     parameters.input.push_back(epoch2);
 
     parallel::mapper::configuration mapper;
+    mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
+
 
     organisation::parallel::program program(*device, queue, mapper, parameters);
+    
+    organisation::schema s1 = getSchema1(width, height, depth);
+    organisation::schema s2 = getSchema1(width, height, depth);
 
-    //organisation::schema s1(width, height, depth);
-
-/*
-    organisation::genetic::insert insert;
-    insert.values = { 1,2,3 };    
-
-    organisation::genetic::movement movement;
-    movement.directions = { { 1,0,0 }, { 1,0,0 } };
-
-    organisation::genetic::cache cache(width, height, depth);
-    cache.set(0, organisation::point(18,10,10));
-
-    organisation::genetic::collisions collisions;
-
-    collisions.values.resize(27);
-    organisation::vector up(1,0,0);
-    //organisation::vector rebound(1,0,0);
-    organisation::vector rebound(0,1,0); // what happens if rebound and up are the same??
-    collisions.values[up.encode()] = rebound.encode();
-
-    s1.prog.set(cache);
-    s1.prog.set(insert);
-    s1.prog.set(movement);
-    s1.prog.set(collisions);
-*/
-    organisation::schema s1 = getSchema1();
-
-    std::vector<organisation::schema*> source = { &s1 };
+    std::vector<organisation::schema*> source = { &s1, &s2 };
     
     program.copy(source.data(), source.size());
     program.set(d, parameters.input);
@@ -215,7 +188,9 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
     }
     
 }
-
+// ***
+// CACHE NEEDS TO DUPLICATE PER CLIENT
+// ***
 // tests
 // 1) bring forward native test basicMoveAndCollDetection
 // 2) multiple clients (with direction movement directions)
@@ -233,6 +208,7 @@ TEST(BasicProgramMovementParallel, BasicAssertions)
 // TODO
 // 1) remove settings.max_values * clients() calculation to single max length
 // 2) create new configuration value for max_outputs
+// 3) cmake test suite instead?
 // ***
 // test if direction and rebound the same
 //organisation::vector up(1,0,0);

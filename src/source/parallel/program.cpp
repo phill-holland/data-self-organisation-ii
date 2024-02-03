@@ -43,6 +43,8 @@ void organisation::parallel::program::reset(::parallel::device &dev,
     
     // this settings.max_values * settings.clients is invalid, based
     // on assumed uniform structure with client[0] client[1] in order
+//#warning change devicePoistions to just be total array size, not by client, but for all clients
+//settings.max_values * settings.clients()
     devicePositions = sycl::malloc_device<sycl::float4>(settings.max_values * settings.clients(), qt);
     if(devicePositions == NULL) return;
 
@@ -253,11 +255,6 @@ void organisation::parallel::program::run(organisation::data &mappings)
     for(int epoch = 0; epoch < settings.epochs(); ++epoch)
     {     
         restart();           
-        // ***
-        //inserter->clear();    
-        // *** 
-        // clear working program variables
-        // copy program cache from epoch
 
         int iterations = 0;
         while(iterations++ < settings.iterations)
@@ -270,6 +267,8 @@ void organisation::parallel::program::run(organisation::data &mappings)
             outputarb(devicePositions,totalValues);//settings.max_values * settings.clients());
             std::cout << "values ";
             outputarb(deviceValues,totalValues);//settings.max_values * settings.clients());
+            std::cout << "clients ";
+            outputarb(deviceClient,totalValues);
             //std::cout << "clients ";
             //outputarb(deviceClient,totalValues);//settings.max_values * settings.clients());
 
@@ -351,8 +350,9 @@ void organisation::parallel::program::run(organisation::data &mappings)
             //std::cout << "new next ";
             //outputarb(deviceNextDirections, totalValues);//settings.max_values * settings.clients());
 
-boundaries();
 corrections();
+boundaries();
+
             std::cout << "\r\n\r\n";
         };
 
@@ -563,24 +563,27 @@ void organisation::parallel::program::insert(int epoch)
 
         qt.memset(deviceCollisionKeys, 0, sizeof(sycl::int2) * totalValues);
 
-        impacter->build(devicePositions, deviceClient, totalValues, queue);
-        impacter->search(inserter->deviceNewPositions, inserter->deviceNewClient, deviceCollisionKeys, count, true, false, false, NULL, 0, queue);
+        impacter->build(devicePositions, deviceClient, totalValues, queue, true);
+        impacter->search(inserter->deviceNewPositions, inserter->deviceNewClient, deviceCollisionKeys, count, false, false, false, NULL, 0, queue, true);
 std::cout << "total values before " << totalValues << "\r\n";            
         hostTotalValues[0] = totalValues;
         qt.memcpy(deviceTotalValues, hostTotalValues, sizeof(int)).wait();
 
 
-            //std::cout << "insert collision keys ";
-            //outputarb(deviceCollisionKeys, totalValues);//settings.max_values * settings.clients());
+            std::cout << "insert collision keys ";
+            outputarb(deviceCollisionKeys, totalValues);//settings.max_values * settings.clients());
 
-            //std::cout << "insert devicePoistions ";
-            //outputarb(devicePositions, totalValues);
+            std::cout << "insert devicePoistions ";
+            outputarb(devicePositions, totalValues);
 
             std::cout << "inserter positions ";
             outputarb(inserter->deviceNewPositions,count);
 
             std::cout << "inserter values ";
             outputarb(inserter->deviceNewValues,count);
+
+            std::cout << "inserter client ";
+            outputarb(inserter->deviceNewClient,count);
 
         qt.submit([&](auto &h) 
         {        
@@ -752,6 +755,13 @@ void organisation::parallel::program::corrections()
         std::cout << "THINGS positions ";
 outputarb(devicePositions,totalValues);//settings.max_values * settings.clients());
 
+std::cout << "THINGS clients ";
+            outputarb(deviceClient,totalValues);
+
+                        std::cout << "THINGS collision keys ";
+            outputarb(deviceCollisionKeys, totalValues);//settings.max_values * settings.clients());
+
+            
     } while(counter > 0);
 }
 
@@ -844,6 +854,10 @@ void organisation::parallel::program::copy(::organisation::schema **source, int 
     {
         std::vector<sycl::event> events;
 
+std::cout << "clients " <<settings.clients() << "\r\n";
+std::cout << "baa " << (sizeof(sycl::float4) * settings.max_values * settings.clients()) << "\r\n";
+std::cout << "laa " << (sizeof(sycl::float4) * settings.max_values * index) << "\r\n";
+
         events.push_back(qt.memcpy(&deviceCachePositions[dest_index * settings.max_values], hostCachePositions, sizeof(sycl::float4) * settings.max_values * index));
         events.push_back(qt.memcpy(&deviceCacheValues[dest_index * settings.max_values], hostCacheValues, sizeof(int) * settings.max_values * index));
         events.push_back(qt.memcpy(&deviceMovements[dest_index * settings.max_movements], hostMovements, sizeof(int) * settings.max_movements * index));
@@ -860,7 +874,7 @@ std::cout << "collisions ";
 outputarb(deviceCollisions,settings.max_collisions * settings.clients());
 std::cout << "cache ";
 outputarb(deviceCachePositions, settings.max_values * settings.clients());
-#warning messy??
+
     inserter->copy(source,source_size);
 }
 
