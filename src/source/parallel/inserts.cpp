@@ -191,11 +191,11 @@ std::vector<organisation::parallel::value> organisation::parallel::inserts::get(
     int totals = hostTotalNewInserts[0];
     if(totals > 0)
     {
-        std::vector<int> values = get(deviceNewValues, totals);
-        std::vector<sycl::int4> clients = get(deviceNewClient, totals);
-        std::vector<sycl::float4> positions = get(deviceNewPositions, totals);
+        std::vector<int> values = dev->get(deviceNewValues, totals);
+        std::vector<sycl::int4> clients = dev->get(deviceNewClient, totals);
+        std::vector<sycl::float4> positions = dev->get(deviceNewPositions, totals);
 
-        if(values.size() == clients.size() == positions.size() == totals)
+        if((values.size() == totals)&&(clients.size() == totals)&&(positions.size() == totals))
         {
             int len = values.size();
             for(int i = 0; i < len; ++i)
@@ -263,77 +263,6 @@ void organisation::parallel::inserts::copy(::organisation::schema **source, int 
     }   
 
     qt.memcpy(deviceInsertsClone, deviceInserts, sizeof(int) * settings.max_inserts * settings.clients()).wait();
-}
-
-std::vector<int> organisation::parallel::inserts::get(int *source, int length)
-{
-	int *temp = new int[length];
-	if (temp == NULL) return { };
-
-    sycl::queue q = ::parallel::queue(*dev).get();
-
-    q.memcpy(temp, source, sizeof(int) * length).wait();
-
-    std::vector<int> result;
-
-	for (int i = 0; i < length; ++i)
-	{
-        result.push_back(temp[i]);
-	}
-
-	delete[] temp;
-
-    return result;
-}
-
-std::vector<sycl::float4> organisation::parallel::inserts::get(sycl::float4 *source, int length)
-{
-    sycl::float4 *temp = new sycl::float4[length];
-    if (temp == NULL) return { };
-
-    sycl::queue q = ::parallel::queue(*dev).get();
-
-    q.memcpy(temp, source, sizeof(sycl::float4) * length).wait();
-
-    std::vector<sycl::float4> result;
-    
-	for (int i = 0; i < length; ++i)
-	{
-        int ix = (int)(temp[i].x() * 100.0f);
-        int iy = (int)(temp[i].y() * 100.0f);
-        int iz = (int)(temp[i].z() * 100.0f);
-
-        result.push_back(temp[i]);					
-	}
-	
-	delete[] temp;
-
-    return result;
-}
-
-std::vector<sycl::int4> organisation::parallel::inserts::get(sycl::int4 *source, int length)
-{
-    sycl::int4 *temp = new sycl::int4[length];
-    if (temp == NULL) return { };
-
-    sycl::queue q = ::parallel::queue(*dev).get();
-
-    q.memcpy(temp, source, sizeof(sycl::int4) * length).wait();
-
-    std::vector<sycl::int4> result;
-    
-	for (int i = 0; i < length; ++i)
-	{
-        int ix = (int)(temp[i].x() * 100.0f);
-        int iy = (int)(temp[i].y() * 100.0f);
-        int iz = (int)(temp[i].z() * 100.0f);
-
-        result.push_back(temp[i]);			
-	}
-	
-	delete[] temp;
-
-    return result;
 }
 
 void organisation::parallel::inserts::outputarb(int *source, int length)

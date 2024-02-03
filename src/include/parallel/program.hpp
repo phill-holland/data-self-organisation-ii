@@ -5,6 +5,7 @@
 #include "parallel/inserts.hpp"
 #include "parallel/map/map.hpp"
 #include "parallel/map/configuration.hpp"
+#include "parallel/value.hpp"
 #include "parameters.h"
 #include "program.h"
 #include "schema.h"
@@ -88,7 +89,6 @@ namespace organisation
 
             parameters settings;
 
-            //int totalCacheValues;
             int totalOutputValues;
             int totalValues;
 
@@ -128,6 +128,9 @@ namespace organisation
             void boundaries();
             void corrections();
             void restart();
+
+        public:
+            std::vector<value> get();
 
         public:
             void copy(::organisation::schema **source, int source_size);

@@ -1,6 +1,7 @@
 #include <CL/sycl.hpp>
 #include "parallel/device.hpp"
 #include "parallel/queue.hpp"
+#include "parallel/value.hpp"
 #include "parameters.h"
 #include "schema.h"
 
@@ -13,14 +14,6 @@ namespace organisation
     {        
         class program;
 
-        class value
-        {
-        public:
-            point position;
-            int value;
-            int client;
-        };
-    
         class inserts
         {            
             friend class program;
@@ -76,11 +69,6 @@ namespace organisation
 
         public:
             void copy(::organisation::schema **source, int source_size);
-
-        protected:
-            std::vector<int> get(int *source, int length);
-            std::vector<sycl::float4> get(sycl::float4 *source, int length);
-            std::vector<sycl::int4> get(sycl::int4 *source, int length);
 
         protected:
             void outputarb(int *source, int length);

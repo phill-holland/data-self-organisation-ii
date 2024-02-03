@@ -338,8 +338,8 @@ outputarb(deviceNextPositions,totalValues);//settings.max_values * settings.clie
 //std::cout << "next half positions ";
 //outputarb(deviceNextHalfPositions,totalValues);//settings.max_values * settings.clients());
 
-            //std::cout << "old next ";
-            //outputarb(deviceNextDirections, totalValues);//settings.max_values * settings.clients());
+            std::cout << "old next ";
+            outputarb(deviceNextDirections, totalValues);//settings.max_values * settings.clients());
 
             qt.memset(deviceCollisionKeys, 0, sizeof(sycl::int2) * totalValues); /*settings.max_values * settings.clients());*/
 
@@ -756,9 +756,6 @@ void organisation::parallel::program::corrections()
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
     sycl::range num_items{(size_t)totalValues};
 
-    //qt.memset(deviceCollisionKeys, 0, sizeof(sycl::int2) * totalValues);
-    //qt.memset(deviceOldUpdateCounter, 0, sizeof(int)).wait();
-
     int counter = 0;
 
     do
@@ -792,9 +789,9 @@ void organisation::parallel::program::corrections()
         }).wait();
 
         qt.memcpy(hostOldUpdateCounter, deviceOldUpdateCounter, sizeof(int)).wait();
-        //qt.memset(deviceOldUpdateCounter, 0, sizeof(int)).wait();
         counter = hostOldUpdateCounter[0];
         
+        /*
         std::cout << "COUNTER " << counter << "\r\n";
 
         std::cout << "THINGS positions ";
@@ -805,9 +802,39 @@ std::cout << "THINGS clients ";
 
                         std::cout << "THINGS collision keys ";
             outputarb(deviceCollisionKeys, totalValues);//settings.max_values * settings.clients());
-
+            */
             
     } while(counter > 0);
+}
+
+std::vector<organisation::parallel::value> organisation::parallel::program::get()
+{
+    std::vector<value> result;
+
+    int totals = totalValues;
+    if(totals > 0)
+    {
+        std::vector<int> values = dev->get(deviceValues, totals);
+        std::vector<sycl::int4> clients = dev->get(deviceClient, totals);
+        std::vector<sycl::float4> positions = dev->get(devicePositions, totals);
+
+        if((values.size() == totals)&&(clients.size() == totals)&&(positions.size() == totals))
+        {
+            int len = values.size();
+            for(int i = 0; i < len; ++i)
+            {
+                value temp;
+
+                temp.value = values[i];
+                temp.client = clients[i].w();
+                temp.position = point(positions[i].x(), positions[i].y(), positions[i].z());
+
+                result.push_back(temp);
+            }
+        }
+    }
+
+    return result;
 }
 
 void organisation::parallel::program::copy(::organisation::schema **source, int source_size)
@@ -860,10 +887,6 @@ void organisation::parallel::program::copy(::organisation::schema **source, int 
             if(d_count > settings.max_values) break;
         }
 
-        // ***
-       // totalCacheValues = d_count;
-        // ***
-
         int m_count = 0;
         for(auto &it: prog->movement.directions)
         {            
@@ -883,9 +906,6 @@ void organisation::parallel::program::copy(::organisation::schema **source, int 
             ++c_count;
             if(c_count > settings.max_collisions) break;            
         }
-
-        //#warning it's only one insert per client, this might not be needed?
-        //hostClient[index].w() = dest_index;
 
         ++index;
         ++client_index;
