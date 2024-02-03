@@ -20,7 +20,7 @@ namespace organisation
             int value;
             int client;
         };
-
+    
         class inserts
         {            
             friend class program;
@@ -80,6 +80,7 @@ namespace organisation
         protected:
             std::vector<int> get(int *source, int length);
             std::vector<sycl::float4> get(sycl::float4 *source, int length);
+            std::vector<sycl::int4> get(sycl::int4 *source, int length);
 
         protected:
             void outputarb(int *source, int length);

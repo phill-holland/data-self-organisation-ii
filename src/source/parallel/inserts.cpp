@@ -118,8 +118,6 @@ int organisation::parallel::inserts::insert(int epoch)
         auto _max_values = settings.max_values;
         auto _dim_clients = dim_clients;
 
-//sycl::stream out(1024, 256, h);
-
         h.parallel_for(num_items, [=](auto client) 
         {
             if(_inputData[_inputIdx[client] + epoch_offset] == -1) return;
@@ -134,10 +132,6 @@ int organisation::parallel::inserts::insert(int epoch)
                 int b = _inputIdx[client];
                 int newValueToInsert = _inputData[b + epoch_offset];
                 _inputIdx[client]++;
-
-//out << "newVV " << newValueToInsert << " " << (b + epoch_offset) << "\n";
-                //if(_inputData[_inputIdx[client]] == -1)
-                    //_inputIdx[client] = 0;
 
                 if(_inserts[_insertsIdx[client]] == -1)
                     _insertsIdx[client] = 0;
@@ -160,7 +154,6 @@ int organisation::parallel::inserts::insert(int epoch)
     }).wait();
 
     qt.memcpy(hostTotalNewInserts, deviceTotalNewInserts, sizeof(int)).wait();
-std::cout << "mooooooo " << hostTotalNewInserts[0] << "\r\n";
     return hostTotalNewInserts[0];
 }
 
@@ -189,36 +182,35 @@ void organisation::parallel::inserts::set(organisation::data &mappings, inputs::
     
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
     qt.memcpy(deviceInputData, hostInputData, sizeof(int) * settings.max_input_data * settings.epochs()).wait();
-
-std::cout << "input data insersts ";
-outputarb(deviceInputData, settings.max_input_data * settings.epochs());
-
 }
 
 std::vector<organisation::parallel::value> organisation::parallel::inserts::get()
 {
     std::vector<value> result;
 
-/*
-    std::vector<int> values = get(deviceNewValues, length);
-    std::vector<int> clients = get(deviceNewClient, length);
-    std::vector<sycl::float4> positions = get(deviceNewPositions, length);
-
-    if(values.size() == clients.size() == positions.size() == hostTotalNewInserts[0])
+    int totals = hostTotalNewInserts[0];
+    if(totals > 0)
     {
-        int len = values.size();
-        for(int i = 0; i < len; ++i)
+        std::vector<int> values = get(deviceNewValues, totals);
+        std::vector<sycl::int4> clients = get(deviceNewClient, totals);
+        std::vector<sycl::float4> positions = get(deviceNewPositions, totals);
+
+        if(values.size() == clients.size() == positions.size() == totals)
         {
-            value temp;
+            int len = values.size();
+            for(int i = 0; i < len; ++i)
+            {
+                value temp;
 
-            temp.value = values[i];
-            temp.client = clients[i];
-            temp.position = point(positions[i].x(), positions[i].y(), positions[i].z());
+                temp.value = values[i];
+                temp.client = clients[i].w();
+                temp.position = point(positions[i].x(), positions[i].y(), positions[i].z());
 
-            result.push_back(temp);
+                result.push_back(temp);
+            }
         }
     }
-*/
+
     return result;
 }
 
@@ -286,8 +278,7 @@ std::vector<int> organisation::parallel::inserts::get(int *source, int length)
 
 	for (int i = 0; i < length; ++i)
 	{
-		if (temp[i] != -1)
-            result.push_back(temp[i]);
+        result.push_back(temp[i]);
 	}
 
 	delete[] temp;
@@ -312,10 +303,32 @@ std::vector<sycl::float4> organisation::parallel::inserts::get(sycl::float4 *sou
         int iy = (int)(temp[i].y() * 100.0f);
         int iz = (int)(temp[i].z() * 100.0f);
 
-        if ((ix != 0) || (iy != 0) || (iz != 0))
-        {
-            result.push_back(temp[i]);			
-		}
+        result.push_back(temp[i]);					
+	}
+	
+	delete[] temp;
+
+    return result;
+}
+
+std::vector<sycl::int4> organisation::parallel::inserts::get(sycl::int4 *source, int length)
+{
+    sycl::int4 *temp = new sycl::int4[length];
+    if (temp == NULL) return { };
+
+    sycl::queue q = ::parallel::queue(*dev).get();
+
+    q.memcpy(temp, source, sizeof(sycl::int4) * length).wait();
+
+    std::vector<sycl::int4> result;
+    
+	for (int i = 0; i < length; ++i)
+	{
+        int ix = (int)(temp[i].x() * 100.0f);
+        int iy = (int)(temp[i].y() * 100.0f);
+        int iz = (int)(temp[i].z() * 100.0f);
+
+        result.push_back(temp[i]);			
 	}
 	
 	delete[] temp;
