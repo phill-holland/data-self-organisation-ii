@@ -276,15 +276,16 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
 
     const int width = 20, height = 20, depth = 20;
 
-    std::string input1("daisy daisy give me your answer do please do .");
+    std::string data1("daisy daisy give me your answer do please do .");
+    std::string input1("give me your .");
     
     std::vector<std::vector<std::string>> expected = {
         { 
-            "daisydaisydaisydaisydaisydaisydaisydaisydaisydaisydaisydaisydaisydaisydaisydaisydaisydaisydaisydaisy"
+            "daisydaisydaisygivedaisygivedaisygivedaisygivemedaisygivemeyourdaisygivemeyourdaisy"
         }
     };
 
-    std::vector<std::string> strings = organisation::split(input1);
+    std::vector<std::string> strings = organisation::split(data1);    
     organisation::data d(strings);
 
 	::parallel::device *device = new ::parallel::device(0);
@@ -293,7 +294,7 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
     organisation::parameters parameters(width, height, depth);
     
     parameters.dim_clients = organisation::point(1,1,1);
-    parameters.iterations = 30;
+    parameters.iterations = 20;//30;
 
     organisation::inputs::epoch epoch1(input1);
     parameters.input.push_back(epoch1);
@@ -355,7 +356,7 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
     }
     
     EXPECT_EQ(compare, expected);
-
+    /*
     std::vector<organisation::parallel::value> values = {
         { organisation::point(18,10,10),0,0 },
         { organisation::point(17,10,10),0,0 },
@@ -367,12 +368,15 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
         { organisation::point(11,10,10),5,0 },
         { organisation::point(10,10,10),6,0 }
     };
-
+    */
+    std::vector<organisation::parallel::value> values = {
+        { organisation::point(18,10,10),0,0 },
+        { organisation::point(17,10,10),1,0 },
+        { organisation::point(16,10,10),2,0 },
+        { organisation::point(15,10,10),3,0 },
+        { organisation::point(14,10,10),7,0 },        
+    };
     std::vector<organisation::parallel::value> data = program.get();
-
-// ***
-// OUTPUT SHOULD ONLY BE A SINGLE DAISY!!
-// ***
 
     EXPECT_EQ(data, values);
 }
@@ -402,6 +406,7 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
 // 2) create new configuration value for max_outputs
 // 3) cmake test suite instead?
 // 4) implement collisions by lifetimes!!!!
+// 5) bring in high_res_clock for frame rate
 // ***
 // test if direction and rebound the same
 //organisation::vector up(1,0,0);

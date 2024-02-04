@@ -42,7 +42,9 @@ namespace organisation
             int *deviceMovementsCounts;
             sycl::float4 *deviceCollisions;
 
-            sycl::int2 *deviceCollisionKeys;
+            sycl::int2 *deviceNextCollisionKeys;
+            sycl::int2 *deviceCurrentCollisionKeys;
+            sycl::int2 *deviceCorrectionCollisionKeys;
             
             sycl::float4 *hostCachePositions;
             int *hostCacheValues;
@@ -123,11 +125,14 @@ namespace organisation
             void move(organisation::data &mappings);       
             void update();
             void positions();
-            void next(int iteration);
+            //void next(int iteration);
+            void next();
             void insert(int epoch);
             void boundaries();
             void corrections();
+            void outputting(int iteration);
             void restart();
+            
 
         public:
             std::vector<value> get();
