@@ -67,7 +67,7 @@ organisation::schema getSchema2(const int width, const int height, const int dep
 
 TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
     organisation::point starting(width / 2, height / 2, depth / 2);
@@ -194,7 +194,7 @@ TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
 
 TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 

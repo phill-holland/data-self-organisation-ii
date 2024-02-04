@@ -223,7 +223,6 @@ void organisation::parallel::program::clear()
 
     inserter->clear();
 
-    //totalCacheValues = 0;
     totalOutputValues = 0;
     totalValues = 0;
 
@@ -343,8 +342,11 @@ outputarb(deviceNextPositions,totalValues);//settings.max_values * settings.clie
 
             std::cout << "old next ";
             outputarb(deviceNextDirections, totalValues);//settings.max_values * settings.clients());
-
-            qt.memset(deviceNextCollisionKeys, 0, sizeof(sycl::int2) * totalValues); /*settings.max_values * settings.clients());*/
+            
+            std::vector<sycl::event> events;
+            events.push_back(qt.memset(deviceNextCollisionKeys, 0, sizeof(sycl::int2) * totalValues));
+            events.push_back(qt.memset(deviceCurrentCollisionKeys, 0, sizeof(sycl::int2) * totalValues));
+            sycl::event::wait(events);            
 
             impacter->build(deviceNextPositions, deviceClient, totalValues, queue);
 	        impacter->search(deviceNextPositions, deviceClient, deviceNextCollisionKeys, totalValues, true, false, false, NULL, 0, queue);
@@ -633,7 +635,7 @@ void organisation::parallel::program::insert(int epoch)
         sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
         sycl::range num_items{(size_t)count};
 
-        qt.memset(deviceNextCollisionKeys, 0, sizeof(sycl::int2) * totalValues);
+        qt.memset(deviceNextCollisionKeys, 0, sizeof(sycl::int2) * totalValues).wait();
 
         impacter->build(devicePositions, deviceClient, totalValues, queue, false);
         impacter->search(inserter->deviceNewPositions, inserter->deviceNewClient, deviceNextCollisionKeys, count, false, false, false, NULL, 0, queue, false);
@@ -787,7 +789,7 @@ void organisation::parallel::program::corrections()
 
     do
     {
-        qt.memset(deviceCorrectionCollisionKeys, 0, sizeof(sycl::int2) * totalValues);
+        qt.memset(deviceCorrectionCollisionKeys, 0, sizeof(sycl::int2) * totalValues).wait();
         qt.memset(deviceOldUpdateCounter, 0, sizeof(int)).wait();
 
         impacter->build(devicePositions, deviceClient, totalValues, queue);
