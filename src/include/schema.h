@@ -25,7 +25,6 @@ namespace organisation
 
     public:
         schema(int width, int height, int depth) : prog(width, height, depth) { makeNull(); reset(); }        
-        //schema(const schema &source) : prog(1,1,1) { copy(source); }
         ~schema() { cleanup(); }
 
     public:

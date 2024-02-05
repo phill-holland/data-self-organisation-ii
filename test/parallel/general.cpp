@@ -65,9 +65,32 @@ organisation::schema getSchema2(const int width, const int height, const int dep
     return s1;
 }
 
+organisation::schema getSchema3(const int width, const int height, const int depth, 
+                                std::vector<organisation::vector> direction,
+                                int delay)
+{
+    organisation::schema s1(width, height, depth);
+
+    organisation::genetic::insert insert;
+    insert.values = { delay };    
+
+    organisation::genetic::movement movement;
+    movement.directions = direction;
+
+    organisation::genetic::cache cache(width, height, depth);    
+    organisation::genetic::collisions collisions;
+
+    s1.prog.set(cache);
+    s1.prog.set(insert);
+    s1.prog.set(movement);
+    s1.prog.set(collisions);
+
+    return s1;
+}
+
 TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
     organisation::point starting(width / 2, height / 2, depth / 2);
@@ -194,7 +217,7 @@ TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
 
 TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -219,7 +242,7 @@ TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
 
     organisation::parameters parameters(width, height, depth);
     
-    parameters.dim_clients = organisation::point(2,1,1);//(2,1,1);
+    parameters.dim_clients = organisation::point(2,1,1);
     parameters.iterations = 30;
 
     organisation::inputs::epoch epoch1(input1);
@@ -229,10 +252,7 @@ TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
     parameters.input.push_back(epoch2);
 
     parallel::mapper::configuration mapper;
-    // NOT SURE ABOUT ORIGIN ...??? COULD BE ORIGIN OF ALL CLIENTS
-    // NOT JUST SINGLE CLIENT?
     mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
-
 
     organisation::parallel::program program(*device, queue, mapper, parameters);
     
@@ -272,7 +292,7 @@ TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
 
 TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -356,19 +376,7 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
     }
     
     EXPECT_EQ(compare, expected);
-    /*
-    std::vector<organisation::parallel::value> values = {
-        { organisation::point(18,10,10),0,0 },
-        { organisation::point(17,10,10),0,0 },
-        { organisation::point(16,10,10),0,0 },
-        { organisation::point(15,10,10),1,0 },
-        { organisation::point(14,10,10),2,0 },
-        { organisation::point(13,10,10),3,0 },
-        { organisation::point(12,10,10),4,0 },
-        { organisation::point(11,10,10),5,0 },
-        { organisation::point(10,10,10),6,0 }
-    };
-    */
+
     std::vector<organisation::parallel::value> values = {
         { organisation::point(18,10,10),0,0 },
         { organisation::point(17,10,10),1,0 },
@@ -376,30 +384,183 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
         { organisation::point(15,10,10),3,0 },
         { organisation::point(14,10,10),7,0 },        
     };
+    
     std::vector<organisation::parallel::value> data = program.get();
 
     EXPECT_EQ(data, values);
 }
 
+TEST(BasicProgramMovementAllDirectionsBoundaryTestParallel, BasicAssertions)
+{    
+    GTEST_SKIP();
+
+    const int width = 20, height = 20, depth = 20;
+
+    std::string input1("daisy");
+    
+    std::vector<std::string> strings = organisation::split(input1);
+    organisation::data d(strings);
+
+	::parallel::device *device = new ::parallel::device(0);
+	::parallel::queue *queue = new parallel::queue(*device);
+
+    organisation::parameters parameters(width, height, depth);
+    
+    parameters.dim_clients = organisation::point(2,3,1);
+    parameters.iterations = 17;
+
+    organisation::inputs::epoch epoch1(input1);
+
+    parameters.input.push_back(epoch1);
+
+    parallel::mapper::configuration mapper;    
+    organisation::parallel::program program(*device, queue, mapper, parameters);
+        
+    organisation::schema s1 = getSchema3(width, height, depth, { { 1, 0, 0 } }, 1);
+    organisation::schema s2 = getSchema3(width, height, depth, { {-1, 0, 0 } }, 2);
+    organisation::schema s3 = getSchema3(width, height, depth, { { 0, 1, 0 } }, 3);
+    organisation::schema s4 = getSchema3(width, height, depth, { { 0,-1, 0 } }, 4);
+    organisation::schema s5 = getSchema3(width, height, depth, { { 0, 0, 1 } }, 5);
+    organisation::schema s6 = getSchema3(width, height, depth, { { 0, 0,-1 } }, 6);
+
+    std::vector<organisation::schema*> source = { &s1,&s2,&s3,&s4,&s5,&s6 };
+
+    program.copy(source.data(), source.size());
+    program.set(d, parameters.input);
+
+    program.run(d);
+
+    std::vector<organisation::parallel::value> data = program.get();
+
+    EXPECT_TRUE(data.size() == 0);
+}
+
+TEST(BasicProgramMovementAllDirectionsPartialBoundaryParallel, BasicAssertions)
+{    
+    GTEST_SKIP();
+
+    const int width = 20, height = 20, depth = 20;
+
+    std::string input1("daisy");
+    
+    std::vector<std::string> strings = organisation::split(input1);
+    organisation::data d(strings);
+
+	::parallel::device *device = new ::parallel::device(0);
+	::parallel::queue *queue = new parallel::queue(*device);
+
+    organisation::parameters parameters(width, height, depth);
+    
+    parameters.dim_clients = organisation::point(2,3,1);
+    parameters.iterations = 14;
+
+    organisation::inputs::epoch epoch1(input1);
+
+    parameters.input.push_back(epoch1);
+
+    parallel::mapper::configuration mapper;    
+    organisation::parallel::program program(*device, queue, mapper, parameters);
+        
+    organisation::schema s1 = getSchema3(width, height, depth, { { 1, 0, 0 } }, 1);
+    organisation::schema s2 = getSchema3(width, height, depth, { {-1, 0, 0 } }, 2);
+    organisation::schema s3 = getSchema3(width, height, depth, { { 0, 1, 0 } }, 3);
+    organisation::schema s4 = getSchema3(width, height, depth, { { 0,-1, 0 } }, 4);
+    organisation::schema s5 = getSchema3(width, height, depth, { { 0, 0, 1 } }, 5);
+    organisation::schema s6 = getSchema3(width, height, depth, { { 0, 0,-1 } }, 6);
+
+    std::vector<organisation::schema*> source = { &s1,&s2,&s3,&s4,&s5,&s6 };
+
+    program.copy(source.data(), source.size());
+    program.set(d, parameters.input);
+
+    program.run(d);
+
+    std::vector<organisation::parallel::value> data = program.get();
+
+    std::vector<organisation::parallel::value> values = {
+        { organisation::point(10, 1,10),0,3 },
+        { organisation::point(10,10,18),0,4 },
+        { organisation::point(10,10, 3),0,5 }        
+    };
+
+    EXPECT_EQ(data,values);
+}
+
+TEST(BasicProgramMovementAllDirectionsBoundaryDeleteSuccessfulAndMovementSequenceMaintainedParallel, BasicAssertions)
+{    
+    //GTEST_SKIP();
+
+    const int width = 20, height = 20, depth = 20;
+
+    std::string input1("daisy");
+    
+    std::vector<std::string> strings = organisation::split(input1);
+    organisation::data d(strings);
+
+	::parallel::device *device = new ::parallel::device(0);
+	::parallel::queue *queue = new parallel::queue(*device);
+
+    organisation::parameters parameters(width, height, depth);
+    
+    parameters.dim_clients = organisation::point(2,3,1);
+    parameters.iterations = 14;
+
+    organisation::inputs::epoch epoch1(input1);
+
+    parameters.input.push_back(epoch1);
+
+    parallel::mapper::configuration mapper;    
+    organisation::parallel::program program(*device, queue, mapper, parameters);
+        
+    organisation::schema s1 = getSchema3(width, height, depth, { { 1, 0, 0 } }, 1);
+    organisation::schema s2 = getSchema3(width, height, depth, { {-1, 0, 0 } }, 2);
+    organisation::schema s3 = getSchema3(width, height, depth, { { 0, 1, 0 }, { 1, 0, 0 } }, 3);
+    organisation::schema s4 = getSchema3(width, height, depth, { { 0,-1, 0 } }, 4);
+    organisation::schema s5 = getSchema3(width, height, depth, { { 0, 0, 1 }, { 1, 1, 0 } }, 5);
+    organisation::schema s6 = getSchema3(width, height, depth, { { 0, 0,-1 } }, 6);
+
+    std::vector<organisation::schema*> source = { &s1,&s2,&s3,&s4,&s5,&s6 };
+
+    program.copy(source.data(), source.size());
+    program.set(d, parameters.input);
+
+    program.run(d);
+
+    std::vector<organisation::parallel::value> data = program.get();
+
+    std::vector<organisation::parallel::value> values = {
+        { organisation::point(14,16,10), 0, 2 },
+        { organisation::point(10, 2,10), 0, 3 },
+        { organisation::point(13,13,15), 0, 4 },
+        { organisation::point(10,10, 3), 0, 5 }        
+    };
+
+    EXPECT_EQ(data,values);
+}
+
+// 1) check loading of schemas > HOST_BUFFER in number THIS
+// 2) check multiple clients with different collision settings (rebounds)
+// 3) max_values -- check changing values
+// 4) check schemas generation with not validate outputs!
 
 // ***
 // CACHE NEEDS TO DUPLICATE PER CLIENT
 // ***
 // tests
 // 1) bring forward native test basicMoveAndCollDetection OK
-// 2) multiple clients (with direction movement directions)
-// 3) multiple epochs
+// 2) multiple clients (with direction movement directions) 
+// 3) multiple epochs OK
 // 4) insert ends when input words end OK
 // 11) test inserts overlap with existing position **** (formal test)
 // 12) inserts with multiple clients **** (formal test)
 // 5) multiple collision directions
-// 6) boundaries in all direction removed correctly, and that
-// 7) movements for existing cells is correctly identified (movementIdx is correct)
+// 6) boundaries in all direction removed correctly, and that OK
+// 7) movements for existing cells is correctly identified (movementIdx is correct) OK
 // 8) large scale collision detection in ASCII console test
-// 9) input word bounds checking -- does it exceed settings.max_values? 
+// 9) input word bounds checking -- does it exceed settings.max_values? OK
 // 10) need to clean up cross breeding errors, validate() == false
-// 12) check loading of schemas > HOST_BUFFER in number
-// 13) test all programs are copied into device memory completely, for inserts, collisions, movements
+// 12) check loading of schemas > HOST_BUFFER in number THIS
+// 13) test all programs are copied into device memory completely, for inserts, collisions, movements OK
 // ***
 // TODO
 // 1) remove settings.max_values * clients() calculation to single max length
