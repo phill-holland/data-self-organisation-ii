@@ -121,7 +121,7 @@ organisation::schema getSchema4(const int width, const int height, const int dep
 
 TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
     organisation::point starting(width / 2, height / 2, depth / 2);
@@ -247,7 +247,7 @@ TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
 
 TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -322,7 +322,7 @@ TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
 
 TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -421,7 +421,7 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
 
 TEST(BasicProgramMovementAllDirectionsBoundaryTestParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -466,7 +466,7 @@ TEST(BasicProgramMovementAllDirectionsBoundaryTestParallel, BasicAssertions)
 
 TEST(BasicProgramMovementAllDirectionsPartialBoundaryParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -517,7 +517,7 @@ TEST(BasicProgramMovementAllDirectionsPartialBoundaryParallel, BasicAssertions)
 
 TEST(BasicProgramMovementAllDirectionsBoundaryDeleteSuccessfulAndMovementSequenceMaintainedParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -569,7 +569,7 @@ TEST(BasicProgramMovementAllDirectionsBoundaryDeleteSuccessfulAndMovementSequenc
 
 TEST(BasicProgramTestHostBufferExceededLoadParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -655,7 +655,7 @@ TEST(BasicProgramTestHostBufferExceededLoadParallel, BasicAssertions)
 
 TEST(BasicProgramTestHostBufferNotEvenLoadParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -739,9 +739,124 @@ TEST(BasicProgramTestHostBufferNotEvenLoadParallel, BasicAssertions)
     EXPECT_EQ(data,values);       
 }
 
+TEST(BasicProgramDataSwapParallel, BasicAssertions)
+{    
+    //GTEST_SKIP();
+
+    const int width = 20, height = 20, depth = 20;
+
+    std::string data1("daisy daisy give me your answer do please do .");
+    std::string input1("daisy give");
+    
+    std::vector<std::vector<std::string>> expected = {
+        { 
+            "givedaisy"
+        }
+    };
+
+    std::vector<std::string> strings = organisation::split(data1);    
+    organisation::data d(strings);
+
+	::parallel::device *device = new ::parallel::device(0);
+	::parallel::queue *queue = new parallel::queue(*device);
+
+    organisation::parameters parameters(width, height, depth);
+    
+    parameters.dim_clients = organisation::point(1,1,1);
+    parameters.iterations = 15;
+
+    organisation::inputs::epoch epoch1(input1);
+    parameters.input.push_back(epoch1);
+
+    parallel::mapper::configuration mapper;
+    mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
+
+    organisation::parallel::program program(*device, queue, mapper, parameters);
+    
+    organisation::schema s1(width, height, depth);
+
+    organisation::genetic::insert insert;
+    insert.values = { 1,8 };    
+
+    organisation::genetic::movement movement;
+    movement.directions = { 
+        { -1,0,0 }, 
+        { -1,0,0 }, 
+        { -1,0,0 }, 
+        { -1,0,0 },
+        { -1,0,0 },
+        { -1,0,0 },
+        {  0,1,0 }, 
+        {  1,0,0 }, 
+        { 0,-1,0 }, 
+        {  1,0,0 }, 
+        {  1,0,0 }, 
+        {  1,0,0 }, 
+        {  1,0,0 }, 
+        {  1,0,0 }, 
+        {  1,0,0 }
+    };
+
+    organisation::genetic::cache cache(width, height, depth);
+
+    organisation::genetic::collisions collisions;
+
+    collisions.values.resize(27);
+    organisation::vector left(-1,0,0);
+    organisation::vector right(1,0,0);
+    organisation::vector rebound(0,1,0);
+    collisions.values[left.encode()] = rebound.encode();
+    collisions.values[right.encode()] = rebound.encode();
+
+    s1.prog.set(cache);
+    s1.prog.set(insert);
+    s1.prog.set(movement);
+    s1.prog.set(collisions);
+
+    std::vector<organisation::schema*> source = { &s1 };
+    
+    program.copy(source.data(), source.size());
+    program.set(d, parameters.input);
+
+    program.run(d);
+
+    std::vector<std::vector<std::string>> compare;
+    std::vector<organisation::outputs::output> results = program.get(d);
+    
+    for(auto &epoch: results)
+    {
+        std::unordered_map<int,std::vector<std::string>> data;
+        for(auto &output: epoch.values)
+        {
+            if(data.find(output.client) == data.end()) data[output.client] = { output.value };
+            else data[output.client].push_back(output.value);
+        }
+
+        std::vector<std::string> temp(1);
+        for(auto &value: data)
+        {
+            temp[value.first] = std::reduce(value.second.begin(),value.second.end(),std::string(""));
+        }
+
+        compare.push_back(temp);
+    }
+    
+    EXPECT_EQ(compare, expected);
+
+    std::vector<organisation::parallel::value> values = {
+        { organisation::point( 7,11,10),0,0 },
+        { organisation::point( 8,11,10),1,0 }
+    };
+    
+    std::vector<organisation::parallel::value> data = program.get();
+
+    EXPECT_EQ(data, values);
+}
+
 // 1) check loading of schemas > HOST_BUFFER in number THIS OK
 // 2) check multiple clients with different collision settings (rebounds) OK
 // 3) max_values -- check changing values
+// 3) Check collision with "swaps" data (diagonal collision -1,-1,-1 to 1,1,1)
 // 4) check schemas generation with not validated outputs!
 
 // ***

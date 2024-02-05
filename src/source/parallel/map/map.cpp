@@ -316,33 +316,34 @@ if(validate)
             {
                 if(validate) out << "equals " << i << "," << c1.w() << "," << idx << "," << self << "\n";
 
-                if ((self) && (c1.w() == idx)) return;
-
-                int output = 0;
-
-                if ((lcompare != NULL) && (rcompare != NULL))
+                //if ((self) && (c1.w() == idx)) return;
+                if((!self)||(c1.w() != idx))
                 {
-                    if (MapIsEquals(p1, c1, lcompare[c1.w()], client)) output = 1;
-                    if (MapIsEquals(lcompare[c1.w()], client, rcompare[idx], c1)) output = 1;
-                }
-                else output = 1;
+                    int output = 0;
 
-                if (output == 1)
-                {
-                    if(validate) out << "OUTPUT\n";
-                    if (inverse) result[c1.w()] = {1, idx};
-                    else result[idx] = {1, c1.w()};
-
-                    if (symetrical)
+                    if ((lcompare != NULL) && (rcompare != NULL))
                     {
-                        if (inverse) result[idx] = {1, c1.w()};
-                        else result[c1.w()] = {1, idx};
+                        if (MapIsEquals(p1, c1, lcompare[c1.w()], client)) output = 1;
+                        if (MapIsEquals(lcompare[c1.w()], client, rcompare[idx], c1)) output = 1;
                     }
+                    else output = 1;
 
-                    if (collided != NULL) collided[collided_index] = 1;
-                }   
+                    if (output == 1)
+                    {
+                        if(validate) out << "OUTPUT\n";
+                        if (inverse) result[c1.w()] = {1, idx};
+                        else result[idx] = {1, c1.w()};
 
-                return;
+                        if (symetrical)
+                        {
+                            if (inverse) result[idx] = {1, c1.w()};
+                            else result[c1.w()] = {1, idx};
+                        }
+
+                        if (collided != NULL) collided[collided_index] = 1;
+                    }   
+                }
+                //return;
             }
         }
 	}

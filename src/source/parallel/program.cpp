@@ -308,8 +308,8 @@ void organisation::parallel::program::run(organisation::data &mappings)
         {
         
             std::cout << "iterations " << iterations << " epoch " << epoch << " totalValues " << totalValues << "\r\n";
-            //std::cout << "movementsIdx ";
-            //outputarb(deviceMovementIdx,totalValues);//settings.max_values * settings.clients());
+            std::cout << "movementsIdx ";
+            outputarb(deviceMovementIdx,totalValues);//settings.max_values * settings.clients());
             std::cout << "positions ";
             outputarb(devicePositions,totalValues);//settings.max_values * settings.clients());
             std::cout << "values ";
@@ -337,8 +337,8 @@ void organisation::parallel::program::run(organisation::data &mappings)
             std::cout << "next positions ";
 outputarb(deviceNextPositions,totalValues);//settings.max_values * settings.clients());
 
-//std::cout << "next half positions ";
-//outputarb(deviceNextHalfPositions,totalValues);//settings.max_values * settings.clients());
+std::cout << "next half positions ";
+outputarb(deviceNextHalfPositions,totalValues);//settings.max_values * settings.clients());
 
             std::cout << "old next ";
             outputarb(deviceNextDirections, totalValues);//settings.max_values * settings.clients());
@@ -350,9 +350,15 @@ outputarb(deviceNextPositions,totalValues);//settings.max_values * settings.clie
 
             impacter->build(deviceNextPositions, deviceClient, totalValues, queue);
 	        impacter->search(deviceNextPositions, deviceClient, deviceNextCollisionKeys, totalValues, true, false, false, NULL, 0, queue);
-	        
-            impacter->build(deviceNextHalfPositions, deviceClient, totalValues, queue);
-            impacter->search(deviceNextHalfPositions, deviceClient, deviceNextCollisionKeys, totalValues, true, false, false, NULL, 0, queue);		
+
+            std::cout << "collision keys A";
+            outputarb(deviceNextCollisionKeys, totalValues);//settings.max_values * settings.clients());
+
+            impacter->build(deviceNextHalfPositions, deviceClient, totalValues, queue, true);
+            impacter->search(deviceNextHalfPositions, deviceClient, deviceNextCollisionKeys, totalValues, true, false, false, NULL, 0, queue, true);		
+
+std::cout << "collision keys B";
+            outputarb(deviceNextCollisionKeys, totalValues);//settings.max_values * settings.clients());
 
             // ***
             impacter->build(devicePositions, deviceClient, totalValues, queue);
@@ -360,12 +366,16 @@ outputarb(deviceNextPositions,totalValues);//settings.max_values * settings.clie
             impacter->search(deviceNextHalfPositions, deviceClient, deviceCurrentCollisionKeys, totalValues, true, false, false, NULL, 0, queue);		
             // ***
 
-            std::cout << "collision keys ";
-            outputarb(deviceNextCollisionKeys, totalValues);//settings.max_values * settings.clients());
-
+            
             update();
             //next(iterations);
             next();
+            
+            std::cout << "new old positions ";
+            outputarb(deviceOldPositions, totalValues);
+
+            std::cout << "new old next ";
+            outputarb(deviceNextDirections, totalValues);//settings.max_values * settings.clients());
             
 corrections();
 // *** outputs
@@ -590,12 +600,14 @@ void organisation::parallel::program::next()
         auto _max_movements = settings.max_movements;
         auto _max_collisions = settings.max_collisions;
 
+sycl::stream out(1024, 1024, h);
+
         h.parallel_for(num_items, [=](auto i) 
         {  
             if(_positions[i].w() == 0)
             {            
                 int client = _client[i].w();
-                int a = _movementIdx[client];
+                int a = _movementIdx[i];
                 int offset = _max_movements * client;
 
                 sycl::int2 collision = _collisionKeys[i];
@@ -604,9 +616,11 @@ void organisation::parallel::program::next()
                     int key = GetCollidedKey(_positions[i], _nextPositions[i]);
                     sycl::float4 direction = _collisions[(client * _max_collisions) + key];                    
                     _nextDirections[i] = direction;
+                    out << "NEXT " << i << " " << direction << "\r\n";
                 }
                 else
                 {
+                    out << "client " << client << " I " << i << " a " << a << " offset " << offset << "\r\n";
                     sycl::float4 direction = _movements[a + offset];
                     _nextDirections[i] = direction;            
             
@@ -820,7 +834,8 @@ void organisation::parallel::program::corrections()
         qt.memcpy(hostOldUpdateCounter, deviceOldUpdateCounter, sizeof(int)).wait();
         counter = hostOldUpdateCounter[0];
         
-        /*
+        if(counter > 0)
+        {
         std::cout << "COUNTER " << counter << "\r\n";
 
         std::cout << "THINGS positions ";
@@ -831,7 +846,7 @@ std::cout << "THINGS clients ";
 
                         std::cout << "THINGS collision keys ";
             outputarb(deviceNextCollisionKeys, totalValues);//settings.max_values * settings.clients());
-            */
+        }   
             
     } while(counter > 0);
 }
