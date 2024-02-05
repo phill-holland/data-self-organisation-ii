@@ -929,13 +929,16 @@ std::vector<organisation::parallel::value> organisation::parallel::program::get(
             int len = values.size();
             for(int i = 0; i < len; ++i)
             {
-                value temp;
+                if(positions[i].w() != -2)
+                {
+                    value temp;
 
-                temp.value = values[i];
-                temp.client = clients[i].w();
-                temp.position = point(positions[i].x(), positions[i].y(), positions[i].z());
+                    temp.value = values[i];
+                    temp.client = clients[i].w();
+                    temp.position = point(positions[i].x(), positions[i].y(), positions[i].z());
 
-                result.push_back(temp);
+                    result.push_back(temp);
+                }
             }
         }
     }
@@ -1020,6 +1023,7 @@ void organisation::parallel::program::copy(::organisation::schema **source, int 
         {
             std::vector<sycl::event> events;
 
+/*
             events.push_back(qt.memcpy(&deviceCachePositions[dest_index * settings.max_values], hostCachePositions, sizeof(sycl::float4) * settings.max_values * index));
             events.push_back(qt.memcpy(&deviceCacheValues[dest_index * settings.max_values], hostCacheValues, sizeof(int) * settings.max_values * index));
             events.push_back(qt.memcpy(&deviceCacheClients[dest_index], hostCacheClients, sizeof(sycl::int4) * settings.max_values * index));
@@ -1027,6 +1031,16 @@ void organisation::parallel::program::copy(::organisation::schema **source, int 
             events.push_back(qt.memcpy(&deviceMovements[dest_index * settings.max_movements], hostMovements, sizeof(sycl::float4) * settings.max_movements * index));
             events.push_back(qt.memcpy(&deviceMovementsCounts[dest_index], hostMovementsCounts, sizeof(int) * index));
             events.push_back(qt.memcpy(&deviceCollisions[dest_index * settings.max_collisions], hostCollisions, sizeof(sycl::float4) * settings.max_collisions * index));
+            */
+            events.push_back(qt.memcpy(&deviceCachePositions[dest_index * settings.max_values], hostCachePositions, sizeof(sycl::float4) * settings.max_values * index));
+            events.push_back(qt.memcpy(&deviceCacheValues[dest_index * settings.max_values], hostCacheValues, sizeof(int) * settings.max_values * index));
+            events.push_back(qt.memcpy(&deviceCacheClients[dest_index * settings.max_values], hostCacheClients, sizeof(sycl::int4) * settings.max_values * index));
+
+            events.push_back(qt.memcpy(&deviceMovements[dest_index * settings.max_movements], hostMovements, sizeof(sycl::float4) * settings.max_movements * index));
+            events.push_back(qt.memcpy(&deviceMovementsCounts[dest_index], hostMovementsCounts, sizeof(int) * index));
+            events.push_back(qt.memcpy(&deviceCollisions[dest_index * settings.max_collisions], hostCollisions, sizeof(sycl::float4) * settings.max_collisions * index));        
+
+            sycl::event::wait(events);
             
             memset(hostCachePositions, 0, sizeof(sycl::float4) * settings.max_values * settings.host_buffer);
             memset(hostCacheValues, -1, sizeof(int) * settings.max_values * settings.host_buffer);
@@ -1035,9 +1049,7 @@ void organisation::parallel::program::copy(::organisation::schema **source, int 
             memset(hostMovements, 0, sizeof(sycl::float4) * settings.max_movements * settings.host_buffer);
             memset(hostMovementsCounts, 0, sizeof(int) * settings.host_buffer);
             memset(hostCollisions, 0, sizeof(sycl::float4) * settings.max_collisions * settings.host_buffer);
-            
-            sycl::event::wait(events);
-
+                        
             dest_index += settings.host_buffer;
             index = 0;            
         }
@@ -1053,7 +1065,7 @@ std::cout << "laa " << (sizeof(sycl::float4) * settings.max_values * index) << "
 
         events.push_back(qt.memcpy(&deviceCachePositions[dest_index * settings.max_values], hostCachePositions, sizeof(sycl::float4) * settings.max_values * index));
         events.push_back(qt.memcpy(&deviceCacheValues[dest_index * settings.max_values], hostCacheValues, sizeof(int) * settings.max_values * index));
-        events.push_back(qt.memcpy(&deviceCacheClients[dest_index], hostCacheClients, sizeof(sycl::int4) * settings.max_values * index));
+        events.push_back(qt.memcpy(&deviceCacheClients[dest_index * settings.max_values], hostCacheClients, sizeof(sycl::int4) * settings.max_values * index));
 
         events.push_back(qt.memcpy(&deviceMovements[dest_index * settings.max_movements], hostMovements, sizeof(sycl::float4) * settings.max_movements * index));
         events.push_back(qt.memcpy(&deviceMovementsCounts[dest_index], hostMovementsCounts, sizeof(int) * index));
