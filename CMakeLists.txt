@@ -14,6 +14,8 @@ set(LLVM_ENABLE_THREADS TRUE)
 set(LLVM_PARALLEL_COMPILE_JOBS, 8)
 set(LLVM_PARALLEL_LINK_JOBS, 8)
 
+enable_testing()
+
 find_package(oneDPL REQUIRED)
 find_package(Threads REQUIRED)
 
@@ -28,3 +30,4 @@ add_subdirectory(test)
 file(GLOB_RECURSE SOURCE CONFIGURE_DEPENDS 
 "${PROJECT_SOURCE_DIR}/src/source/*.cpp" 
 )
+
