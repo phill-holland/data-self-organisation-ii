@@ -852,39 +852,3 @@ TEST(BasicProgramDataSwapParallel, BasicAssertions)
 
     EXPECT_EQ(data, values);
 }
-
-// 1) check loading of schemas > HOST_BUFFER in number THIS OK
-// 2) check multiple clients with different collision settings (rebounds) OK
-// 3) max_values -- check changing values
-// 3) Check collision with "swaps" data (diagonal collision -1,-1,-1 to 1,1,1)
-// 4) check schemas generation with not validated outputs!
-
-// ***
-// CACHE NEEDS TO DUPLICATE PER CLIENT
-// ***
-// tests
-// 1) bring forward native test basicMoveAndCollDetection OK
-// 2) multiple clients (with direction movement directions) 
-// 3) multiple epochs OK
-// 4) insert ends when input words end OK
-// 11) test inserts overlap with existing position **** (formal test)
-// 12) inserts with multiple clients **** (formal test)
-// 5) multiple collision directions
-// 6) boundaries in all direction removed correctly, and that OK
-// 7) movements for existing cells is correctly identified (movementIdx is correct) OK
-// 8) large scale collision detection in ASCII console test
-// 9) input word bounds checking -- does it exceed settings.max_values? OK
-// 10) need to clean up cross breeding errors, validate() == false
-// 12) check loading of schemas > HOST_BUFFER in number THIS
-// 13) test all programs are copied into device memory completely, for inserts, collisions, movements OK
-// ***
-// TODO
-// 1) remove settings.max_values * clients() calculation to single max length
-// 2) create new configuration value for max_outputs
-// 3) cmake test suite instead?
-// 4) implement collisions by lifetimes!!!!
-// 5) bring in high_res_clock for frame rate
-// ***
-// test if direction and rebound the same
-//organisation::vector up(1,0,0);
-//organisation::vector rebound(1,0,0);

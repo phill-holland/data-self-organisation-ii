@@ -125,14 +125,12 @@ namespace organisation
             void move(organisation::data &mappings);       
             void update();
             void positions();
-            //void next(int iteration);
             void next();
             void insert(int epoch);
             void boundaries();
-            void corrections();
+            void corrections(bool debug = false);
             void outputting(int iteration);
-            void restart();
-            
+            void restart();            
 
         public:
             std::vector<value> get();
@@ -140,12 +138,15 @@ namespace organisation
         public:
             void copy(::organisation::schema **source, int source_size);
             
-        public:
+        protected:
+            void debug();
+
+        protected:
             void outputarb(int *source, int length);
             void outputarb(sycl::int2 *source, int length);
             void outputarb(sycl::int4 *source, int length);
             void outputarb(sycl::float4 *source, int length);
-
+        
         protected:
             void makeNull();
             void cleanup();
