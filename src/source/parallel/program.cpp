@@ -354,8 +354,8 @@ outputarb(deviceNextHalfPositions,totalValues);//settings.max_values * settings.
             std::cout << "collision keys A";
             outputarb(deviceNextCollisionKeys, totalValues);//settings.max_values * settings.clients());
 
-            impacter->build(deviceNextHalfPositions, deviceClient, totalValues, queue, true);
-            impacter->search(deviceNextHalfPositions, deviceClient, deviceNextCollisionKeys, totalValues, true, false, false, NULL, 0, queue, true);		
+            impacter->build(deviceNextHalfPositions, deviceClient, totalValues, queue);
+            impacter->search(deviceNextHalfPositions, deviceClient, deviceNextCollisionKeys, totalValues, true, false, false, NULL, 0, queue);		
 
 std::cout << "collision keys B";
             outputarb(deviceNextCollisionKeys, totalValues);//settings.max_values * settings.clients());
