@@ -191,7 +191,7 @@ TEST(BasicProgramCross, BasicAssertions)
     std::vector<std::string> strings = organisation::split(input);
     organisation::data d(strings);
 
-    for(int i = 0; i < 1000; ++i)
+    for(int i = 0; i < 2000; ++i)
     {
         organisation::program p1(width, height, depth);
         organisation::program p2(width, height, depth);
