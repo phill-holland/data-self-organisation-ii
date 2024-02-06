@@ -4,28 +4,28 @@
 
 int GetCollidedKey(const sycl::float4 a, const sycl::float4 b)
 {
-        sycl::float4 direction;
+    sycl::float4 direction;
 
-        direction.x() = b.x() - a.x(); direction.y() = b.y() - a.y();
-            direction.z() = b.z() - a.z();
+    direction.x() = b.x() - a.x(); direction.y() = b.y() - a.y();
+    direction.z() = b.z() - a.z();
 
-        if ((direction.x() == 0) && (direction.y() == 0) &&
-            (direction.z() == 0)) return 0;
+    if ((direction.x() == 0) && (direction.y() == 0) &&
+        (direction.z() == 0)) return 0;
 
-        if (direction.x() < -1.0f) direction.x() = -1.0f;
-        if (direction.x() > 1.0f) direction.x() = 1.0f;
+    if (direction.x() < -1.0f) direction.x() = -1.0f;
+    if (direction.x() > 1.0f) direction.x() = 1.0f;
 
-        if (direction.y() < -1.0f) direction.y() = -1.0f;
-        if (direction.y() > 1.0f) direction.y() = 1.0f;
+    if (direction.y() < -1.0f) direction.y() = -1.0f;
+    if (direction.y() > 1.0f) direction.y() = 1.0f;
 
-        if (direction.z() < -1.0f) direction.z() = -1.0f;
-        if (direction.z() > 1.0f) direction.z() = 1.0f;
+    if (direction.z() < -1.0f) direction.z() = -1.0f;
+    if (direction.z() > 1.0f) direction.z() = 1.0f;
 
-        long x = ((long)(direction.x() + 1.0f));
-        long y = ((long)(direction.y() + 1.0f));
-        long z = ((long)(direction.z() + 1.0f));
+    long x = ((long)(direction.x() + 1.0f));
+    long y = ((long)(direction.y() + 1.0f));
+    long z = ((long)(direction.z() + 1.0f));
 
-        return (sycl::abs(z) * (3L * 3L)) + (sycl::abs(y) * 3L) + sycl::abs(x);
+    return (sycl::abs(z) * (3L * 3L)) + (sycl::abs(y) * 3L) + sycl::abs(x);
 }
 
 void organisation::parallel::program::reset(::parallel::device &dev, 
