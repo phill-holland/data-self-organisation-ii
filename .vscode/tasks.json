@@ -30,7 +30,9 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "."
+                ".",
+                "--parallel"
+
             ],
             "options": {
                 "cwd": "${workspaceRoot}/build"
@@ -61,7 +63,8 @@
             "command": "cmake",
             "args": [
                 "--build",
-                "."
+                ".",
+                "--parallel"
             ],
             "options": {
                 "cwd": "${workspaceRoot}/build"
