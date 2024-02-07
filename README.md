@@ -1,5 +1,11 @@
 # Data Self Organisation-ii (Experimental)
 
+// run this in code directory, before opening code .
+// source /opt/intel/oneapi/setvars.sh --include-intel-llvm --force
+// cd build
+// cmake -DCMAKE_CXX_FLAGS="-O0 -g" -DBUILD_FOR_CUDA=true ../
+// cmake --build .
+
 these notes are copied from another project!  they are not relevant yet!
 
 Project has google tests in it, only one test works! (see native.cpp)

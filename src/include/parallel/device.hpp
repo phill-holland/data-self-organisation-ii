@@ -20,9 +20,6 @@ namespace parallel
     public:
 		static std::vector<std::string> enumerate();
 		static std::string capabilities();
-
-    public:
-        uint32_t local_mem_size();
         
     public:
         std::vector<int> get(int *source, int length);

@@ -90,9 +90,6 @@ TEST(BasicMovementAndCollisionDetection, BasicAssertions)
 }
 
 /*
-
-
-
 TEST(BasicProgramScores, BasicAssertions)
 {
     GTEST_SKIP();

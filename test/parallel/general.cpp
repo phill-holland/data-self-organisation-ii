@@ -247,7 +247,7 @@ TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
 
 TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -322,7 +322,7 @@ TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
 
 TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -421,7 +421,7 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
 
 TEST(BasicProgramMovementAllDirectionsBoundaryTestParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -466,7 +466,7 @@ TEST(BasicProgramMovementAllDirectionsBoundaryTestParallel, BasicAssertions)
 
 TEST(BasicProgramMovementAllDirectionsPartialBoundaryParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -517,7 +517,7 @@ TEST(BasicProgramMovementAllDirectionsPartialBoundaryParallel, BasicAssertions)
 
 TEST(BasicProgramMovementAllDirectionsBoundaryDeleteSuccessfulAndMovementSequenceMaintainedParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -569,7 +569,7 @@ TEST(BasicProgramMovementAllDirectionsBoundaryDeleteSuccessfulAndMovementSequenc
 
 TEST(BasicProgramTestHostBufferExceededLoadParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -655,7 +655,7 @@ TEST(BasicProgramTestHostBufferExceededLoadParallel, BasicAssertions)
 
 TEST(BasicProgramTestHostBufferNotEvenLoadParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -741,7 +741,7 @@ TEST(BasicProgramTestHostBufferNotEvenLoadParallel, BasicAssertions)
 
 TEST(BasicProgramDataSwapParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 

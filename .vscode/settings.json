@@ -78,5 +78,5 @@
         "strstream": "cpp",
         "cfenv": "cpp"
     },
-    "editor.suggest.insertMode": "insert"
+    "editor.suggest.insertMode": "insert",
 }

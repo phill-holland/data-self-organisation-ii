@@ -151,6 +151,7 @@ int main(int argc, char *argv[])
         std::cout << *it << "\r\n";
     }
 
+/*
     auto strings = organisation::split(source);
     organisation::data mappings(strings);
     
@@ -170,6 +171,6 @@ int main(int argc, char *argv[])
         organisation::schema best = run(mappings, input, i);
         //single(best, mappings, parameters, expected);
     }
-    
+ */   
     return 0;
 }
