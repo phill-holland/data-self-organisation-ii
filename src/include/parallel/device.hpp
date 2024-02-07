@@ -21,6 +21,11 @@ namespace parallel
 		static std::vector<std::string> enumerate();
 		static std::string capabilities();
         
+    public:
+        std::vector<int> get(int *source, int length);
+        std::vector<sycl::float4> get(sycl::float4 *source, int length);
+        std::vector<sycl::int4> get(sycl::int4 *source, int length);
+
     protected:
         sycl::device select(int index);
     };

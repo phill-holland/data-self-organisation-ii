@@ -2,6 +2,10 @@
 #include "parallel/device.hpp"
 #include "parallel/queue.hpp"
 #include "templates/programs.h"
+#include "parallel/inserts.hpp"
+#include "parallel/map/map.hpp"
+#include "parallel/map/configuration.hpp"
+#include "parallel/value.hpp"
 #include "parameters.h"
 #include "program.h"
 #include "schema.h"
@@ -18,106 +22,131 @@ namespace organisation
     {        
         class program : public templates::programs
         {
-            const static int MAX_VALUES = 20;
-            const static int MAX_MOVEMENTS = 30;
-            const static int MAX_COLLISIONS = 26;
-            const static int MAX_INSERTS = 10;
-            const static int MAX_INPUT_DATA =  15;
-
             ::parallel::device *dev;
             ::parallel::queue *queue;
 
-            // ***
-            sycl::float4 *devicePositions;
+            sycl::float4 *devicePositions;            
             sycl::float4 *deviceNextPositions;
             sycl::float4 *deviceNextHalfPositions;
             int *deviceValues;
-            int *deviceInputData;
-            int *deviceInserts;
-            int *deviceInsertsClone;
+            sycl::float4 *deviceNextDirections;
 
             int *deviceMovementIdx;            
-            int *deviceInsertsIdx;
-            int *deviceInputIdx;
-            int *deviceClient;
+            sycl::int4 *deviceClient;
+
+            sycl::float4 *deviceCachePositions;
+            int *deviceCacheValues;
+            sycl::int4 *deviceCacheClients;
 
             sycl::float4 *deviceMovements;
+            int *deviceMovementsCounts;
             sycl::float4 *deviceCollisions;
 
-            int *deviceTotalValues;
-            int *hostTotalValues;
+            sycl::int2 *deviceNextCollisionKeys;
+            sycl::int2 *deviceCurrentCollisionKeys;
+            sycl::int2 *deviceCorrectionCollisionKeys;
+            
+            sycl::float4 *hostCachePositions;
+            int *hostCacheValues;
+            sycl::int4 *hostCacheClients;
 
-            // ***
-            //sycl::int2 *deviceSearchIndices;
-            // ***
-
-            sycl::float4 *hostPositions;
-            int *hostValues;
-            int *hostInputData;
-            int *hostInserts;
             sycl::float4 *hostMovements;
+            int *hostMovementsCounts;
             sycl::float4 *hostCollisions;
-            int *hostClient;
+            
 
-            /*
-            int *deviceOutput;
-            int *deviceOutputIteration;
-            //int *deviceOutputEpoch;
-            int *deviceOutputEndPtr;
+            // ***
 
-            int *hostOutput;
-            int *hostOutputIteration;
-            //int *hostOutputEpoch;
-            int *hostOutputEndPtr;
+            int *deviceOutputValues;
+            int *deviceOutputIndex;
+            sycl::int4 *deviceOutputClient;
 
-            sycl::float4 *deviceReadPositionsA;
-            sycl::float4 *deviceReadPositionsB;
-            //int *deviceReadPositionsEpochA;
-            //int *deviceReadPositionsEpochB;
-            int *deviceReadPositionsEndPtr;
+            int *deviceOutputTotalValues; // single int
+            
+            int *hostOutputValues;
+            int *hostOutputIndex; // host iteration output
+            sycl::int4 *hostOutputClient;
 
-            sycl::float4 *hostSourceReadPositions;
-            sycl::float4 *deviceSourceReadPositions;
-            */
-            parameters params;
+            int *hostOutputTotalValues;
 
-            int clients;
-            //int length;
+            // ***
+            int *deviceTotalValues;            
+            int *hostTotalValues;
+            // ***
+                        
+            sycl::float4 *deviceNewPositions;
+            int *deviceNewValues;
+            sycl::int4 *deviceNewClient;
+            sycl::float4 *deviceNewNextDirections;
+            int *deviceNewMovementIdx;
+            // ***
+
+            sycl::float4 *deviceOldPositions;
+            int *deviceOldUpdateCounter;
+            int *hostOldUpdateCounter;
+            // ***
+
+            ::parallel::mapper::map *impacter;
+            inserts *inserter;
+
+            parameters settings;
+
+            int totalOutputValues;
+            int totalValues;
+
+            std::vector<organisation::outputs::output> outputs;
 
             bool init;
-
-        private:
-            const static int ITERATIONS = 20;
-            const static int HOST_BUFFER = 20;
             
         public:
-            program(::parallel::device &dev, ::parallel::queue *q, parameters settings, int clients) 
+            program(::parallel::device &dev, 
+                    ::parallel::queue *q, 
+                    ::parallel::mapper::configuration &mapping,
+                    parameters settings) 
             { 
                 makeNull(); 
-                reset(dev, q, settings, clients); 
+                reset(dev, q, mapping, settings); 
             }
             ~program() { cleanup(); }
 
             bool initalised() { return init; }
-            void reset(::parallel::device &dev, ::parallel::queue *q, parameters settings, int clients);
+            void reset(::parallel::device &dev, 
+                       ::parallel::queue *q,                        
+                       ::parallel::mapper::configuration &mapping,
+                       parameters settings);
 
             void clear();
 
             void run(organisation::data &mappings);        
             void set(organisation::data &mappings, inputs::input &source);
-            std::vector<output> get(organisation::data &mappings);
+            std::vector<outputs::output> get(organisation::data &mappings);
 
-        protected:
-            void insert(int epoch);
+        protected:     
+            void move(organisation::data &mappings);       
             void update();
+            void positions();
+            void next();
+            void insert(int epoch);
+            void boundaries();
+            void corrections(bool debug = false);
+            void outputting(int iteration);
+            void restart();            
+
+        public:
+            std::vector<value> get();
 
         public:
             void copy(::organisation::schema **source, int source_size);
             
-        public:
-            void outputarb(int *source, int length);
-            void outputarb(sycl::float4 *source, int length);
+        protected:
+            void debug();
 
+        protected:
+            void outputarb(int *source, int length);
+            void outputarb(sycl::int2 *source, int length);
+            void outputarb(sycl::int4 *source, int length);
+            void outputarb(sycl::float4 *source, int length);
+        
         protected:
             void makeNull();
             void cleanup();

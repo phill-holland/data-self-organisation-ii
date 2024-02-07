@@ -11,12 +11,10 @@
     },
     "tasks": [
         {
-            "label": "cmake",
+            "label": "Make Debug",
             "type": "shell",
-            "command": "cmake",
-            "args": [
-                "../"
-            ],
+            "command": "cmake -DCMAKE_CXX_FLAGS=\"-O0 -g\" -DBUILD_FOR_CUDA=true ../",
+            "hide": true,
             "group": {
                 "kind": "build",
                 "isDefault": true
@@ -25,23 +23,57 @@
                 "cwd": "${workspaceRoot}/build"
             },
             "problemMatcher": []
-        },
+        },        
         {
-            "label": "make",
+            "label": "Build Debug",
             "type": "shell",
-            "command": "make",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "."
+            ],
             "options": {
                 "cwd": "${workspaceRoot}/build"
             },
-            "args": [],
             "dependsOn": [
-                "cmake"
+                "Make Debug"
             ],
             "group": "build",
             "problemMatcher": []
         },
         {
-            "label": "clean",
+            "label": "Make Release",
+            "type": "shell",
+            "command": "cmake -DCMAKE_CXX_FLAGS=\"-O2\" -DBUILD_FOR_CUDA=true ../",
+            "hide": true,
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "options": {
+                "cwd": "${workspaceRoot}/build"
+            },
+            "problemMatcher": []
+        },        
+        {
+            "label": "Build Release",
+            "type": "shell",
+            "command": "cmake",
+            "args": [
+                "--build",
+                "."
+            ],
+            "options": {
+                "cwd": "${workspaceRoot}/build"
+            },
+            "dependsOn": [
+                "Make Release"
+            ],
+            "group": "build",
+            "problemMatcher": []
+        },
+        {
+            "label": "Clean",
             "type": "shell",
             "command": "rm",
             "options": {

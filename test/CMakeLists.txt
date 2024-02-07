@@ -28,4 +28,7 @@ gtest_add_tests(TARGET ${CMAKE_PROJECT_NAME}_test)
 
 target_link_libraries(${BINARY} PUBLIC ${CMAKE_PROJECT_NAME}_lib "${CMAKE_THREAD_LIBS_INIT}")
 
-#target_link_options(${BINARY} PUBLIC -fsycl -fsycl-targets=nvptx64-nvidia-cuda)
+if(${BUILD_FOR_CUDA})
+  target_compile_options(${CMAKE_PROJECT_NAME}_lib PUBLIC -fsycl -fsycl-targets=nvptx64-nvidia-cuda -fsycl-unnamed-lambda)
+  target_link_options(${BINARY} PUBLIC -fsycl -fsycl-targets=nvptx64-nvidia-cuda -fsycl-unnamed-lambda)
+endif ()

@@ -20,7 +20,7 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "make",
+            "preLaunchTask": "Build Debug",
             "miDebuggerPath": "/usr/bin/gdb"
         },
         {
@@ -39,17 +39,16 @@
                     "ignoreFailures": true
                 }
             ],
-            "preLaunchTask": "make",
+            "preLaunchTask": "Build Debug",
             "miDebuggerPath": "/usr/bin/gdb"
         },
         {
-            "name": "(gdb-oneapi) learning Launch",
+            "name": "(gdb-oneapi) build and debug tests",
             "type": "cppdbg",
             "request": "launch",
-            "preLaunchTask": "make",
+            "preLaunchTask": "Build Debug",
             "postDebugTask": "",
-            "program": "${workspaceRoot}/build/src/data-self-organisation",
-            "args": [ "test", "0" ],
+            "program": "${workspaceRoot}/build/test/data-self-organisation_test",
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "externalConsole": false,

@@ -20,34 +20,34 @@ void organisation::populations::population::reset(templates::programs *programs,
     dimensions = settings.input.dimensions();
     if(dimensions == 0) return;
 
-    schemas = new organisation::schemas(settings.width, settings.height, settings.depth, settings.size);
+    schemas = new organisation::schemas(settings.width, settings.height, settings.depth, settings.population);
     if (schemas == NULL) return;
     if (!schemas->initalised()) return;
 
-    intermediateA = new organisation::schema*[settings.clients];
+    intermediateA = new organisation::schema*[settings.clients()];
     if (intermediateA == NULL) return;
-    for(int i = 0; i < settings.clients; ++i) intermediateA[i] = NULL;
-    for(int i = 0; i < settings.clients; ++i)
+    for(int i = 0; i < settings.clients(); ++i) intermediateA[i] = NULL;
+    for(int i = 0; i < settings.clients(); ++i)
     {
         intermediateA[i] = new organisation::schema(settings.width, settings.height, settings.depth);
         if(intermediateA[i] == NULL) return;
         if(!intermediateA[i]->initalised()) return;
     }
 
-    intermediateB = new organisation::schema*[settings.clients];
+    intermediateB = new organisation::schema*[settings.clients()];
     if (intermediateB == NULL) return;
-    for(int i = 0; i < settings.clients; ++i) intermediateB[i] = NULL;
-    for(int i = 0; i < settings.clients; ++i)
+    for(int i = 0; i < settings.clients(); ++i) intermediateB[i] = NULL;
+    for(int i = 0; i < settings.clients(); ++i)
     {
         intermediateB[i] = new organisation::schema(settings.width, settings.height, settings.depth);
         if(intermediateB[i] == NULL) return;
         if(!intermediateB[i]->initalised()) return;
     }
 
-    intermediateC = new organisation::schema*[settings.clients];
+    intermediateC = new organisation::schema*[settings.clients()];
     if (intermediateC == NULL) return;
-    for(int i = 0; i < settings.clients; ++i) intermediateC[i] = NULL;
-    for(int i = 0; i < settings.clients; ++i)
+    for(int i = 0; i < settings.clients(); ++i) intermediateC[i] = NULL;
+    for(int i = 0; i < settings.clients(); ++i)
     {
         intermediateC[i] = new organisation::schema(settings.width, settings.height, settings.depth);
         if(intermediateC[i] == NULL) return;
@@ -77,8 +77,8 @@ organisation::schema organisation::populations::population::go(int &count, int i
 
     organisation::schema **set = intermediateC, **run = intermediateA, **get = intermediateB;
 
-    region rset = { 0, (settings.size / 2) - 1 };
-    region rget = { (settings.size / 2), settings.size - 1 };
+    region rset = { 0, (settings.population / 2) - 1 };
+    region rget = { (settings.population / 2), settings.population - 1 };
 
     pull(intermediateA, rset);
 
@@ -130,17 +130,17 @@ organisation::populations::results organisation::populations::population::execut
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();   
 
     programs->clear();
-    programs->copy(buffer, settings.clients);
+    programs->copy(buffer, settings.clients());
     programs->set(settings.mappings, settings.input);
     programs->run(settings.mappings);
 
-    std::vector<organisation::output> values = programs->get(settings.mappings);
+    std::vector<organisation::outputs::output> values = programs->get(settings.mappings);
     
     results result;
-    std::vector<std::string> current;
+    std::vector<outputs::data> current;
 
     int i = 0;
-    std::vector<organisation::output>::iterator it;    
+    std::vector<organisation::outputs::output>::iterator it;    
     for(i = 0, it = values.begin(); it != values.end(); it++, i++)    
     {
         buffer[i]->compute(settings.input.combine(it->values));
@@ -158,9 +158,9 @@ organisation::populations::results organisation::populations::population::execut
 
 
     std::cout << "result.index [" << result.index << "] " << result.best << "\r\n";
-    for(std::vector<std::string>::iterator it = current.begin(); it != current.end(); ++it)
+    for(std::vector<outputs::data>::iterator it = current.begin(); it != current.end(); ++it)
     {
-        std::string temp = *it;
+        std::string temp = it->value;
         if(temp.size() > 80)
         {
             temp.resize(80);
@@ -182,9 +182,9 @@ organisation::populations::results organisation::populations::population::execut
 bool organisation::populations::population::get(schema &destination, region r)
 {
     const float mutate_rate_in_percent = 20.0f;
-    const float mutation = (((float)settings.size) / 100.0f) * mutate_rate_in_percent;
+    const float mutation = (((float)settings.population) / 100.0f) * mutate_rate_in_percent;
 
-    int t = (std::uniform_int_distribution<int>{0, settings.size - 1})(generator);
+    int t = (std::uniform_int_distribution<int>{0, settings.population - 1})(generator);
 
     if(((float)t) <= mutation) 
     {
@@ -295,7 +295,7 @@ void organisation::populations::population::pull(organisation::schema **buffer, 
 {
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();   
 
-    for(int i = 0; i < settings.clients; ++i)
+    for(int i = 0; i < settings.clients(); ++i)
     {
         get(*buffer[i], r);
     }    
@@ -309,7 +309,7 @@ void organisation::populations::population::push(organisation::schema **buffer, 
 {
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();
     
-    for(int i = 0; i < settings.clients; ++i)
+    for(int i = 0; i < settings.clients(); ++i)
     {
         set(*buffer[i], r);
     }
@@ -334,7 +334,7 @@ void organisation::populations::population::cleanup()
     
     if(intermediateC != NULL)
     {
-        for(int i = settings.clients - 1; i >= 0; --i)
+        for(int i = settings.clients() - 1; i >= 0; --i)
         {
             if(intermediateC[i] != NULL) delete intermediateC[i];
         }
@@ -343,7 +343,7 @@ void organisation::populations::population::cleanup()
  
     if(intermediateB != NULL)
     {
-        for(int i = settings.clients - 1; i >= 0; --i)
+        for(int i = settings.clients() - 1; i >= 0; --i)
         {
             if(intermediateB[i] != NULL) delete intermediateB[i];
         }
@@ -352,7 +352,7 @@ void organisation::populations::population::cleanup()
 
    if(intermediateA != NULL)
     {
-        for(int i = settings.clients - 1; i >= 0; --i)
+        for(int i = settings.clients() - 1; i >= 0; --i)
         {
             if(intermediateA[i] != NULL) delete intermediateA[i];
         }

@@ -1,6 +1,7 @@
 #include <vector>
 #include <tuple>
 #include <string>
+#include "output.h"
 
 #ifndef _ORGANISATION_INPUT
 #define _ORGANISATION_INPUT
@@ -14,6 +15,13 @@ namespace organisation
         public:
             std::string input;
             std::string expected;
+
+        public:
+            epoch(std::string _input = "", std::string _expected = "")
+            {
+                input = _input;
+                expected = _expected;
+            }
         };
 
         class input
@@ -43,12 +51,12 @@ namespace organisation
             {
                 if((index < 0)&&(index > values.size())) return false;
 
-                destination = values[0];
+                destination = values[index];
 
                 return true;
             }
 
-            std::vector<std::tuple<std::string,std::string>> combine(std::vector<std::string> output);
+            std::vector<std::tuple<std::string,std::string>> combine(std::vector<organisation::outputs::data> output);
 
             int dimensions();
 
