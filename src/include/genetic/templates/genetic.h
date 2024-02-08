@@ -18,7 +18,7 @@ namespace organisation
             virtual void clear() = 0;
             virtual void generate(data &source) = 0;
             virtual void mutate(data &source) = 0;
-            virtual void copy(genetic *source, int src_start, int src_end, int dest_start) = 0;
+            virtual void append(genetic *source, int src_start, int src_end) = 0;            
             virtual bool validate(data &source) = 0;
         };
     };

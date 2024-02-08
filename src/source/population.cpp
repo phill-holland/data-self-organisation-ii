@@ -201,7 +201,7 @@ bool organisation::populations::population::get(schema &destination, region r)
         schema *s2 = best(r);
         if(s2 == NULL) return false;
                      
-        s1->cross(&destination, s2);
+        return s1->cross(&destination, s2);
     }
 
     return true;
@@ -294,10 +294,16 @@ organisation::schema *organisation::populations::population::worst(region r)
 void organisation::populations::population::pull(organisation::schema **buffer, region r)
 {
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();   
+    const int escape = 15;
 
     for(int i = 0; i < settings.clients(); ++i)
     {
-        get(*buffer[i], r);
+        int counter = 0;
+        while(!get(*buffer[i], r)&&(++counter<escape)) { };
+        if(counter>=escape)
+        {
+            std::cout << "repeated get error!\r\n";
+        }
     }    
 
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();

@@ -437,18 +437,18 @@ bool organisation::program::cross(program &a, program &b, int middle)
     
     for(int i = 0; i < components; ++i)
     {
-        int length = ag[i]->size() - 1;
-        if(length < 0) 
+        int length1 = ag[i]->size() - 1;
+        if(length1 < 0) 
             return false;
 
         int sa = 0, ea = 0;
 
-        if(length > 0)
+        if(length1 > 0)
         {
             do
             {
-                sa = (std::uniform_int_distribution<int>{ 0, length })(generator);
-                ea = (std::uniform_int_distribution<int>{ 0, length })(generator);
+                sa = (std::uniform_int_distribution<int>{ 0, length1 })(generator);
+                ea = (std::uniform_int_distribution<int>{ 0, length1 })(generator);
             } while(sa == ea);
         }
         else 
@@ -466,18 +466,18 @@ bool organisation::program::cross(program &a, program &b, int middle)
 
         // ***
 
-        length = bg[i]->size() - 1;
-        if(length < 0) 
+        int length2 = bg[i]->size() - 1;
+        if(length2 < 0) 
             return false;
 
         int sb = 0, eb = 0;
 
-        if(length > 0)
+        if(length2 > 0)
         {
             do
             {
-                sb = (std::uniform_int_distribution<int>{ 0, length })(generator);
-                eb = (std::uniform_int_distribution<int>{ 0, length })(generator);
+                sb = (std::uniform_int_distribution<int>{ 0, length2 })(generator);
+                eb = (std::uniform_int_distribution<int>{ 0, length2 })(generator);
             } while(sb == eb);
         }
         else
@@ -494,11 +494,22 @@ bool organisation::program::cross(program &a, program &b, int middle)
         }
 
         // ***
-
+std::cout << "lngth " << length << "\r\n";
+std::cout << "dede " << ag[i]->size() << " " << a.movement.size() << "\r\n";
+std::cout << "lala " << bg[i]->size() << " " << b.movement.size() << "\r\n";
+        dest[i]->append(ag[i], 0, sa); 
+        dest[i]->append(bg[i], sb, eb); 
+        dest[i]->append(ag[i], ea, ag[i]->size()); 
+/*
         dest[i]->copy(ag[i], 0, sa, 0); // dest idx, start = 0, len = sa        
         dest[i]->copy(bg[i], sb, eb, sa); // dest idx, start = sa, len - eb -sb
         dest[i]->copy(ag[i], ea, ag[i]->size(), (eb - sb) + sa); //(eb-sb) + sa, len, ag[i] - 
+*/
     }
+
+    //if(!validate(d))
+    if(movement.directions.size() == 0)
+        std::cout << "me\r\n";
 
     return true;    
 }

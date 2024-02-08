@@ -117,9 +117,9 @@ void organisation::schema::mutate(data &source)
 	prog.mutate(source);
 }
 
-void organisation::schema::cross(schema *destination, schema *value)
+bool organisation::schema::cross(schema *destination, schema *value)
 {   
-    destination->prog.cross(prog, value->prog);
+    return destination->prog.cross(prog, value->prog);
 }
 
 std::string organisation::schema::run(int epoch, std::string input, std::string expected, data &source)

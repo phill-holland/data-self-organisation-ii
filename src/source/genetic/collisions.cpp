@@ -35,26 +35,16 @@ void organisation::genetic::collisions::mutate(data &source)
     std::cout << "collisions before " << old << " after " << value << "\r\n";    
 }
 
-void organisation::genetic::collisions::copy(genetic *source, int src_start, int src_end, int dest_start)
+void organisation::genetic::collisions::append(genetic *source, int src_start, int src_end)
 {
-std::cout << "collisions::copy " << src_start << "," << src_end << "," << dest_start << "\r\n";        
+std::cout << "collisions::append " << src_start << "," << src_end << "\r\n";        
 
     collisions *s = dynamic_cast<collisions*>(source);
 
-    clear();
-    //values.resize(LEN
-
-    // ignore dest_start ??        
-    int length = src_end - src_start;
-    if(length + dest_start > values.size())
-        length -= ((length + dest_start) - values.size());
-    //if(d.size() < (length + dest_start)) directions.resize(length + dest_start);
-    //if(values.size() < (length + dest_start)) values.resize(length + dest_start);
-
-    for(int i = 0; i < length; ++i)
+    for(int i = src_start; i < src_end; ++i)
     {
-        values[dest_start + i] = s->values[src_start + i];
-    }   
+        values[i] = s->values[i];
+    }
 }
 
 std::string organisation::genetic::collisions::serialise()

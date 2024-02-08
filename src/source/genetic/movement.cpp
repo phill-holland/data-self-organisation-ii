@@ -103,17 +103,16 @@ void organisation::genetic::movement::mutate(data &source)
     std::cout << "movement before " << old << " after " << value << "\r\n";
 }
 
-void organisation::genetic::movement::copy(genetic *source, int src_start, int src_end, int dest_start)
+void organisation::genetic::movement::append(genetic *source, int src_start, int src_end)
 {
-std::cout << "movement::copy " << src_start << "," << src_end << "," << dest_start << "\r\n";    
+std::cout << "movement::append " << src_start << "," << src_end << " " << source->size() << "\r\n";    
 
     movement *s = dynamic_cast<movement*>(source);
     int length = src_end - src_start;
-    if(directions.size() < (length + dest_start)) directions.resize(length + dest_start);
-
+    
     for(int i = 0; i < length; ++i)
     {
-        directions[dest_start + i] = s->directions[src_start + i];
+        directions.push_back(s->directions[src_start + i]);
     }   
 }
 

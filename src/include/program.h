@@ -87,6 +87,9 @@ namespace organisation
         void save(std::string filename);
         void load(std::string filename);
 
+    public:
+        int moo() { return movement.directions.size(); }
+        
     protected:
         void makeNull();
         void cleanup();

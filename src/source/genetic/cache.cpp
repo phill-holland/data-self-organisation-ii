@@ -177,24 +177,23 @@ void organisation::genetic::cache::mutate(data &source)
     }
 }
 
-void organisation::genetic::cache::copy(genetic *source, int src_start, int src_end, int dest_start)
+void organisation::genetic::cache::append(genetic *source, int src_start, int src_end)
 {
-std::cout << "cache::copy " << src_start << "," << src_end << "," << dest_start << "\r\n";    
+std::cout << "cache::append " << src_start << "," << src_end << "," << "\r\n";    
 
     cache *s = dynamic_cast<cache*>(source);
     int length = src_end - src_start;
-    if(values.size() < (length + dest_start)) values.resize(length + dest_start);
 
     for(int i = 0; i < length; ++i)
     {
         std::tuple<int,point> temp = s->values[src_start + i];        
-        values[dest_start + i] = temp;
 
         point p1 = std::get<1>(temp);
         int index = ((_width * _height) * p1.z) + ((p1.y * _width) + p1.x);
         if(points.find(index) == points.end())
         {
-            points[index] = p1;
+            values.push_back(temp);
+            points[index] = p1;            
         }
     }
 }

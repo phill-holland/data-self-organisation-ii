@@ -36,8 +36,8 @@ namespace organisation
 
             void generate(data &source);
             void mutate(data &source);
-            void copy(genetic *source, int src_start, int src_end, int dest_start);
-
+            void append(genetic *source, int src_start, int src_end);
+            
             std::string serialise();
             void deserialise(std::string source);
 
