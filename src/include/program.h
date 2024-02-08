@@ -11,11 +11,11 @@
 #include <unordered_map>
 #include <tuple>
 
-#ifndef _ORGANISATION_PARALLEL_PROGRAM
-#define _ORGANISATION_PARALLEL_PROGRAM
+#ifndef _ORGANISATION_PROGRAM
+#define _ORGANISATION_PROGRAM
 
 namespace organisation
-{    
+{        
     namespace parallel
     {
         class program;

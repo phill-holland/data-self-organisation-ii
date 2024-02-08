@@ -10,7 +10,7 @@
 
 TEST(BasicProgramInsertParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 10, height = 10, depth = 10;
 
@@ -86,8 +86,4 @@ TEST(BasicProgramInsertParallel, BasicAssertions)
         }        
     }
 }
-
-// 11) test inserts overlap with existing position **** (formal test)
-// 12) inserts with multiple clients **** (formal test)
-// 4) PROGRAM COPY FROM INSERTS INTO POPULATION (formal test)
 

@@ -6,12 +6,12 @@
 #include "output.h"
 #include "input.h"
 
-#ifndef _ORGANISATION_SEQUENTIAL_PROGRAM
-#define _ORGANISATION_SEQUENTIAL_PROGRAM
+#ifndef _ORGANISATION_NATIVE_PROGRAM
+#define _ORGANISATION_NATIVE_PROGRAM
 
 namespace organisation
 {    
-    namespace sequential
+    namespace native
     {
         class programs : public templates::programs
         {

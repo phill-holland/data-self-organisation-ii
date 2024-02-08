@@ -1,6 +1,5 @@
 {
-    "cmake.configureOnOpen": false,
-    "cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery_cached_index/",
+    "cmake.configureOnOpen": false,    
     "files.associations": {
         "string_view": "cpp",
         "cctype": "cpp",
@@ -76,7 +75,8 @@
         "typeindex": "cpp",
         "coroutine": "cpp",
         "strstream": "cpp",
-        "cfenv": "cpp"
+        "cfenv": "cpp",
+        "regex": "cpp"
     },
     "editor.suggest.insertMode": "insert",
 }
