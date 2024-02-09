@@ -11,11 +11,10 @@ void organisation::genetic::collisions::generate(data &source)
     {
         int value = (std::uniform_int_distribution<int>{0, 26})(generator);
         values[i] = value;
-        //values.push_back(value);
     }
 }
 
-void organisation::genetic::collisions::mutate(data &source)
+bool organisation::genetic::collisions::mutate(data &source)
 {
     const int COUNTER = 15;
 
@@ -32,13 +31,14 @@ void organisation::genetic::collisions::mutate(data &source)
         values[offset] = value;
 
     }while((old == value)&&(counter++<COUNTER));
-    std::cout << "collisions before " << old << " after " << value << "\r\n";    
+ 
+    if(old==value) return false;
+
+    return true;
 }
 
 void organisation::genetic::collisions::append(genetic *source, int src_start, int src_end)
 {
-std::cout << "collisions::append " << src_start << "," << src_end << "\r\n";        
-
     collisions *s = dynamic_cast<collisions*>(source);
 
     for(int i = src_start; i < src_end; ++i)

@@ -30,6 +30,11 @@ namespace organisation
                 directions.clear();
             }
 
+            bool empty() 
+            {
+                return directions.empty();
+            }
+
             int next(int index)
             {
                 if(index + 1 < directions.size()) return index + 1;
@@ -43,7 +48,7 @@ namespace organisation
 
         public:
             void generate(data &source);
-            void mutate(data &source);
+            bool mutate(data &source);
             void append(genetic *source, int src_start, int src_end);
 
         public:

@@ -20,6 +20,7 @@ The parallel version of the collision detection algorithm needs to be written al
 
 TODO
 
+// WRITE SIMPLE TEST FOR POPULATION CLASS!!!!
 // 4) implement collisions by lifetimes!!!!
 // 5) bring in high_res_clock for frame rate
 // 6) native program, collision detection is different from parallel version!!

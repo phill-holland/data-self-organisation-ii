@@ -70,9 +70,6 @@ void organisation::genetic::cache::deserialise(std::string source)
 
 bool organisation::genetic::cache::validate(data &source)
 {
-    //if(values.empty()) { std::cout << "cache::validate(false): values empty\r\n"; return false; }
-    //if(points.empty()) { std::cout << "cache::validate(false): points empty\r\n"; return false; }
-
     if(values.size() != points.size()) { std::cout << "cache::validate(false): values.size(" << values.size() << ") != points.size(" << points.size() << ")\r\n"; return false; }
 
     std::unordered_map<int, point> duplicates;
@@ -134,19 +131,18 @@ void organisation::genetic::cache::generate(data &source)
     }
 }
 
-void organisation::genetic::cache::mutate(data &source)
+bool organisation::genetic::cache::mutate(data &source)
 {
-    if(values.empty()) { std::cout << "not mutated\r\n"; return; }
+    const int COUNTER = 15;
+
+    if(values.empty()) return false;
 
     int offset = (std::uniform_int_distribution<int>{0, (int)(values.size() - 1)})(generator);
-    
-    //int value = std::get<0>(values[offset]);
+
     point p1;
 
     p1.generate(_width, _height, _depth);
     int index = ((_width * _height) * p1.z) + ((p1.y * _width) + p1.x);
-
-    //if(points.find(index) != points.end()) p1 = std::get<1>(values[offset]);
 
     std::vector<int> all = source.all();
     int t1 = (std::uniform_int_distribution<int>{0, (int)(all.size() - 1)})(generator);
@@ -154,7 +150,6 @@ void organisation::genetic::cache::mutate(data &source)
 
     if(points.find(index) == points.end()) 
     {
-        std::cout << "cache new point!\r\n";
         points[index] = { };
         points[index] = p1;
         values.push_back(std::tuple<int,point>(value,p1));
@@ -166,21 +161,26 @@ void organisation::genetic::cache::mutate(data &source)
             point &temp = std::get<1>(it);
             if(temp == p1) 
             {   
-                std::cout << "cache before " << std::get<0>(it);             
+                int counter = 0;
+                int old = std::get<0>(it);
+                while((old==value)&&(counter++<COUNTER))
+                {
+                    int t1 = (std::uniform_int_distribution<int>{0, (int)(all.size() - 1)})(generator);
+                    value = all[t1];
+                }
+                
                 std::get<0>(it) = value;
 
-                std::cout << " after " << std::get<0>(it) << "\r\n";
-
-                return;
+                return old != value;
             }
         }
     }
+
+    return true;
 }
 
 void organisation::genetic::cache::append(genetic *source, int src_start, int src_end)
 {
-std::cout << "cache::append " << src_start << "," << src_end << "," << "\r\n";    
-
     cache *s = dynamic_cast<cache*>(source);
     int length = src_end - src_start;
 

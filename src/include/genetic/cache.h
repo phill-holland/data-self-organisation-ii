@@ -36,6 +36,11 @@ namespace organisation
                 points.clear();
             }
 
+            bool empty()
+            {
+                return values.empty() || points.empty();
+            }
+
             bool set(int value, point position);
 
             std::string serialise();
@@ -45,7 +50,7 @@ namespace organisation
 
         public:
             void generate(data &source);
-            void mutate(data &source);
+            bool mutate(data &source);
             void append(genetic *source, int src_start, int src_end);
 
         public:

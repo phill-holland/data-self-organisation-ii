@@ -40,11 +40,13 @@ namespace organisation
                 counter = 0;
             }
 
+            bool empty() { return values.empty(); }
+            
             void start();
             bool get();
 
             void generate(data &source);
-            void mutate(data &source);
+            bool mutate(data &source);
             void append(genetic *source, int src_start, int src_end);
 
             std::string serialise();

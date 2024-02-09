@@ -45,8 +45,9 @@ namespace organisation
         void compute(std::vector<std::tuple<std::string,std::string>> values);
 
     public:        
-        bool cross(schema *destination, schema *value);
+        void cross(schema *destination, schema *value);
         void mutate(data &source);
+        bool validate(data &source) { return prog.validate(source); }
 
     public:
         std::string run(int epoch, std::string input, std::string expected, data &source);

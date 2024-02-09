@@ -201,7 +201,8 @@ bool organisation::populations::population::get(schema &destination, region r)
         schema *s2 = best(r);
         if(s2 == NULL) return false;
                      
-        return s1->cross(&destination, s2);
+        s1->cross(&destination, s2);
+        return s1->validate(settings.mappings);
     }
 
     return true;
