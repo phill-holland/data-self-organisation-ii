@@ -334,17 +334,6 @@ void organisation::parallel::program::run(organisation::data &mappings)
             impacter->search(deviceNextHalfPositions, deviceClient, deviceCurrentCollisionKeys, totalValues, true, false, false, NULL, 0, queue);		
             
             // ***
-/*
-                        std::cout << "\r\n\r\ninsert INSERTED " << totalValues << "\r\n";
-        outputarb(devicePositions,totalValues);
-        std::cout << "\r\nNext: ";
-        outputarb(deviceNextPositions,totalValues);
-        std::cout << "\r\nClient: ";
-        outputarb(deviceClient,totalValues);
-        std::cout << "\r\nNextCol: ";
-        outputarb(deviceNextCollisionKeys,totalValues);
-*/
-            // ***
             
             update();
             next();
@@ -526,10 +515,6 @@ void organisation::parallel::program::insert(int epoch)
 
     if(count > 0)
     {
-//        std::cout << "insert " << count << "\r\n";
-//        outputarb(inserter->deviceNewPositions,count);
-//        outputarb(inserter->deviceNewClient,count);
-
         sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
         sycl::range num_items{(size_t)count};
 
