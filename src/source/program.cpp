@@ -107,7 +107,6 @@ std::string organisation::program::run(std::string input, data &source, int max)
         int d = (int)sqrtf(x + y + z);
 
         return d;
-
     };
 
     std::vector<int> values = source.get(input);

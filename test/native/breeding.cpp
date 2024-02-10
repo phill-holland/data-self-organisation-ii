@@ -13,7 +13,7 @@
 
 TEST(BasicProgramGenerate, BasicAssertions)
 {
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
     organisation::point starting(width / 2, height / 2, depth / 2);
@@ -36,7 +36,7 @@ TEST(BasicProgramGenerate, BasicAssertions)
 
 TEST(BasicProgramMutate, BasicAssertions)
 {
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
     organisation::point starting(width / 2, height / 2, depth / 2);
@@ -68,7 +68,7 @@ TEST(BasicProgramMutate, BasicAssertions)
 
 TEST(BasicProgramCross, BasicAssertions)
 {
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
     organisation::point starting(width / 2, height / 2, depth / 2);

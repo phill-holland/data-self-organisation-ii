@@ -188,7 +188,8 @@ TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
     {        
         organisation::parallel::program program(*device, queue, mapper, parameters);
         
-        // ***
+        EXPECT_TRUE(program.initalised());
+        
         organisation::schema s1(width, height, depth);
 
         organisation::genetic::insert insert;
@@ -285,7 +286,9 @@ TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
     mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
 
     organisation::parallel::program program(*device, queue, mapper, parameters);
-    
+
+    EXPECT_TRUE(program.initalised());
+
     organisation::schema s1 = getSchema1(width, height, depth);
     organisation::schema s2 = getSchema2(width, height, depth);
 
@@ -354,6 +357,8 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
 
     organisation::parallel::program program(*device, queue, mapper, parameters);
     
+    EXPECT_TRUE(program.initalised());
+
     organisation::schema s1(width, height, depth);
 
     organisation::genetic::insert insert;
@@ -444,7 +449,9 @@ TEST(BasicProgramMovementAllDirectionsBoundaryTestParallel, BasicAssertions)
 
     parallel::mapper::configuration mapper;    
     organisation::parallel::program program(*device, queue, mapper, parameters);
-        
+    
+    EXPECT_TRUE(program.initalised());
+
     organisation::schema s1 = getSchema3(width, height, depth, { { 1, 0, 0 } }, 1);
     organisation::schema s2 = getSchema3(width, height, depth, { {-1, 0, 0 } }, 2);
     organisation::schema s3 = getSchema3(width, height, depth, { { 0, 1, 0 } }, 3);
@@ -489,7 +496,9 @@ TEST(BasicProgramMovementAllDirectionsPartialBoundaryParallel, BasicAssertions)
 
     parallel::mapper::configuration mapper;    
     organisation::parallel::program program(*device, queue, mapper, parameters);
-        
+
+    EXPECT_TRUE(program.initalised());
+
     organisation::schema s1 = getSchema3(width, height, depth, { { 1, 0, 0 } }, 1);
     organisation::schema s2 = getSchema3(width, height, depth, { {-1, 0, 0 } }, 2);
     organisation::schema s3 = getSchema3(width, height, depth, { { 0, 1, 0 } }, 3);
@@ -540,7 +549,9 @@ TEST(BasicProgramMovementAllDirectionsBoundaryDeleteSuccessfulAndMovementSequenc
 
     parallel::mapper::configuration mapper;    
     organisation::parallel::program program(*device, queue, mapper, parameters);
-        
+
+    EXPECT_TRUE(program.initalised());
+
     organisation::schema s1 = getSchema3(width, height, depth, { { 1, 0, 0 } }, 1);
     organisation::schema s2 = getSchema3(width, height, depth, { {-1, 0, 0 } }, 2);
     organisation::schema s3 = getSchema3(width, height, depth, { { 0, 1, 0 }, { 1, 0, 0 } }, 3);
@@ -600,6 +611,8 @@ TEST(BasicProgramTestHostBufferExceededLoadParallel, BasicAssertions)
     parallel::mapper::configuration mapper;    
     organisation::parallel::program program(*device, queue, mapper, parameters);
         
+    EXPECT_TRUE(program.initalised());
+
     mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
     
     organisation::schema s1 = getSchema4(width, height, depth, { 1, 0, 0 }, { 0, 1, 0 }, { 12,10,10 }, 0, 1);
@@ -686,6 +699,8 @@ TEST(BasicProgramTestHostBufferNotEvenLoadParallel, BasicAssertions)
     parallel::mapper::configuration mapper;    
     organisation::parallel::program program(*device, queue, mapper, parameters);
         
+    EXPECT_TRUE(program.initalised());
+
     mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
     
     organisation::schema s1 = getSchema4(width, height, depth, { 1, 0, 0 }, { 0, 1, 0 }, { 12,10,10 }, 0, 1);
@@ -773,6 +788,8 @@ TEST(BasicProgramDataSwapParallel, BasicAssertions)
 
     organisation::parallel::program program(*device, queue, mapper, parameters);
     
+    EXPECT_TRUE(program.initalised());
+
     organisation::schema s1(width, height, depth);
 
     organisation::genetic::insert insert;
@@ -851,4 +868,117 @@ TEST(BasicProgramDataSwapParallel, BasicAssertions)
     std::vector<organisation::parallel::value> data = program.get();
 
     EXPECT_EQ(data, values);
+}
+
+TEST(BasicProgramScaleTestParallel, BasicAssertions)
+{    
+    //GTEST_SKIP();
+
+    //const organisation::point clients(27,1,1);
+    const organisation::point clients(3,3,3);
+    const int width = 20, height = 20, depth = 20;
+
+    std::string values1("daisy give me your answer do .");
+    std::string input1("daisy");
+    std::vector<std::string> expected = 
+    { 
+        "daisy", "give", "me", "your", "answer", "do"
+    };
+    
+    std::vector<std::string> strings = organisation::split(values1);
+    organisation::data d(strings);
+
+	::parallel::device *device = new ::parallel::device(0);
+	::parallel::queue *queue = new parallel::queue(*device);
+
+    organisation::parameters parameters(width, height, depth);
+    
+    parameters.dim_clients = clients;    
+    parameters.iterations = 9;
+    parameters.host_buffer = 100; 
+    parameters.max_inserts = 30;   
+
+    organisation::inputs::epoch epoch1(input1);
+    parameters.input.push_back(epoch1);
+
+    parallel::mapper::configuration mapper;    
+    organisation::parallel::program program(*device, queue, mapper, parameters);
+        
+    EXPECT_TRUE(program.initalised());
+
+    //mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
+    
+    organisation::schema s1 = getSchema4(width, height, depth, { 1, 0, 0 }, { 0, 1, 0 }, { 12,10,10 }, 0, 1);
+    organisation::schema s2 = getSchema4(width, height, depth, {-1, 0, 0 }, { 0,-1, 0 }, {  7,10,10 }, 1, 1);
+    organisation::schema s3 = getSchema4(width, height, depth, { 0, 1, 0 }, { 1, 0, 0 }, {10, 12,10 }, 2, 1);
+    organisation::schema s4 = getSchema4(width, height, depth, { 0,-1, 0 }, {-1, 0, 0 }, {10,  7,10 }, 3, 1);
+    organisation::schema s5 = getSchema4(width, height, depth, { 0, 0, 1 }, { 1, 0, 0 }, {10, 10,12 }, 4, 1);
+    organisation::schema s6 = getSchema4(width, height, depth, { 0, 0,-1 }, {-1, 0, 0 }, {10, 10, 7 }, 5, 1);
+
+    std::vector<organisation::schema*> schemas = { &s1,&s2,&s3,&s4,&s5,&s6 };
+    std::vector<organisation::schema*> source;
+
+    int length = clients.x * clients.y * clients.z;
+    int total = schemas.size();
+
+    for(int i = 0; i < length; ++i)
+    {
+        source.push_back(schemas[i % total]);
+    }
+
+    // copying doesn't work with large numbers!
+    program.copy(source.data(), source.size());
+    program.set(d, parameters.input);
+
+    program.run(d);
+
+    std::vector<std::unordered_map<int,std::string>> compare;
+    std::vector<organisation::outputs::output> results = program.get(d);
+    
+    for(auto &epoch: results)
+    {
+        std::unordered_map<int,std::vector<std::string>> data;
+        for(auto &output: epoch.values)
+        {
+            if(data.find(output.client) == data.end()) data[output.client] = { output.value };
+            else data[output.client].push_back(output.value);
+        }
+
+        std::unordered_map<int,std::string> temp;
+        for(auto &value: data)
+        {
+            temp[value.first] = std::reduce(value.second.begin(),value.second.end(),std::string(""));
+        }
+
+        compare.push_back(temp);
+    }
+
+    EXPECT_EQ(compare.size(), 1);
+    EXPECT_EQ(source.size(), compare[0].size());
+
+    std::unordered_map<int,std::string> first = compare.front();    
+    for(int i = 0; i < length; ++i)
+    {
+        EXPECT_FALSE(first.find(i) == first.end());
+        EXPECT_EQ(first[i],expected[i % total]);
+    }
+    
+    std::vector<organisation::parallel::value> data = program.get();
+
+    EXPECT_EQ(source.size(), data.size());
+
+    std::vector<organisation::parallel::value> values = {
+        { organisation::point(15,11,10),0 },
+        { organisation::point( 5, 9,10),0 },
+        { organisation::point(11,15,10),0 },
+        { organisation::point( 9, 5,10),0 },
+        { organisation::point(11,10,15),0 },
+        { organisation::point( 9,10, 5),0 },
+    };
+
+    for(int i = 0; i < length; ++i)
+    {
+        values[i % total].client = i;
+        EXPECT_EQ(data[i], values[i % total]);
+    }
 }

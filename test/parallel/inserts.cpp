@@ -33,7 +33,7 @@ TEST(BasicProgramInsertParallel, BasicAssertions)
     parameters.input.push_back(epoch1);
     parameters.input.push_back(epoch2);
 
-    organisation::parallel::inserts inserts(*device, queue, parameters, 100);
+    organisation::parallel::inserts inserts(*device, queue, parameters);
 
     organisation::schema s1(width, height, depth);
 

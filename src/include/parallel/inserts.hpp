@@ -47,19 +47,17 @@ namespace organisation
         public:
             inserts(::parallel::device &dev, 
                     ::parallel::queue *q,
-                    parameters &settings,
-                    int length) 
+                    parameters &settings) 
             { 
                 makeNull(); 
-                reset(dev, q, settings, length); 
+                reset(dev, q, settings); 
             }
             ~inserts() { cleanup(); }
 
             bool initalised() { return init; }
             void reset(::parallel::device &dev, 
                        ::parallel::queue *q,
-                       parameters &settings,
-                       int length);
+                       parameters &settings);
 
             void clear();
             int insert(int epoch);
