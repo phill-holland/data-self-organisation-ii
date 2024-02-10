@@ -175,7 +175,7 @@ void organisation::parallel::program::reset(::parallel::device &dev,
 
     // ***
 
-    ::parallel::parameters global(settings.width * settings.clients(), settings.height, settings.depth);
+    ::parallel::parameters global(settings.width * settings.dim_clients.x, settings.height * settings.dim_clients.y, settings.depth * settings.dim_clients.z);
     global.length = settings.max_values * settings.clients();
     ::parallel::parameters client(settings.width, settings.height, settings.depth);
     client.length = settings.max_values;
@@ -333,6 +333,17 @@ void organisation::parallel::program::run(organisation::data &mappings)
             impacter->search(deviceNextPositions, deviceClient, deviceCurrentCollisionKeys, totalValues, true, false, false, NULL, 0, queue);
             impacter->search(deviceNextHalfPositions, deviceClient, deviceCurrentCollisionKeys, totalValues, true, false, false, NULL, 0, queue);		
             
+            // ***
+/*
+                        std::cout << "\r\n\r\ninsert INSERTED " << totalValues << "\r\n";
+        outputarb(devicePositions,totalValues);
+        std::cout << "\r\nNext: ";
+        outputarb(deviceNextPositions,totalValues);
+        std::cout << "\r\nClient: ";
+        outputarb(deviceClient,totalValues);
+        std::cout << "\r\nNextCol: ";
+        outputarb(deviceNextCollisionKeys,totalValues);
+*/
             // ***
             
             update();
@@ -515,6 +526,10 @@ void organisation::parallel::program::insert(int epoch)
 
     if(count > 0)
     {
+//        std::cout << "insert " << count << "\r\n";
+//        outputarb(inserter->deviceNewPositions,count);
+//        outputarb(inserter->deviceNewClient,count);
+
         sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
         sycl::range num_items{(size_t)count};
 
@@ -745,7 +760,7 @@ void organisation::parallel::program::outputting(int iteration)
         h.parallel_for(num_items, [=](auto i) 
         {  
             if(_positions[i].w() == 0)
-            {     
+            {   
                 bool output = false;
                 int value = 0;
 

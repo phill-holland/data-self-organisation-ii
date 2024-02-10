@@ -121,7 +121,7 @@ organisation::schema getSchema4(const int width, const int height, const int dep
 
 TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
     organisation::point starting(width / 2, height / 2, depth / 2);
@@ -248,7 +248,7 @@ TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
 
 TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -325,7 +325,7 @@ TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
 
 TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -426,7 +426,7 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
 
 TEST(BasicProgramMovementAllDirectionsBoundaryTestParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -473,7 +473,7 @@ TEST(BasicProgramMovementAllDirectionsBoundaryTestParallel, BasicAssertions)
 
 TEST(BasicProgramMovementAllDirectionsPartialBoundaryParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -526,7 +526,7 @@ TEST(BasicProgramMovementAllDirectionsPartialBoundaryParallel, BasicAssertions)
 
 TEST(BasicProgramMovementAllDirectionsBoundaryDeleteSuccessfulAndMovementSequenceMaintainedParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -580,7 +580,7 @@ TEST(BasicProgramMovementAllDirectionsBoundaryDeleteSuccessfulAndMovementSequenc
 
 TEST(BasicProgramTestHostBufferExceededLoadParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -668,7 +668,7 @@ TEST(BasicProgramTestHostBufferExceededLoadParallel, BasicAssertions)
 
 TEST(BasicProgramTestHostBufferNotEvenLoadParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -756,7 +756,7 @@ TEST(BasicProgramTestHostBufferNotEvenLoadParallel, BasicAssertions)
 
 TEST(BasicProgramDataSwapParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -874,8 +874,7 @@ TEST(BasicProgramScaleTestParallel, BasicAssertions)
 {    
     //GTEST_SKIP();
 
-    //const organisation::point clients(27,1,1);
-    const organisation::point clients(3,3,3);
+    const organisation::point clients(10,10,10);
     const int width = 20, height = 20, depth = 20;
 
     std::string values1("daisy give me your answer do .");
@@ -905,8 +904,6 @@ TEST(BasicProgramScaleTestParallel, BasicAssertions)
     organisation::parallel::program program(*device, queue, mapper, parameters);
         
     EXPECT_TRUE(program.initalised());
-
-    //mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
     
     organisation::schema s1 = getSchema4(width, height, depth, { 1, 0, 0 }, { 0, 1, 0 }, { 12,10,10 }, 0, 1);
     organisation::schema s2 = getSchema4(width, height, depth, {-1, 0, 0 }, { 0,-1, 0 }, {  7,10,10 }, 1, 1);
@@ -925,8 +922,7 @@ TEST(BasicProgramScaleTestParallel, BasicAssertions)
     {
         source.push_back(schemas[i % total]);
     }
-
-    // copying doesn't work with large numbers!
+    
     program.copy(source.data(), source.size());
     program.set(d, parameters.input);
 
@@ -976,9 +972,13 @@ TEST(BasicProgramScaleTestParallel, BasicAssertions)
         { organisation::point( 9,10, 5),0 },
     };
 
+    std::unordered_map<int,organisation::parallel::value> lookup;
+
+    for(auto &it: data) { lookup[it.client] = it; }
+
     for(int i = 0; i < length; ++i)
-    {
+    {    
         values[i % total].client = i;
-        EXPECT_EQ(data[i], values[i % total]);
+        EXPECT_EQ(lookup[i], values[i % total]);
     }
 }

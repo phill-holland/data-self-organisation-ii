@@ -34,24 +34,6 @@ bool MapIsOutside(const sycl::int4 value, const sycl::int4 min,
     return false;
 }
 
-/*
-void ClearMap(sycl::float4 **positions, sycl::int4 **clients, const int buckets,
-              const size_t N, sycl::nd_item<3> item_ct1)
-{        
-    unsigned int i =
-        item_ct1.get_group(2) * item_ct1.get_local_range().get(2) +
-        item_ct1.get_local_id(2);
-
-    if (i < N)
-	{
-		for (int j = 0; j < buckets; ++j)
-		{
-			positions[j][i] = { 0.0, 0.0, 0.0, 0.0 };
-			clients[j][i] = { 0, 0, 0, 0 };
-		}
-    }
-}
-*/
 void BuildMap(int *coarse, int *medium, int *bucket_indices,
               int *bucket_lengths, sycl::float4 **bucket_positions,
               sycl::int4 **bucket_clients, const sycl::float4 *values,
@@ -61,32 +43,19 @@ void BuildMap(int *coarse, int *medium, int *bucket_indices,
               const sycl::int4 medium_dimensions, const sycl::float4 fine_scale,
               const sycl::int4 fine_dimensions, const int total_buckets,
               const sycl::int4 client_dimensions,
-              const sycl::int4 client_totals, const int value, const int idx,
+              const sycl::int4 client_totals, const int value, const int idx,              
               const bool validate, const sycl::stream out)
-              //, const int N,
-              //int idx)
-              //sycl::nd_item<3> item_ct1)
 {
-    //int idx = item_ct1.get_group(2) * item_ct1.get_local_range().get(2) +
-      //          item_ct1.get_local_id(2);
-//int idx;
     sycl::float4 temp = values[idx];
     if (MapIsZero(temp)) return;
 
-
     sycl::int4 client = clients[idx];
-
-if(validate)
-{
-    out << "GPU BUILD " << temp.x() << "," <<temp.y() << "," << temp.z() << ",(" << client.x() << "," << client.y() << "," << client.z() << ")\n";
-}
 
     sycl::int4 i = {(int)sycl::floor(temp.x() * coarse_scale.x()),
                     (int)sycl::floor(temp.y() * coarse_scale.y()),
                     (int)sycl::floor(temp.z() * coarse_scale.z()), 0};
 
     if (MapIsOutside(i, { 0, 0, 0, 0 }, coarse_dimensions)) return;
-    //out << "COARSE\n";
 
     int client_offset =
         (client.y() * client_totals.x()) + client.x() +
@@ -98,16 +67,29 @@ if(validate)
 
     coarse[i_offset + (m * client_offset)] = value;
 
+if(validate) 
+ {
+    if((client.x() == 0)&&(client.y()==1)&&(client.z()==3))
+    out << "build coarse " << i_offset + (m * client_offset) << " " << value << " " << coarse[i_offset + (m * client_offset)] << "\r\n";
+ 
+    if((i_offset + (m * client_offset))==16426) out << "VAUR IS SET " << value << "\r\n";
+}
+
     sycl::int4 j = {(int)sycl::floor(temp.x() * medium_scale.x()),
                     (int)sycl::floor(temp.y() * medium_scale.y()),
                     (int)sycl::floor(temp.z() * medium_scale.z()), 0};
 
     if (MapIsOutside(j, { 0, 0, 0, 0 }, medium_dimensions)) return;
-    //out << "Medium\n";
 
     int j_offset = (j.y() * medium_dimensions.x()) + j.x() +
                     (medium_dimensions.x() * medium_dimensions.y() * j.z());
     int p = medium_dimensions.x() * medium_dimensions.y() * medium_dimensions.z();
+
+if(validate) 
+ {
+    if((client.x() == 0)&&(client.y()==1)&&(client.z()==3))
+    out << "build medium " << j_offset + (p * client_offset) << " " << value << "\r\n";
+ }
 
     medium[j_offset + (p * client_offset)] = value;
 
@@ -116,7 +98,6 @@ if(validate)
                     (int)sycl::floor(temp.z() * fine_scale.z()), 0};
 
     if (MapIsOutside(k, { 0, 0, 0, 0 }, fine_dimensions)) return;
-    //out << "FINE\n";
 
     int bucket = (k.y() * fine_dimensions.x()) + k.x() +
                     (fine_dimensions.x() * fine_dimensions.y() * k.z());
@@ -129,9 +110,16 @@ if(validate)
     int index = ar.fetch_add(1);
     // ***
     
-    //int index = sycl::atomic<int>(sycl::global_ptr<int>(&bucket_indices[bucket])).fetch_add(1);
-    if (index >= bucket_lengths[bucket]) return;
-    if(validate) out << "BUCKET " << bucket << "," << index << "\n";
+    if (index >= bucket_lengths[bucket]) 
+    {
+        if(validate) out << "BUECKY EXCEED " << index << "," << bucket << "\r\n";
+        return;
+    }
+    
+    if(validate)
+    {
+        out << "BUCKET " << bucket << "," << index <<" [" << temp.x() << "," <<temp.y() << "," << temp.z() << "],(" << client.x() << "," << client.y() << "," << client.z() << ")\n";
+    }
 
     bucket_positions[bucket][index] = {temp.x(), temp.y(), temp.z(), (float)value};
     bucket_clients[bucket][index] = {client.x(), client.y(), client.z(), idx};
@@ -148,12 +136,8 @@ void ScanMap(int *result, const sycl::float4 *values, const sycl::int4 *clients,
              const sycl::int4 client_dimensions, const sycl::int4 client_totals,
              const int value, const bool self, int *collided,
              const int collided_index, const sycl::float4 *lcompare,
-             const sycl::float4 *rcompare, const int idx)
-             //const int N,sycl::nd_item<3> item_ct1)
+             const sycl::float4 *rcompare, const int idx)    
 {
-    //int idx = item_ct1.get_group(2) * item_ct1.get_local_range().get(2) +
-                //item_ct1.get_local_id(2);
-
     sycl::float4 temp = values[idx];
     if (MapIsZero(temp)) return;
 
@@ -245,11 +229,7 @@ void ScanMap(
     const bool symetrical, const bool inverse, const sycl::float4 *lcompare,
     const sycl::float4 *rcompare, const int idx,
     const bool validate, sycl::stream out)
-    //const int N, sycl::nd_item<3> item_ct1)
 {
-    //int idx = item_ct1.get_group(2) * item_ct1.get_local_range().get(2) +
-                //item_ct1.get_local_id(2);
-
     sycl::float4 temp = values[idx];
     if (MapIsZero(temp)) return;
 
@@ -273,6 +253,12 @@ if(validate) out << "coarse\n";
                     (coarse_dimensions.x() * coarse_dimensions.y() * i.z());
     int m = coarse_dimensions.x() * coarse_dimensions.y() * coarse_dimensions.z();
 
+if(validate) 
+{
+    if((client.x() == 0)&&(client.y()==1)&&(client.z()==3))
+    out << "scan coarse " << i_offset + (m * client_offset) << " " << value << " " << coarse[i_offset + (m * client_offset)] << "\r\n";
+}
+
     if (coarse[i_offset + (m * client_offset)] != value) return;
 
     sycl::int4 j = {(int)sycl::floor(temp.x() * medium_scale.x()),
@@ -284,6 +270,12 @@ if(validate) out << "medium\n";
     int j_offset = (j.y() * medium_dimensions.x()) + j.x() +
                     (medium_dimensions.x() * medium_dimensions.y() * j.z());
     int p = medium_dimensions.x() * medium_dimensions.y() * medium_dimensions.z();
+
+if(validate) 
+{
+    if((client.x() == 0)&&(client.y()==1)&&(client.z()==3))
+    out << "scan medium " << j_offset + (p * client_offset) << " " << value << "\r\n";
+}
 
     if (medium[j_offset + (p * client_offset)] != value) return;
 
@@ -316,7 +308,6 @@ if(validate)
             {
                 if(validate) out << "equals " << i << "," << c1.w() << "," << idx << "," << self << "\n";
 
-                //if ((self) && (c1.w() == idx)) return;
                 if((!self)||(c1.w() != idx))
                 {
                     int output = 0;
@@ -343,7 +334,6 @@ if(validate)
                         if (collided != NULL) collided[collided_index] = 1;
                     }   
                 }
-                //return;
             }
         }
 	}
@@ -744,7 +734,7 @@ void parallel::mapper::map::build(sycl::float4 *points, sycl::int4 *clients,
         auto _clientTotals = clientTotals;
         auto _value = value;        
 
-        sycl::stream out(1024,1024, cgh);
+        sycl::stream out(4096, 2048, cgh);
 
         cgh.parallel_for(num_items, [=](auto item) 
         {  
@@ -856,7 +846,7 @@ void parallel::mapper::map::search(sycl::float4 *search, sycl::int4 *clients,
         auto _clientTotals = clientTotals;
         auto _value = value;
 
-        sycl::stream out(1024,1024, cgh);
+        sycl::stream out(8000, 4096, cgh);
 
         cgh.parallel_for(num_items, [=](auto item) 
         {
