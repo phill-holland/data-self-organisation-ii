@@ -28,7 +28,7 @@ namespace organisation
         bool set(float value, int index);
         float get(int index);
 
-        int size() { return scores.size(); }
+        size_t size() { return scores.size(); }
 
     public:
         void copy(const score &source);

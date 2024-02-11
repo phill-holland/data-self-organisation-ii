@@ -17,6 +17,10 @@ void organisation::score::clear()
 	scores.clear();
 }
 
+// first half relative distance from word in front
+// second half, relative distance away from words "primary place"
+// last value, scoare rating on sentence length
+
 bool organisation::score::compute(std::string expected, std::string value)
 {
 	auto _words = [](std::string source)

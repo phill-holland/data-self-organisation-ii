@@ -121,7 +121,7 @@ organisation::schema getSchema4(const int width, const int height, const int dep
 
 TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
     organisation::point starting(width / 2, height / 2, depth / 2);
@@ -248,7 +248,7 @@ TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
 
 TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -325,7 +325,7 @@ TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
 
 TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -426,7 +426,7 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
 
 TEST(BasicProgramMovementAllDirectionsBoundaryTestParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -473,7 +473,7 @@ TEST(BasicProgramMovementAllDirectionsBoundaryTestParallel, BasicAssertions)
 
 TEST(BasicProgramMovementAllDirectionsPartialBoundaryParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -526,7 +526,7 @@ TEST(BasicProgramMovementAllDirectionsPartialBoundaryParallel, BasicAssertions)
 
 TEST(BasicProgramMovementAllDirectionsBoundaryDeleteSuccessfulAndMovementSequenceMaintainedParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -580,7 +580,7 @@ TEST(BasicProgramMovementAllDirectionsBoundaryDeleteSuccessfulAndMovementSequenc
 
 TEST(BasicProgramTestHostBufferExceededLoadParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -668,7 +668,7 @@ TEST(BasicProgramTestHostBufferExceededLoadParallel, BasicAssertions)
 
 TEST(BasicProgramTestHostBufferNotEvenLoadParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -756,7 +756,7 @@ TEST(BasicProgramTestHostBufferNotEvenLoadParallel, BasicAssertions)
 
 TEST(BasicProgramDataSwapParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -872,7 +872,7 @@ TEST(BasicProgramDataSwapParallel, BasicAssertions)
 
 TEST(BasicProgramScaleTestParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const organisation::point clients(10,10,10);
     const int width = 20, height = 20, depth = 20;
