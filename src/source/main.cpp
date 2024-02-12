@@ -93,8 +93,7 @@ int main(int argc, char *argv[])
 	::parallel::queue *queue = new parallel::queue(*device);
 
     parallel::mapper::configuration mapper;
-    mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
-
+    
     organisation::parallel::program program(*device, queue, mapper, parameters);
 
     run(&program, parameters);

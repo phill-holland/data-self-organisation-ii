@@ -42,7 +42,7 @@ organisation::schema getSchema(const int width, const int height, const int dept
 
 TEST(BasicPopulationTestParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -55,7 +55,7 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
     };
 
     std::vector<std::string> strings = organisation::split(values1);
-    organisation::data d(strings);
+    organisation::data mappings(strings);
 
 	::parallel::device *device = new ::parallel::device(0);
 	::parallel::queue *queue = new parallel::queue(*device);
@@ -64,7 +64,8 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
     
     parameters.dim_clients = organisation::point(2,3,1);
     parameters.iterations = 9;
-    
+    parameters.mappings = mappings;
+
     organisation::inputs::epoch epoch1(input1);
 
     parameters.input.push_back(epoch1);
@@ -83,14 +84,19 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
 
     std::vector<organisation::schema*> source = { &s1,&s2,&s3,&s4,&s5,&s6 };
 
-    parameters.population = source.size();
+    parameters.population = source.size() * 2;    
     
     organisation::populations::population population(&program, parameters);
-
+    EXPECT_TRUE(population.initalised());
+/*
     for(int i = 0; i < source.size(); ++i)
     {
         EXPECT_TRUE(population.set(*source[i], i));
     }
+*/
+
+population.clear();
+population.generate();
 
     int generation = 0;
     int generations = 1;

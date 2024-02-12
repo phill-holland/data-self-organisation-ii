@@ -80,8 +80,9 @@ organisation::schema organisation::populations::population::go(int &count, int i
     region rset = { 0, (settings.population / 2) - 1 };
     region rget = { (settings.population / 2), settings.population - 1 };
 
-    pull(intermediateA, rset);
-
+    fill(intermediateA, rset);
+    pull(intermediateC, rset);
+    
     do
     {
         auto r1 = std::async(&organisation::populations::population::push, this, set, rset);
@@ -170,7 +171,8 @@ organisation::populations::results organisation::populations::population::execut
         std::cout << temp << "\r\n";
     }
     
-    result.average /= (float)values.size();
+    if(values.size() > 0)
+        result.average /= (float)values.size();
 
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(now - previous);   
@@ -202,7 +204,9 @@ bool organisation::populations::population::get(schema &destination, region r)
         if(s2 == NULL) return false;
                      
         s1->cross(&destination, s2);
-        return s1->validate(settings.mappings);
+        bool valid = destination.validate(settings.mappings);
+        return valid;
+        //return destination.validate(settings.mappings);
     }
 
     return true;
@@ -326,6 +330,15 @@ void organisation::populations::population::push(organisation::schema **buffer, 
     std::cout << "push " << time_span.count() << "\r\n";    
 }
 
+void organisation::populations::population::fill(organisation::schema **destination, region r)
+{
+    int offset = 0;
+    for(int i = r.start; i < r.end; ++i)
+    {
+        destination[offset++]->copy(*schemas->get(i));
+    }
+}
+
 void organisation::populations::population::makeNull() 
 { 
     schemas = NULL;
@@ -336,9 +349,7 @@ void organisation::populations::population::makeNull()
 }
 
 void organisation::populations::population::cleanup() 
-{ 
-    if(programs != NULL) delete programs;
-    
+{     
     if(intermediateC != NULL)
     {
         for(int i = settings.clients() - 1; i >= 0; --i)

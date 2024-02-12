@@ -73,6 +73,7 @@ namespace organisation
         protected:
             void pull(organisation::schema **buffer, region r);
             void push(organisation::schema **buffer, region r);
+            void fill(organisation::schema **destination, region r);
 
         protected:
             results execute(organisation::schema **buffer);
