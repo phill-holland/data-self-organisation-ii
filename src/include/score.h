@@ -34,6 +34,9 @@ namespace organisation
         void copy(const score &source);
         
     protected:
+        float compute_comparative_length_score(std::string expected, std::string value);
+        
+    protected:
         void makeNull();
         void cleanup();
     };

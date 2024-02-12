@@ -32,6 +32,14 @@ namespace organisation
             return data[index];
         }
 
+        bool set(schema &source, int index)
+        {
+            if((index < 0)||(index >= length)) return false;
+            data[index]->copy(source);
+
+            return true;
+        }
+
         bool generate(organisation::data &source);
 
     protected:

@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-#include "parallel/inserts.hpp"
 #include "parallel/program.hpp"
 #include "parallel/map/configuration.hpp"
 #include "parallel/value.hpp"
