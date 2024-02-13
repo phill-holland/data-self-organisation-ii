@@ -204,8 +204,9 @@ void organisation::genetic::cache::copy(const cache &source)
     _height = source._height;
     _depth = source._depth;
 
-    values = source.values;
+    values.assign(source.values.begin(), source.values.end());
     points = source.points;
+
 }
 
 bool organisation::genetic::cache::equals(const cache &source)

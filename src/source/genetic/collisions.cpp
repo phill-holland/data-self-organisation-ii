@@ -7,7 +7,7 @@ std::mt19937_64 organisation::genetic::collisions::generator(std::random_device{
 
 void organisation::genetic::collisions::generate(data &source)
 {
-    for(int i = 0; i < 26; ++i)
+    for(int i = 0; i < LENGTH; ++i)
     {
         int value = (std::uniform_int_distribution<int>{0, 26})(generator);
         values[i] = value;
@@ -85,7 +85,7 @@ void organisation::genetic::collisions::deserialise(std::string source)
 
 bool organisation::genetic::collisions::validate(data &source)
 {
-    if(values.size() != 26) { std::cout << "collisions::validate(false): values.size() != 26 (" << values.size() << ")\r\n"; return false; }
+    if(values.size() != LENGTH) { std::cout << "collisions::validate(false): values.size() != " << LENGTH << " (" << values.size() << ")\r\n"; return false; }
     
     for(auto &it: values)
     {
@@ -100,7 +100,10 @@ bool organisation::genetic::collisions::validate(data &source)
 
 void organisation::genetic::collisions::copy(const collisions &source)
 {
-    values.assign(source.values.begin(), source.values.end());
+    for(int i = 0; i < LENGTH; ++i)
+    {
+        values[i] = source.values[i];
+    }
 }
 
 bool organisation::genetic::collisions::equals(const collisions &source)

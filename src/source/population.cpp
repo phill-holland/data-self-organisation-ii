@@ -95,11 +95,11 @@ organisation::schema organisation::populations::population::go(int &count, int i
 
         organisation::populations::results result = r3.get();
 
-        if(result.best > highest)
-        {
+        //if(result.best > highest)
+        //{
             res.copy(*run[result.index]);
             highest = result.best;
-        }
+        //}
 
         if(result.best >= 0.9999f) finished = true;    
         

@@ -48,11 +48,12 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
 
     std::string values1("daisy give me your answer do .");
     std::string input1("daisy");
-     std::vector<std::vector<std::string>> expected = {
+    std::string expected1("daisy");
+     /*std::vector<std::vector<std::string>> expected = {
         { 
             "daisy", "give", "me", "your", "answer", "do"
         }
-    };
+    };*/
 
     std::vector<std::string> strings = organisation::split(values1);
     organisation::data mappings(strings);
@@ -66,7 +67,7 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
     parameters.iterations = 9;
     parameters.mappings = mappings;
 
-    organisation::inputs::epoch epoch1(input1);
+    organisation::inputs::epoch epoch1(input1, expected1);
 
     parameters.input.push_back(epoch1);
 
@@ -88,15 +89,14 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
     
     organisation::populations::population population(&program, parameters);
     EXPECT_TRUE(population.initalised());
-/*
+
+    population.clear();
+    population.generate();
+
     for(int i = 0; i < source.size(); ++i)
     {
         EXPECT_TRUE(population.set(*source[i], i));
-    }
-*/
-
-population.clear();
-population.generate();
+    }    
 
     int generation = 0;
     int generations = 1;

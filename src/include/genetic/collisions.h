@@ -14,7 +14,7 @@ namespace organisation
     {
         class collisions : public templates::genetic, public templates::serialiser
         {
-            static const int LENGTH = 26;
+            static const int LENGTH = 27;
 
             static std::mt19937_64 generator;
 
