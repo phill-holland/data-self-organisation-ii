@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <signal.h>
 #include <chrono>
+#include <bits/stdc++.h>
 
 std::mt19937_64 organisation::populations::population::generator(std::random_device{}());
 
@@ -95,11 +96,11 @@ organisation::schema organisation::populations::population::go(int &count, int i
 
         organisation::populations::results result = r3.get();
 
-        //if(result.best > highest)
-        //{
+        if(result.best > highest)
+        {
             res.copy(*run[result.index]);
             highest = result.best;
-        //}
+        }
 
         if(result.best >= 0.9999f) finished = true;    
         
@@ -108,7 +109,7 @@ organisation::schema organisation::populations::population::go(int &count, int i
         std::cout << " Avg=" << result.average;
         std::cout << "\r\n";
 
-        if((iterations > 0)&&(count > iterations)) finished = true;
+        if((iterations > 0)&&(count >= iterations)) finished = true;
 
         organisation::schema **t1 = set;
         set = run;
@@ -136,44 +137,48 @@ organisation::populations::results organisation::populations::population::execut
     programs->run(settings.mappings);
 
     std::vector<organisation::outputs::output> values = programs->get(settings.mappings);
-    
-    results result;
-    std::vector<outputs::data> current;
+    std::unordered_map<int,std::vector<std::tuple<std::string,std::string>>> mappings;
 
-    int i = 0;
-    std::vector<organisation::outputs::output>::iterator it;    
-    for(i = 0, it = values.begin(); it != values.end(); it++, i++)    
+    for(int epoch = 0; epoch < values.size(); ++epoch)
     {
-        buffer[i]->compute(settings.input.combine(it->values));
-
-        float score = buffer[i]->sum();
-        if(score > result.best)
+        organisation::inputs::epoch e;
+        if(settings.input.get(e,epoch))
         {
-            result.best = score;
-            result.index = i;
-            current = it->values;
+            std::vector<organisation::outputs::data> scores = values[epoch].values;
+            for(auto &it:scores)
+            {
+                if(mappings.find(it.client) == mappings.end())
+                    mappings[it.client] = { };
+                
+                mappings[it.client].push_back(std::tuple<std::string,std::string>(e.expected,it.value));
+            }
         }
-        
-        result.average += score;
     }
 
+    results result;
+
+    for(auto &it: mappings)
+    {
+        if((it.first >= 0)&&(it.first < settings.clients()))
+        {
+            buffer[it.first]->compute(it.second);
+
+            float score = buffer[it.first]->sum();
+            if(score > result.best)
+            {
+                result.best = score;
+                result.index = it.first;
+            }
+            
+            result.average += score;
+        }
+    }
 
     std::cout << "result.index [" << result.index << "] " << result.best << "\r\n";
-    for(std::vector<outputs::data>::iterator it = current.begin(); it != current.end(); ++it)
-    {
-        std::string temp = it->value;
-        if(temp.size() > 80)
-        {
-            temp.resize(80);
-            temp += "...";
-        }
-
-        std::cout << temp << "\r\n";
-    }
     
     if(values.size() > 0)
         result.average /= (float)values.size();
-
+    
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(now - previous);   
     std::cout << "execute " << time_span.count() << "\r\n";    
@@ -204,9 +209,7 @@ bool organisation::populations::population::get(schema &destination, region r)
         if(s2 == NULL) return false;
                      
         s1->cross(&destination, s2);
-        bool valid = destination.validate(settings.mappings);
-        return valid;
-        //return destination.validate(settings.mappings);
+        return destination.validate(settings.mappings);
     }
 
     return true;
@@ -301,39 +304,66 @@ void organisation::populations::population::pull(organisation::schema **buffer, 
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();   
     const int escape = 15;
 
-    for(int i = 0; i < settings.clients(); ++i)
+    if(settings.best)
     {
-        int counter = 0;
-        while(!get(*buffer[i], r)&&(++counter<escape)) { };
-        if(counter>=escape)
+        for(int i = 0; i < settings.clients(); ++i)
         {
-            std::cout << "repeated get error!\r\n";
+            int counter = 0;
+            while(!get(*buffer[i], r)&&(++counter<escape)) { };
+            if(counter>=escape)
+            {
+                std::cout << "repeated get error!\r\n";
+            }
         }
-    }    
+    }
+    else
+    {
+        int offset = 0;
+        for(int i = r.start; i <= r.end; ++i)
+        { 
+            organisation::schema *temp = schemas->get(i);
+            if(temp != NULL)           
+                buffer[offset++]->copy(*temp);
+        }
+    }
+
 
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(now - previous);   
-    std::cout << "pull " << time_span.count() << "\r\n";    
+    std::cout << "pull(" << settings.best << ") " << time_span.count() << "\r\n";    
 }
 
 void organisation::populations::population::push(organisation::schema **buffer, region r)
 {
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();
     
-    for(int i = 0; i < settings.clients(); ++i)
+    if(settings.worst)
     {
-        set(*buffer[i], r);
+        for(int i = 0; i < settings.clients(); ++i)
+        {
+            set(*buffer[i], r);
+        }
+    }
+    else
+    {
+        int offset = 0;
+        for(int i = r.start; i <= r.end; ++i)
+        {
+            organisation::schema *temp = schemas->get(i);
+            if(temp != NULL)
+                temp->copy(*buffer[offset++]);
+        }
     }
 
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(now - previous);   
-    std::cout << "push " << time_span.count() << "\r\n";    
+    std::cout << "push(" << settings.worst << ") " << time_span.count() << "\r\n";    
 }
 
 void organisation::populations::population::fill(organisation::schema **destination, region r)
 {
     int offset = 0;
-    for(int i = r.start; i < r.end; ++i)
+    for(int i = r.start; i <= r.end; ++i)
     {
         destination[offset++]->copy(*schemas->get(i));
     }

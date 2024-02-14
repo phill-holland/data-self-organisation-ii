@@ -54,6 +54,10 @@ namespace organisation
 
     public:
         void copy(const schema &source);
+        bool equals(const schema &source)
+        {
+            return prog.equals(source.prog) && (scores == source.scores);
+        }
 
     protected:
         void makeNull();

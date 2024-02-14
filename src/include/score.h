@@ -36,6 +36,12 @@ namespace organisation
     protected:
         float compute_comparative_length_score(std::string expected, std::string value);
         
+    public:
+        bool operator==(const score &src) const
+        {
+            return (scores == src.scores);
+        }
+
     protected:
         void makeNull();
         void cleanup();
