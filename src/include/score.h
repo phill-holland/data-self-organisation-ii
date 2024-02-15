@@ -10,15 +10,11 @@ namespace organisation
     class score
     {
         std::unordered_map<int,float> scores;
-        bool init;
 
     public:
-        score() { makeNull(); reset(); }
+        score() { }
         score(const score &source) { copy(source); }
-        ~score() { cleanup(); }
-
-        bool intialised() { return init; }
-        void reset();
+        ~score() { }
 
         void clear();
         bool compute(std::string expected, std::string value);
@@ -41,10 +37,6 @@ namespace organisation
         {
             return (scores == src.scores);
         }
-
-    protected:
-        void makeNull();
-        void cleanup();
     };
 };
 

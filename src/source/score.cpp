@@ -3,15 +3,6 @@
 #include <tuple>
 #include <sstream>
 
-void organisation::score::reset()
-{
-	init = false; cleanup();
-	
-	clear();
-
-	init = true;
-}
-
 void organisation::score::clear()
 {
 	scores.clear();
@@ -248,14 +239,4 @@ float organisation::score::compute_comparative_length_score(std::string expected
 	if(delta > MAX_WORD_COUNT_DELTA) delta = MAX_WORD_COUNT_DELTA;
 
 	return (1.0f / fib[delta]);
-}
-
-void organisation::score::makeNull() 
-{ 
-
-}
-
-void organisation::score::cleanup()
-{
-
 }

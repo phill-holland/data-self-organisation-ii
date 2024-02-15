@@ -173,8 +173,6 @@ organisation::populations::results organisation::populations::population::execut
             result.average += score;
         }
     }
-
-    std::cout << "result.index [" << result.index << "] " << result.best << "\r\n";
     
     if(values.size() > 0)
         result.average /= (float)values.size();
