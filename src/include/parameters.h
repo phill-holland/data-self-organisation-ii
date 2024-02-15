@@ -26,6 +26,8 @@ namespace organisation
         const static bool BEST = true;
         const static bool WORST = true;
 
+        const static bool OUTPUT_STATIONARY_ONLY = false;
+
     public:
         int max_values;
         int max_movements;
@@ -39,6 +41,8 @@ namespace organisation
     
         bool best;
         bool worst;
+
+        bool output_stationary_only;
 
     public:
         int width, height, depth;
@@ -70,7 +74,9 @@ namespace organisation
 
             best = BEST;
             worst = WORST;
-            
+
+            output_stationary_only = OUTPUT_STATIONARY_ONLY;
+                
             starting.x = width / 2;
             starting.y = height / 2;
             starting.z = depth / 2;

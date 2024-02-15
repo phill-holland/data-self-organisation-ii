@@ -55,6 +55,10 @@ organisation::parameters get_parameters(organisation::data &mappings)
     parameters.input.push_back(epoch1);
     parameters.input.push_back(epoch2);
     
+    // ***
+    parameters.output_stationary_only = true;
+    // ***
+
     return parameters;
 }
 

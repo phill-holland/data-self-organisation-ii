@@ -742,6 +742,8 @@ void organisation::parallel::program::outputting(int iteration)
 
         auto _iteration = iteration;
 
+        auto _outputStationaryOnly = settings.output_stationary_only;
+
         h.parallel_for(num_items, [=](auto i) 
         {  
             if(_positions[i].w() == 0)
@@ -755,17 +757,23 @@ void organisation::parallel::program::outputting(int iteration)
                 {
                     sycl::int2 currentCollision = _currentCollisionKeys[i];
                     if(currentCollision.x() > 0) 
-                    {
-                        value = _values[currentCollision.y()];
-                        output = true;
+                    {                 
+                        if((_positions[currentCollision.y()].w() == -2)||(!_outputStationaryOnly))
+                        {   
+                            value = _values[currentCollision.y()];
+                            output = true;
+                        }
                     }
                 }
 
                 sycl::int2 nextCollision = _nextCollisionKeys[i];
                 if(nextCollision.x() > 0) 
                 {
-                    value = _values[nextCollision.y()];
-                    output = true;
+                    if((_positions[nextCollision.y()].w() == -2)||(!_outputStationaryOnly))
+                    {   
+                        value = _values[nextCollision.y()];
+                        output = true;
+                    }
                 }
 
                 if(output == true)

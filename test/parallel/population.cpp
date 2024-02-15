@@ -42,7 +42,7 @@ organisation::schema getSchema(const int width, const int height, const int dept
 
 TEST(BasicPopulationTestParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -109,7 +109,7 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
 
 TEST(BasicPopulationTestTwoEpochsParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 

@@ -118,6 +118,48 @@ organisation::schema getSchema4(const int width, const int height, const int dep
     return s1;
 }
 
+organisation::schema getSchema5(const int width, const int height, const int depth, 
+                                int direction,
+                                int rebound,
+                                int iteration,
+                                int value,
+                                int delay)
+{
+    organisation::schema s1(width, height, depth);
+
+    organisation::genetic::insert insert;
+    insert.values = { delay };    
+
+    organisation::genetic::movement movement;
+    organisation::vector _direction;
+    _direction.decode(direction);
+    movement.directions = { _direction };
+
+    organisation::point wall(width/2,height/2,depth/2);
+    for(int i = 0; i < iteration; ++i)
+    {
+        wall.x += _direction.x;
+        wall.y += _direction.y;
+        wall.z += _direction.z;
+    }
+
+    organisation::genetic::cache cache(width, height, depth);    
+    if(wall != organisation::point(width/2,height/2,depth/2))
+        cache.set(value, wall);
+
+    organisation::genetic::collisions collisions;
+
+    collisions.values.resize(27);
+    collisions.values[direction] = rebound;
+
+    s1.prog.set(cache);
+    s1.prog.set(insert);
+    s1.prog.set(movement);
+    s1.prog.set(collisions);
+
+    return s1;
+}
+
 TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
 {    
     GTEST_SKIP();
@@ -346,7 +388,109 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
     organisation::parameters parameters(width, height, depth);
     
     parameters.dim_clients = organisation::point(1,1,1);
-    parameters.iterations = 20;//30;
+    parameters.iterations = 20;
+
+    organisation::inputs::epoch epoch1(input1);
+    parameters.input.push_back(epoch1);
+
+    parallel::mapper::configuration mapper;
+    mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
+
+    organisation::parallel::program program(*device, queue, mapper, parameters);
+    
+    EXPECT_TRUE(program.initalised());
+
+    organisation::schema s1(width, height, depth);
+
+    organisation::genetic::insert insert;
+    insert.values = { 1,2,3 };    
+
+    organisation::genetic::movement movement;
+    movement.directions = { { 1,0,0 }, { 1,0,0 } };
+
+    organisation::genetic::cache cache(width, height, depth);
+    cache.set(0, organisation::point(18,10,10));
+
+    organisation::genetic::collisions collisions;
+
+    collisions.values.resize(27);
+    organisation::vector up(1,0,0);
+    organisation::vector rebound(1,0,0);
+    collisions.values[up.encode()] = rebound.encode();
+
+    s1.prog.set(cache);
+    s1.prog.set(insert);
+    s1.prog.set(movement);
+    s1.prog.set(collisions);
+
+    std::vector<organisation::schema*> source = { &s1 };
+    
+    program.copy(source.data(), source.size());
+    program.set(d, parameters.input);
+
+    program.run(d);
+
+    std::vector<std::vector<std::string>> compare;
+    std::vector<organisation::outputs::output> results = program.get(d);
+    
+    for(auto &epoch: results)
+    {
+        std::unordered_map<int,std::vector<std::string>> data;
+        for(auto &output: epoch.values)
+        {
+            if(data.find(output.client) == data.end()) data[output.client] = { output.value };
+            else data[output.client].push_back(output.value);
+        }
+
+        std::vector<std::string> temp(1);
+        for(auto &value: data)
+        {
+            temp[value.first] = std::reduce(value.second.begin(),value.second.end(),std::string(""));
+        }
+
+        compare.push_back(temp);
+    }
+    
+    EXPECT_EQ(compare, expected);
+
+    std::vector<organisation::parallel::value> values = {
+        { organisation::point(17,10,10),1,0 },
+        { organisation::point(16,10,10),2,0 },
+        { organisation::point(15,10,10),3,0 },
+        { organisation::point(14,10,10),7,0 },        
+    };
+    
+    std::vector<organisation::parallel::value> data = program.get();
+
+    EXPECT_EQ(data, values);
+}
+
+TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionOutputStationaryOnlyParallel, BasicAssertions)
+{    
+    GTEST_SKIP();
+
+    const int width = 20, height = 20, depth = 20;
+
+    std::string data1("daisy daisy give me your answer do please do .");
+    std::string input1("give me your .");
+    
+    std::vector<std::vector<std::string>> expected = {
+        { 
+            "daisydaisydaisydaisydaisydaisydaisydaisydaisydaisydaisy"
+        }
+    };
+
+    std::vector<std::string> strings = organisation::split(data1);    
+    organisation::data d(strings);
+
+	::parallel::device *device = new ::parallel::device(0);
+	::parallel::queue *queue = new parallel::queue(*device);
+
+    organisation::parameters parameters(width, height, depth);
+    
+    parameters.dim_clients = organisation::point(1,1,1);
+    parameters.iterations = 20;
+    parameters.output_stationary_only = true;
 
     organisation::inputs::epoch epoch1(input1);
     parameters.input.push_back(epoch1);
@@ -980,4 +1124,123 @@ TEST(BasicProgramScaleTestParallel, BasicAssertions)
         values[i % total].client = i;
         EXPECT_EQ(lookup[i], values[i % total]);
     }
+}
+
+TEST(BasicProgramAllDirectionsParallel, BasicAssertions)
+{    
+    //GTEST_SKIP();
+
+    const organisation::point clients(27,1,1);
+    const int width = 20, height = 20, depth = 20;
+
+    std::string values1("a b c d e f g h i j k l m n o p q r s t u v w x y z .");
+    std::string input1("a");
+    
+    std::vector<std::string> strings = organisation::split(values1);
+    organisation::data d(strings);
+
+	::parallel::device *device = new ::parallel::device(0);
+	::parallel::queue *queue = new parallel::queue(*device);
+
+    organisation::parameters parameters(width, height, depth);
+    
+    parameters.dim_clients = clients;    
+    parameters.iterations = 8;
+    parameters.host_buffer = 100; 
+    parameters.max_inserts = 30;   
+
+    organisation::inputs::epoch epoch1(input1);
+    parameters.input.push_back(epoch1);
+
+    parallel::mapper::configuration mapper;    
+    organisation::parallel::program program(*device, queue, mapper, parameters);
+        
+    EXPECT_TRUE(program.initalised());
+    
+    const int iterations = 5;
+    std::vector<organisation::parallel::value> predictions;
+    std::vector<organisation::schema*> source;
+
+    for(int i = 0; i < parameters.max_collisions; ++i)
+    {
+        int rebound = i + 1;
+        if(rebound >= parameters.max_collisions) rebound = 0;
+
+        organisation::schema temp = getSchema5(width, height, depth, i, rebound, iterations, i, 1);
+        organisation::schema *schema = new organisation::schema(width, height, depth);
+        
+        EXPECT_TRUE(schema != NULL);
+        EXPECT_TRUE(schema->initalised());
+
+        schema->copy(temp);
+        source.push_back(schema);
+
+        organisation::vector _direction, _rebound;
+        _direction.decode(i);
+        _rebound.decode(rebound);
+
+        organisation::point prediction(width/2,height/2,depth/2);
+        for(int i = 0; i < iterations - 1; ++i)
+        {
+            prediction.x += _direction.x;
+            prediction.y += _direction.y;
+            prediction.z += _direction.z;
+        }
+
+        if(prediction != organisation::point(width/2,height/2,depth/2))
+        {
+            prediction.x += _rebound.x;
+            prediction.y += _rebound.y;
+            prediction.z += _rebound.z;
+        }
+
+        organisation::parallel::value value = { prediction, 0, i };
+        predictions.push_back(value);
+    }
+    
+    program.copy(source.data(), source.size());
+    program.set(d, parameters.input);
+
+    program.run(d);
+
+    std::vector<organisation::parallel::value> data = program.get();
+
+    EXPECT_EQ(data, predictions);
+
+    std::vector<std::unordered_map<int,std::string>> compare;
+    std::vector<organisation::outputs::output> results = program.get(d);
+    
+    for(auto &epoch: results)
+    {
+        std::unordered_map<int,std::vector<std::string>> data;
+        for(auto &output: epoch.values)
+        {
+            if(data.find(output.client) == data.end()) data[output.client] = { output.value };
+            else data[output.client].push_back(output.value);
+        }
+
+        std::unordered_map<int,std::string> temp;
+        for(auto &value: data)
+        {
+            temp[value.first] = std::reduce(value.second.begin(),value.second.end(),std::string(""));
+        }
+
+        compare.push_back(temp);
+    }
+
+    EXPECT_EQ(compare.size(), 1);
+    EXPECT_EQ(strings.size() - 1, compare[0].size());
+
+    std::unordered_map<int,std::string> first = compare.front();        
+
+    for(int i = 0; i < strings.size(); ++i)
+    {
+        if(strings[i] != std::string("n"))
+            EXPECT_EQ(first[i],strings[i]);
+    }
+
+   for(auto &it:source)
+   {
+        if(it != NULL) delete it;
+   }
 }
