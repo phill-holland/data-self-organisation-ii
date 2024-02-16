@@ -114,26 +114,26 @@ void organisation::parallel::program::reset(::parallel::device &dev,
     if(hostCollisions == NULL) return;
     
     // ***
-    deviceOutputValues = sycl::malloc_device<int>(settings.max_values, qt);
+    deviceOutputValues = sycl::malloc_device<int>(settings.max_values * settings.clients(), qt);
     if(deviceOutputValues == NULL) return;
     
-    deviceOutputIndex = sycl::malloc_device<int>(settings.max_values, qt);
+    deviceOutputIndex = sycl::malloc_device<int>(settings.max_values * settings.clients(), qt);
     if(deviceOutputIndex == NULL) return;
     
-    deviceOutputClient = sycl::malloc_device<sycl::int4>(settings.max_values, qt);
+    deviceOutputClient = sycl::malloc_device<sycl::int4>(settings.max_values * settings.clients(), qt);
     if(deviceOutputClient == NULL) return;
 
     deviceOutputTotalValues = sycl::malloc_device<int>(1, qt);
     if(deviceOutputTotalValues == NULL) return;
 
 
-    hostOutputValues = sycl::malloc_host<int>(settings.max_values, qt);
-    if(deviceOutputValues == NULL) return;
+    hostOutputValues = sycl::malloc_host<int>(settings.max_values * settings.clients(), qt);
+    if(hostOutputValues == NULL) return;
     
-    hostOutputIndex = sycl::malloc_host<int>(settings.max_values, qt);
+    hostOutputIndex = sycl::malloc_host<int>(settings.max_values * settings.clients(), qt);
     if(hostOutputIndex == NULL) return;
     
-    hostOutputClient = sycl::malloc_host<sycl::int4>(settings.max_values, qt);
+    hostOutputClient = sycl::malloc_host<sycl::int4>(settings.max_values * settings.clients(), qt);
     if(hostOutputClient == NULL) return;
 
     hostOutputTotalValues = sycl::malloc_host<int>(1, qt);
@@ -175,7 +175,7 @@ void organisation::parallel::program::reset(::parallel::device &dev,
 
     // ***
 
-    ::parallel::parameters global(settings.width * settings.clients(), settings.height, settings.depth);
+    ::parallel::parameters global(settings.width * settings.dim_clients.x, settings.height * settings.dim_clients.y, settings.depth * settings.dim_clients.z);
     global.length = settings.max_values * settings.clients();
     ::parallel::parameters client(settings.width, settings.height, settings.depth);
     client.length = settings.max_values;
@@ -184,7 +184,7 @@ void organisation::parallel::program::reset(::parallel::device &dev,
 	if (impacter == NULL) return;	
     if (!impacter->initalised()) return;
 
-    inserter = new inserts(dev, q, settings, 100);
+    inserter = new inserts(dev, q, settings);
     if(inserter == NULL) return;
     if(!inserter->initalised()) return;
 
@@ -366,7 +366,7 @@ void organisation::parallel::program::move(organisation::data &mappings)
         sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
 
         int output_length = totalOutputValues;
-        if(output_length > settings.max_values) output_length = settings.max_values;
+        if(output_length > (settings.max_values * settings.clients())) output_length = (settings.max_values * settings.clients());
 
         std::vector<sycl::event> events;
 
@@ -738,14 +738,16 @@ void organisation::parallel::program::outputting(int iteration)
         auto _outputClient = deviceOutputClient;
         auto _outputTotalValues = deviceOutputTotalValues;
 
-        auto _outputLength = settings.max_values;
+        auto _outputLength = settings.max_values * settings.clients();
 
         auto _iteration = iteration;
+
+        auto _outputStationaryOnly = settings.output_stationary_only;
 
         h.parallel_for(num_items, [=](auto i) 
         {  
             if(_positions[i].w() == 0)
-            {     
+            {   
                 bool output = false;
                 int value = 0;
 
@@ -755,17 +757,23 @@ void organisation::parallel::program::outputting(int iteration)
                 {
                     sycl::int2 currentCollision = _currentCollisionKeys[i];
                     if(currentCollision.x() > 0) 
-                    {
-                        value = _values[currentCollision.y()];
-                        output = true;
+                    {                 
+                        if((_positions[currentCollision.y()].w() == -2)||(!_outputStationaryOnly))
+                        {   
+                            value = _values[currentCollision.y()];
+                            output = true;
+                        }
                     }
                 }
 
                 sycl::int2 nextCollision = _nextCollisionKeys[i];
                 if(nextCollision.x() > 0) 
                 {
-                    value = _values[nextCollision.y()];
-                    output = true;
+                    if((_positions[nextCollision.y()].w() == -2)||(!_outputStationaryOnly))
+                    {   
+                        value = _values[nextCollision.y()];
+                        output = true;
+                    }
                 }
 
                 if(output == true)
@@ -777,7 +785,7 @@ void organisation::parallel::program::outputting(int iteration)
                     int idx = ar.fetch_add(1);
 
                     if(idx < _outputLength)
-                    {
+                    {                    
                         _outputValues[idx] = value;
                         _outputIndex[idx] = _iteration;
                         _outputClient[idx] = _client[i];

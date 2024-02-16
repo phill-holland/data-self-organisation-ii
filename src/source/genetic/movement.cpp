@@ -82,7 +82,7 @@ void organisation::genetic::movement::generate(data &source)
     }
 }
 
-void organisation::genetic::movement::mutate(data &source)
+bool organisation::genetic::movement::mutate(data &source)
 {
     const int COUNTER = 15;
 
@@ -100,20 +100,20 @@ void organisation::genetic::movement::mutate(data &source)
         v1.decode(value);
         directions[n] = v1;   
     } while((old == value)&&(counter++<COUNTER));    
-    std::cout << "movement before " << old << " after " << value << "\r\n";
+    
+    if(old==value) return false;
+
+    return true;
 }
 
-void organisation::genetic::movement::copy(genetic *source, int src_start, int src_end, int dest_start)
+void organisation::genetic::movement::append(genetic *source, int src_start, int src_end)
 {
-std::cout << "movement::copy " << src_start << "," << src_end << "," << dest_start << "\r\n";    
-
     movement *s = dynamic_cast<movement*>(source);
     int length = src_end - src_start;
-    if(directions.size() < (length + dest_start)) directions.resize(length + dest_start);
-
+    
     for(int i = 0; i < length; ++i)
     {
-        directions[dest_start + i] = s->directions[src_start + i];
+        directions.push_back(s->directions[src_start + i]);
     }   
 }
 

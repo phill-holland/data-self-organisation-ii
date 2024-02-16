@@ -15,13 +15,18 @@ namespace organisation
 
         const static int MAX_VALUES = 20;
         const static int MAX_MOVEMENTS = 30;
-        const static int MAX_COLLISIONS = 26;
+        const static int MAX_COLLISIONS = 27;
         const static int MAX_INSERTS = 10;
         const static int MAX_INPUT_DATA =  15;
     
         const static int HOST_BUFFER = 20;
 
         const static int ITERATIONS = 20;
+
+        const static bool BEST = true;
+        const static bool WORST = true;
+
+        const static bool OUTPUT_STATIONARY_ONLY = false;
 
     public:
         int max_values;
@@ -34,6 +39,11 @@ namespace organisation
 
         int iterations;
     
+        bool best;
+        bool worst;
+
+        bool output_stationary_only;
+
     public:
         int width, height, depth;
 
@@ -62,6 +72,11 @@ namespace organisation
 
             iterations = ITERATIONS;
 
+            best = BEST;
+            worst = WORST;
+
+            output_stationary_only = OUTPUT_STATIONARY_ONLY;
+                
             starting.x = width / 2;
             starting.y = height / 2;
             starting.z = depth / 2;

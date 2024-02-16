@@ -45,7 +45,22 @@ namespace organisation
                     
             organisation::schema go(int &count, int iterations = 0);
 
-        void generate();
+            void generate();
+
+            bool set(organisation::schema &source, int index)
+            {
+                return schemas->set(source, index);
+            }
+                        
+            bool get(organisation::schema &destination, int index)
+            {
+                organisation::schema *temp = schemas->get(index);
+                if(temp == NULL) return false;
+                
+                destination.copy(*temp);
+
+                return true;
+            }
 
         protected:
             bool get(schema &destination, region r);
@@ -58,6 +73,7 @@ namespace organisation
         protected:
             void pull(organisation::schema **buffer, region r);
             void push(organisation::schema **buffer, region r);
+            void fill(organisation::schema **destination, region r);
 
         protected:
             results execute(organisation::schema **buffer);

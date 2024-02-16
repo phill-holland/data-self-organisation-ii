@@ -35,8 +35,6 @@ namespace organisation
         
         void generate(data &source);
     
-        //int count() { return prog.count(); }
-
         bool get(kdpoint &destination, int minimum, int maximum);
 
         std::vector<float> get();
@@ -49,12 +47,17 @@ namespace organisation
     public:        
         void cross(schema *destination, schema *value);
         void mutate(data &source);
+        bool validate(data &source) { return prog.validate(source); }
 
     public:
         std::string run(int epoch, std::string input, std::string expected, data &source);
 
     public:
         void copy(const schema &source);
+        bool equals(const schema &source)
+        {
+            return prog.equals(source.prog) && (scores == source.scores);
+        }
 
     protected:
         void makeNull();

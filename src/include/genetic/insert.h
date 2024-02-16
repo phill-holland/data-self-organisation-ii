@@ -40,12 +40,14 @@ namespace organisation
                 counter = 0;
             }
 
+            bool empty() { return values.empty(); }
+            
             void start();
             bool get();
 
             void generate(data &source);
-            void mutate(data &source);
-            void copy(genetic *source, int src_start, int src_end, int dest_start);
+            bool mutate(data &source);
+            void append(genetic *source, int src_start, int src_end);
 
             std::string serialise();
             void deserialise(std::string source);

@@ -34,24 +34,6 @@ bool MapIsOutside(const sycl::int4 value, const sycl::int4 min,
     return false;
 }
 
-/*
-void ClearMap(sycl::float4 **positions, sycl::int4 **clients, const int buckets,
-              const size_t N, sycl::nd_item<3> item_ct1)
-{        
-    unsigned int i =
-        item_ct1.get_group(2) * item_ct1.get_local_range().get(2) +
-        item_ct1.get_local_id(2);
-
-    if (i < N)
-	{
-		for (int j = 0; j < buckets; ++j)
-		{
-			positions[j][i] = { 0.0, 0.0, 0.0, 0.0 };
-			clients[j][i] = { 0, 0, 0, 0 };
-		}
-    }
-}
-*/
 void BuildMap(int *coarse, int *medium, int *bucket_indices,
               int *bucket_lengths, sycl::float4 **bucket_positions,
               sycl::int4 **bucket_clients, const sycl::float4 *values,
@@ -61,32 +43,18 @@ void BuildMap(int *coarse, int *medium, int *bucket_indices,
               const sycl::int4 medium_dimensions, const sycl::float4 fine_scale,
               const sycl::int4 fine_dimensions, const int total_buckets,
               const sycl::int4 client_dimensions,
-              const sycl::int4 client_totals, const int value, const int idx,
-              const bool validate, const sycl::stream out)
-              //, const int N,
-              //int idx)
-              //sycl::nd_item<3> item_ct1)
+              const sycl::int4 client_totals, const int value, const int idx)
 {
-    //int idx = item_ct1.get_group(2) * item_ct1.get_local_range().get(2) +
-      //          item_ct1.get_local_id(2);
-//int idx;
     sycl::float4 temp = values[idx];
     if (MapIsZero(temp)) return;
 
-
     sycl::int4 client = clients[idx];
-
-if(validate)
-{
-    out << "GPU BUILD " << temp.x() << "," <<temp.y() << "," << temp.z() << ",(" << client.x() << "," << client.y() << "," << client.z() << ")\n";
-}
 
     sycl::int4 i = {(int)sycl::floor(temp.x() * coarse_scale.x()),
                     (int)sycl::floor(temp.y() * coarse_scale.y()),
                     (int)sycl::floor(temp.z() * coarse_scale.z()), 0};
 
     if (MapIsOutside(i, { 0, 0, 0, 0 }, coarse_dimensions)) return;
-    //out << "COARSE\n";
 
     int client_offset =
         (client.y() * client_totals.x()) + client.x() +
@@ -103,7 +71,6 @@ if(validate)
                     (int)sycl::floor(temp.z() * medium_scale.z()), 0};
 
     if (MapIsOutside(j, { 0, 0, 0, 0 }, medium_dimensions)) return;
-    //out << "Medium\n";
 
     int j_offset = (j.y() * medium_dimensions.x()) + j.x() +
                     (medium_dimensions.x() * medium_dimensions.y() * j.z());
@@ -116,7 +83,6 @@ if(validate)
                     (int)sycl::floor(temp.z() * fine_scale.z()), 0};
 
     if (MapIsOutside(k, { 0, 0, 0, 0 }, fine_dimensions)) return;
-    //out << "FINE\n";
 
     int bucket = (k.y() * fine_dimensions.x()) + k.x() +
                     (fine_dimensions.x() * fine_dimensions.y() * k.z());
@@ -129,10 +95,9 @@ if(validate)
     int index = ar.fetch_add(1);
     // ***
     
-    //int index = sycl::atomic<int>(sycl::global_ptr<int>(&bucket_indices[bucket])).fetch_add(1);
-    if (index >= bucket_lengths[bucket]) return;
-    if(validate) out << "BUCKET " << bucket << "," << index << "\n";
-
+    if (index >= bucket_lengths[bucket]) 
+        return;
+    
     bucket_positions[bucket][index] = {temp.x(), temp.y(), temp.z(), (float)value};
     bucket_clients[bucket][index] = {client.x(), client.y(), client.z(), idx};
 }
@@ -148,12 +113,8 @@ void ScanMap(int *result, const sycl::float4 *values, const sycl::int4 *clients,
              const sycl::int4 client_dimensions, const sycl::int4 client_totals,
              const int value, const bool self, int *collided,
              const int collided_index, const sycl::float4 *lcompare,
-             const sycl::float4 *rcompare, const int idx)
-             //const int N,sycl::nd_item<3> item_ct1)
+             const sycl::float4 *rcompare, const int idx)    
 {
-    //int idx = item_ct1.get_group(2) * item_ct1.get_local_range().get(2) +
-                //item_ct1.get_local_id(2);
-
     sycl::float4 temp = values[idx];
     if (MapIsZero(temp)) return;
 
@@ -243,13 +204,8 @@ void ScanMap(
     const sycl::int4 client_dimensions, const sycl::int4 client_totals,
     const int value, const bool self, int *collided, const int collided_index,
     const bool symetrical, const bool inverse, const sycl::float4 *lcompare,
-    const sycl::float4 *rcompare, const int idx,
-    const bool validate, sycl::stream out)
-    //const int N, sycl::nd_item<3> item_ct1)
+    const sycl::float4 *rcompare, const int idx)
 {
-    //int idx = item_ct1.get_group(2) * item_ct1.get_local_range().get(2) +
-                //item_ct1.get_local_id(2);
-
     sycl::float4 temp = values[idx];
     if (MapIsZero(temp)) return;
 
@@ -258,17 +214,12 @@ void ScanMap(
         (client.y() * client_totals.x()) + client.x() +
         (client_totals.x() * client_totals.y() * client.z());
 
-if(validate)
-{
-    out << "GPU SCAN " << temp.x() << "," <<temp.y() << "," << temp.z() << ",(" << client.x() << "," << client.y() << "," << client.z() << ")\n";
-}
-
     sycl::int4 i = {(int)sycl::floor(temp.x() * coarse_scale.x()),
                     (int)sycl::floor(temp.y() * coarse_scale.y()),
                     (int)sycl::floor(temp.z() * coarse_scale.z()), 0};
 
     if (MapIsOutside(i, { 0, 0, 0, 0 }, coarse_dimensions)) return;
-if(validate) out << "coarse\n";
+
     int i_offset = (i.y() * coarse_dimensions.x()) + i.x() +
                     (coarse_dimensions.x() * coarse_dimensions.y() * i.z());
     int m = coarse_dimensions.x() * coarse_dimensions.y() * coarse_dimensions.z();
@@ -280,7 +231,7 @@ if(validate) out << "coarse\n";
                     (int)sycl::floor(temp.z() * medium_scale.z()), 0};
 
     if (MapIsOutside(j, { 0, 0, 0, 0 }, medium_dimensions)) return;
-if(validate) out << "medium\n";
+
     int j_offset = (j.y() * medium_dimensions.x()) + j.x() +
                     (medium_dimensions.x() * medium_dimensions.y() * j.z());
     int p = medium_dimensions.x() * medium_dimensions.y() * medium_dimensions.z();
@@ -292,18 +243,13 @@ if(validate) out << "medium\n";
                     (int)sycl::floor(temp.z() * fine_scale.z()), 0};
 
     if (MapIsOutside(k, { 0, 0, 0, 0 }, fine_dimensions)) return;
-if(validate) out << "fine\n";
+
     int bucket = (k.y() * fine_dimensions.x()) + k.x() +
                     (fine_dimensions.x() * fine_dimensions.y() * k.z());
 
     int index = bucket_indices[bucket];
     int length = bucket_lengths[bucket];
     if (index > length) index = length;
-
-if(validate) 
-{
-    out << "BUCKET " << bucket << "," << index << "\n";
-}
 
     for (int i = 0; i < index; ++i)
     {
@@ -314,9 +260,6 @@ if(validate)
         {
             if (MapIsEquals(temp, client, p1, c1))
             {
-                if(validate) out << "equals " << i << "," << c1.w() << "," << idx << "," << self << "\n";
-
-                //if ((self) && (c1.w() == idx)) return;
                 if((!self)||(c1.w() != idx))
                 {
                     int output = 0;
@@ -330,7 +273,6 @@ if(validate)
 
                     if (output == 1)
                     {
-                        if(validate) out << "OUTPUT\n";
                         if (inverse) result[c1.w()] = {1, idx};
                         else result[idx] = {1, c1.w()};
 
@@ -343,7 +285,6 @@ if(validate)
                         if (collided != NULL) collided[collided_index] = 1;
                     }   
                 }
-                //return;
             }
         }
 	}
@@ -708,7 +649,7 @@ void parallel::mapper::map::clear(::parallel::queue *q)
 }
 
 void parallel::mapper::map::build(sycl::float4 *points, sycl::int4 *clients,
-                          const int length, ::parallel::queue *q, bool validate)
+                          const int length, ::parallel::queue *q)
 {        
     if(length == 0) return;
 
@@ -744,8 +685,6 @@ void parallel::mapper::map::build(sycl::float4 *points, sycl::int4 *clients,
         auto _clientTotals = clientTotals;
         auto _value = value;        
 
-        sycl::stream out(1024,1024, cgh);
-
         cgh.parallel_for(num_items, [=](auto item) 
         {  
             BuildMap(
@@ -756,31 +695,9 @@ void parallel::mapper::map::build(sycl::float4 *points, sycl::int4 *clients,
                 _mediumScale, _mediumDimension,
                 _fineScale, _fineBuckets,
                 _totalBuckets, _client_dimensions,
-                _clientTotals, _value, item, validate, out);
+                _clientTotals, _value, item);
         });
     }).wait();        
-
-    if (validate)
-	{
-		std::string result = "";
-        qt.memcpy(hostPinnedBucketIndices, deviceBucketIndices, sizeof(int) * totalBuckets).wait();
-
-        for (int i = 0; i < totalBuckets; ++i)
-		{
-			if (hostPinnedBucketIndices[i] >= hostBucketLengths[i])
-			{
-				result += "B=";
-				result += std::to_string(i);
-                result += "L=";
-                result += std::to_string(hostBucketLengths[i]);
-                result += "A=";
-                result += std::to_string(hostPinnedBucketIndices[i]);
-                result += "\r\n";
-            
-				std::cout << result;
-			}
-		}
-	}
 }
 
 void parallel::mapper::map::search(sycl::float4 *search, sycl::int4 *clients, int *result,
@@ -830,7 +747,7 @@ void parallel::mapper::map::search(sycl::float4 *search, sycl::int4 *clients, in
 void parallel::mapper::map::search(sycl::float4 *search, sycl::int4 *clients,
                            sycl::int2 *result, const int length, const bool self,
                            const bool symetrical, const bool inverse, int *collided,
-                           int index, ::parallel::queue *q, bool validate)
+                           int index, ::parallel::queue *q)
 {
     if(length == 0) return;
 
@@ -856,8 +773,6 @@ void parallel::mapper::map::search(sycl::float4 *search, sycl::int4 *clients,
         auto _clientTotals = clientTotals;
         auto _value = value;
 
-        sycl::stream out(1024,1024, cgh);
-
         cgh.parallel_for(num_items, [=](auto item) 
         {
             ScanMap(
@@ -870,9 +785,7 @@ void parallel::mapper::map::search(sycl::float4 *search, sycl::int4 *clients,
                 _fineBuckets, _totalBuckets,
                 _client_dimensions, _clientTotals,
                 _value, self, collided, index, symetrical,
-                inverse, NULL, NULL, item,
-                validate, out);
-                //length, item);
+                inverse, NULL, NULL, item);
         });
     }).wait();
 }

@@ -3,19 +3,14 @@
 #include <tuple>
 #include <sstream>
 
-void organisation::score::reset()
-{
-	init = false; cleanup();
-	
-	clear();
-
-	init = true;
-}
-
 void organisation::score::clear()
 {
 	scores.clear();
 }
+
+// first half relative distance from word in front
+// second half, relative distance away from words "primary place"
+// last value, scoare rating on sentence length
 
 bool organisation::score::compute(std::string expected, std::string value)
 {
@@ -111,7 +106,6 @@ bool organisation::score::compute(std::string expected, std::string value)
 
 	std::vector<std::tuple<std::string,int>> alphabet = _split(expected);
 	
-	//int score_len = (_words(expected) * 2) + 1;
 	int score_len = (alphabet.size() * 2) + 1;
 	for(int i = 0; i < score_len; ++i) set(0.0f, i);
 
@@ -124,16 +118,7 @@ bool organisation::score::compute(std::string expected, std::string value)
 	float max = (float)MAX_WORDS;
 	if(((float)(alphabet_len - 1))>max) max = (float)(alphabet_len - 1);
 
-	int l1 = expected.size();
-	int l2 = value.size();
-
-	const float fib[] = { 1.0f, 2.0f, 3.0f, 5.0f, 8.0f, 13.0f, 21.0f, 34.0f, 55.0f, 89.0f, 144.0f };
-	const int max_str_len = 10;
-
-	int d = abs(l2 - l1);
-	if(d > max_str_len) d = max_str_len;
-
-	float len_score = 1.0f / fib[d];
+	float len_score = compute_comparative_length_score(expected, value);
 	if(!set(len_score, score_len - 1)) valid = false;
 	
 	int index = 0;
@@ -146,6 +131,10 @@ bool organisation::score::compute(std::string expected, std::string value)
 		{
 			float distance = _distance(f1, f3, 0.0f, max); 
 			if(!set(distance, index)) valid = false;
+		}
+		else if(f1 < 0)
+		{
+			if(!set(0.0f, index)) valid = false;
 		}
 		else if(!set(0.1f, index)) valid = false;
 
@@ -223,12 +212,31 @@ void organisation::score::copy(const score &source)
     }
 }
 
-void organisation::score::makeNull() 
-{ 
-
-}
-
-void organisation::score::cleanup()
+float organisation::score::compute_comparative_length_score(std::string expected, std::string value)
 {
+	auto _words = [](std::string source)
+    {
+        std::stringstream stream(source);  
+        std::string word;
 
+        int index = 0;
+        while (stream >> word) 
+        {
+			++index;
+        };
+
+        return index;
+    };
+
+	const int MAX_WORD_COUNT_DELTA = 10;
+
+	int l1 = _words(expected);
+	int l2 = _words(value);
+
+	const float fib[] = { 1.0f, 2.0f, 3.0f, 5.0f, 8.0f, 13.0f, 21.0f, 34.0f, 55.0f, 89.0f, 144.0f };
+	
+	int delta = abs(l2 - l1);
+	if(delta > MAX_WORD_COUNT_DELTA) delta = MAX_WORD_COUNT_DELTA;
+
+	return (1.0f / fib[delta]);
 }

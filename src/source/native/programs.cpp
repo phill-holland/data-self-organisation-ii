@@ -1,6 +1,6 @@
-#include "sequential/programs.h"
+#include "native/programs.h"
 
-void organisation::sequential::programs::reset(parameters settings, int clients)
+void organisation::native::programs::reset(parameters settings, int clients)
 {
     init = false; cleanup();
     
@@ -21,7 +21,7 @@ void organisation::sequential::programs::reset(parameters settings, int clients)
     init = true;
 }
 
-void organisation::sequential::programs::clear()
+void organisation::native::programs::clear()
 {
     for(int i = 0; i < clients; ++i)
     {
@@ -29,7 +29,7 @@ void organisation::sequential::programs::clear()
     }
 }
 
-void organisation::sequential::programs::run(organisation::data &mappings)
+void organisation::native::programs::run(organisation::data &mappings)
 {
     for(int i = 0; i < clients; ++i)
     {
@@ -45,12 +45,12 @@ void organisation::sequential::programs::run(organisation::data &mappings)
     }
 }
 
-void organisation::sequential::programs::set(organisation::data &mappings, inputs::input &source)
+void organisation::native::programs::set(organisation::data &mappings, inputs::input &source)
 {
     input = source;
 }
 
-std::vector<organisation::outputs::output> organisation::sequential::programs::get(organisation::data &mappings)
+std::vector<organisation::outputs::output> organisation::native::programs::get(organisation::data &mappings)
 {
     std::vector<organisation::outputs::output> temp;
 
@@ -62,7 +62,7 @@ std::vector<organisation::outputs::output> organisation::sequential::programs::g
     return temp;
 }
 
-void organisation::sequential::programs::copy(::organisation::schema **source, int source_size)
+void organisation::native::programs::copy(::organisation::schema **source, int source_size)
 {
     int temp = source_size;
     if(source_size > clients) temp = clients;
@@ -73,13 +73,13 @@ void organisation::sequential::programs::copy(::organisation::schema **source, i
     }
 }
 
-void organisation::sequential::programs::makeNull()
+void organisation::native::programs::makeNull()
 {
     schemas = NULL;
     results = NULL;
 }
 
-void organisation::sequential::programs::cleanup()
+void organisation::native::programs::cleanup()
 {
     if(results != NULL) delete results;
     if(schemas != NULL) delete schemas;

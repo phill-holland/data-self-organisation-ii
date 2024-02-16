@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <signal.h>
 #include <chrono>
+#include <bits/stdc++.h>
 
 std::mt19937_64 organisation::populations::population::generator(std::random_device{}());
 
@@ -80,8 +81,9 @@ organisation::schema organisation::populations::population::go(int &count, int i
     region rset = { 0, (settings.population / 2) - 1 };
     region rget = { (settings.population / 2), settings.population - 1 };
 
-    pull(intermediateA, rset);
-
+    fill(intermediateA, rset);
+    pull(intermediateC, rset);
+    
     do
     {
         auto r1 = std::async(&organisation::populations::population::push, this, set, rset);
@@ -107,7 +109,7 @@ organisation::schema organisation::populations::population::go(int &count, int i
         std::cout << " Avg=" << result.average;
         std::cout << "\r\n";
 
-        if((iterations > 0)&&(count > iterations)) finished = true;
+        if((iterations > 0)&&(count >= iterations)) finished = true;
 
         organisation::schema **t1 = set;
         set = run;
@@ -135,43 +137,46 @@ organisation::populations::results organisation::populations::population::execut
     programs->run(settings.mappings);
 
     std::vector<organisation::outputs::output> values = programs->get(settings.mappings);
-    
+    std::unordered_map<int,std::vector<std::tuple<std::string,std::string>>> mappings;
+
+    for(int epoch = 0; epoch < values.size(); ++epoch)
+    {
+        organisation::inputs::epoch e;
+        if(settings.input.get(e,epoch))
+        {
+            std::vector<organisation::outputs::data> scores = values[epoch].values;
+            for(auto &it:scores)
+            {
+                if(mappings.find(it.client) == mappings.end())
+                    mappings[it.client] = { };
+                
+                mappings[it.client].push_back(std::tuple<std::string,std::string>(e.expected,it.value));
+            }
+        }
+    }
+
     results result;
-    std::vector<outputs::data> current;
 
-    int i = 0;
-    std::vector<organisation::outputs::output>::iterator it;    
-    for(i = 0, it = values.begin(); it != values.end(); it++, i++)    
+    for(auto &it: mappings)
     {
-        buffer[i]->compute(settings.input.combine(it->values));
-
-        float score = buffer[i]->sum();
-        if(score > result.best)
+        if((it.first >= 0)&&(it.first < settings.clients()))
         {
-            result.best = score;
-            result.index = i;
-            current = it->values;
+            buffer[it.first]->compute(it.second);
+
+            float score = buffer[it.first]->sum();
+            if(score > result.best)
+            {
+                result.best = score;
+                result.index = it.first;
+            }
+            
+            result.average += score;
         }
-        
-        result.average += score;
-    }
-
-
-    std::cout << "result.index [" << result.index << "] " << result.best << "\r\n";
-    for(std::vector<outputs::data>::iterator it = current.begin(); it != current.end(); ++it)
-    {
-        std::string temp = it->value;
-        if(temp.size() > 80)
-        {
-            temp.resize(80);
-            temp += "...";
-        }
-
-        std::cout << temp << "\r\n";
     }
     
-    result.average /= (float)values.size();
-
+    if(values.size() > 0)
+        result.average /= (float)values.size();
+    
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(now - previous);   
     std::cout << "execute " << time_span.count() << "\r\n";    
@@ -202,6 +207,7 @@ bool organisation::populations::population::get(schema &destination, region r)
         if(s2 == NULL) return false;
                      
         s1->cross(&destination, s2);
+        return destination.validate(settings.mappings);
     }
 
     return true;
@@ -294,29 +300,71 @@ organisation::schema *organisation::populations::population::worst(region r)
 void organisation::populations::population::pull(organisation::schema **buffer, region r)
 {
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();   
+    const int escape = 15;
 
-    for(int i = 0; i < settings.clients(); ++i)
+    if(settings.best)
     {
-        get(*buffer[i], r);
-    }    
+        for(int i = 0; i < settings.clients(); ++i)
+        {
+            int counter = 0;
+            while(!get(*buffer[i], r)&&(++counter<escape)) { };
+            if(counter>=escape)
+            {
+                std::cout << "repeated get error!\r\n";
+            }
+        }
+    }
+    else
+    {
+        int offset = 0;
+        for(int i = r.start; i <= r.end; ++i)
+        { 
+            organisation::schema *temp = schemas->get(i);
+            if(temp != NULL)           
+                buffer[offset++]->copy(*temp);
+        }
+    }
+
 
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(now - previous);   
-    std::cout << "pull " << time_span.count() << "\r\n";    
+    std::cout << "pull(" << settings.best << ") " << time_span.count() << "\r\n";    
 }
 
 void organisation::populations::population::push(organisation::schema **buffer, region r)
 {
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();
     
-    for(int i = 0; i < settings.clients(); ++i)
+    if(settings.worst)
     {
-        set(*buffer[i], r);
+        for(int i = 0; i < settings.clients(); ++i)
+        {
+            set(*buffer[i], r);
+        }
+    }
+    else
+    {
+        int offset = 0;
+        for(int i = r.start; i <= r.end; ++i)
+        {
+            organisation::schema *temp = schemas->get(i);
+            if(temp != NULL)
+                temp->copy(*buffer[offset++]);
+        }
     }
 
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(now - previous);   
-    std::cout << "push " << time_span.count() << "\r\n";    
+    std::cout << "push(" << settings.worst << ") " << time_span.count() << "\r\n";    
+}
+
+void organisation::populations::population::fill(organisation::schema **destination, region r)
+{
+    int offset = 0;
+    for(int i = r.start; i <= r.end; ++i)
+    {
+        destination[offset++]->copy(*schemas->get(i));
+    }
 }
 
 void organisation::populations::population::makeNull() 
@@ -329,9 +377,7 @@ void organisation::populations::population::makeNull()
 }
 
 void organisation::populations::population::cleanup() 
-{ 
-    if(programs != NULL) delete programs;
-    
+{     
     if(intermediateC != NULL)
     {
         for(int i = settings.clients() - 1; i >= 0; --i)

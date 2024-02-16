@@ -71,10 +71,10 @@ namespace parallel
 
 			void clear(::parallel::queue *q = NULL);
 
-			void build(float4 *points, int4 *clients, const int length, ::parallel::queue *q = NULL, bool validate = false);
+			void build(float4 *points, int4 *clients, const int length, ::parallel::queue *q = NULL);
 
 			void search(float4 *search, int4 *clients, int *result, const int length, const bool self, int *collided, int index, ::parallel::queue *q = NULL);		
-			void search(float4 *search, int4 *clients, int2 *result, const int length, const bool self = false, const bool symetrical = true, const bool inverse = false, int *collided = NULL, int index = 0, ::parallel::queue *q = NULL, bool validate = false);
+			void search(float4 *search, int4 *clients, int2 *result, const int length, const bool self = false, const bool symetrical = true, const bool inverse = false, int *collided = NULL, int index = 0, ::parallel::queue *q = NULL);
 
 		protected:
 			std::string outputarb(int *source, int length);

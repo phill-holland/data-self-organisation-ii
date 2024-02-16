@@ -14,7 +14,7 @@ namespace organisation
     {
         class collisions : public templates::genetic, public templates::serialiser
         {
-            static const int LENGTH = 26;
+            static const int LENGTH = 27;
 
             static std::mt19937_64 generator;
 
@@ -34,10 +34,12 @@ namespace organisation
                 }
             }
 
-            void generate(data &source);
-            void mutate(data &source);
-            void copy(genetic *source, int src_start, int src_end, int dest_start);
+            bool empty() { return false; }
 
+            void generate(data &source);
+            bool mutate(data &source);
+            void append(genetic *source, int src_start, int src_end);
+            
             std::string serialise();
             void deserialise(std::string source);
 

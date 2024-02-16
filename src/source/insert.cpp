@@ -39,7 +39,7 @@ void organisation::genetic::insert::generate(data &source)
     }
 }
 
-void organisation::genetic::insert::mutate(data &source)
+bool organisation::genetic::insert::mutate(data &source)
 {    
     const int COUNTER = 15;
 
@@ -56,21 +56,21 @@ void organisation::genetic::insert::mutate(data &source)
         values[offset] = value;
 
     }while((old==value)&&(counter++<COUNTER));
-    std::cout << "insert before " << old << " after " << value << "\r\n";    
+
+    if(old==value) return false;
+
+    return true;   
 }
 
-void organisation::genetic::insert::copy(genetic *source, int src_start, int src_end, int dest_start)
+void organisation::genetic::insert::append(genetic *source, int src_start, int src_end)
 {
-std::cout << "insert::copy " << src_start << "," << src_end << "," << dest_start << "\r\n";    
-
     insert *s = dynamic_cast<insert*>(source);
 
     int length = src_end - src_start;  
-    if(values.size() < (length + dest_start)) values.resize(length + dest_start);
 
     for(int i = 0; i < length; ++i)
     {
-        values[dest_start + i] = s->values[src_start + i];
+        values.push_back(s->values[src_start + i]);
     }   
 }
 

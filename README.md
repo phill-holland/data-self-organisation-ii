@@ -18,13 +18,27 @@ The parallel version of the collision detection algorithm needs to be written al
 
 // ***************
 
+TODO
+
+// WRITE SIMPLE TEST FOR POPULATION CLASS!!!!
+// 4) implement collisions by lifetimes!!!!
+// 5) bring in high_res_clock for frame rate
+// 6) native program, collision detection is different from parallel version!!
+// 10) test generic breeding, fix schemas with validation errors
+
+// ***************
+
+// 11) test inserts overlap with existing position **** (formal test)
+// 12) inserts with multiple clients **** (formal test)
+// 4) PROGRAM COPY FROM INSERTS INTO POPULATION (formal test)
+
 // 1) check loading of schemas > HOST_BUFFER in number THIS OK
 // 2) check multiple clients with different collision settings (rebounds) OK
 // 3) max_values -- check changing values
 // 3) Check collision with "swaps" data (diagonal collision -1,-1,-1 to 1,1,1) OK
 // 4) check schemas generation with not validated outputs!
 
-// 3) cmake test suite instead?
+// 3) cmake test suite instead? OK
 // 4) implement collisions by lifetimes!!!!
 // 5) bring in high_res_clock for frame rate
 

@@ -10,15 +10,11 @@ namespace organisation
     class score
     {
         std::unordered_map<int,float> scores;
-        bool init;
 
     public:
-        score() { makeNull(); reset(); }
+        score() { }
         score(const score &source) { copy(source); }
-        ~score() { cleanup(); }
-
-        bool intialised() { return init; }
-        void reset();
+        ~score() { }
 
         void clear();
         bool compute(std::string expected, std::string value);
@@ -28,14 +24,19 @@ namespace organisation
         bool set(float value, int index);
         float get(int index);
 
-        int size() { return scores.size(); }
+        size_t size() { return scores.size(); }
 
     public:
         void copy(const score &source);
         
     protected:
-        void makeNull();
-        void cleanup();
+        float compute_comparative_length_score(std::string expected, std::string value);
+        
+    public:
+        bool operator==(const score &src) const
+        {
+            return (scores == src.scores);
+        }
     };
 };
 

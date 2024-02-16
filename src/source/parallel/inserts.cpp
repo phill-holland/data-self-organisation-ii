@@ -15,15 +15,14 @@ sycl::int4 MapClientIdx(const int index, const sycl::int4 dimensions)
 
 void organisation::parallel::inserts::reset(::parallel::device &dev, 
                                             ::parallel::queue *q, 
-                                            parameters &settings,
-                                            int length)
+                                            parameters &settings)
 {
     init = false; cleanup();
 
     this->dev = &dev;
     this->queue = q;
     this->settings = settings;
-    this->length = length;
+    this->length = settings.clients();
 
     sycl::queue &qt = ::parallel::queue(dev).get();
 
@@ -86,7 +85,7 @@ void organisation::parallel::inserts::clear()
 int organisation::parallel::inserts::insert(int epoch)
 {
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
-    sycl::range num_items{(size_t)settings.clients()};
+    sycl::range num_items{(size_t)length};
 
     qt.memset(deviceTotalNewInserts, 0, sizeof(int)).wait();
 
@@ -115,8 +114,9 @@ int organisation::parallel::inserts::insert(int epoch)
         auto _epoch_offset = epoch_offset;
 
         auto _max_inserts = settings.max_inserts;
-        auto _max_values = settings.max_values;
         auto _dim_clients = dim_clients;
+
+        auto _length = length;
 
         h.parallel_for(num_items, [=](auto client) 
         {
@@ -143,7 +143,7 @@ int organisation::parallel::inserts::insert(int epoch)
                                             sycl::access::address_space::ext_intel_global_device_space> ar(_totalNewInserts[0]);
 
                 int dest = ar.fetch_add(1);
-                if(dest < _max_values)                
+                if(dest < _length)                
                 {
                     _values[dest] = newValueToInsert;
                     _positions[dest] = starting;

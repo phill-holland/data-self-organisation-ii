@@ -11,11 +11,11 @@
 #include <unordered_map>
 #include <tuple>
 
-#ifndef _ORGANISATION_PARALLEL_PROGRAM
-#define _ORGANISATION_PARALLEL_PROGRAM
+#ifndef _ORGANISATION_PROGRAM
+#define _ORGANISATION_PROGRAM
 
 namespace organisation
-{    
+{        
     namespace parallel
     {
         class program;
@@ -61,8 +61,11 @@ namespace organisation
         
     public:
         void clear();
+
+        bool empty();
+
         void generate(data &source);  
-        void mutate(data &source);
+        bool mutate(data &source);
 
         std::string run(std::string input, data &source, int max = MAX);
 
@@ -77,7 +80,7 @@ namespace organisation
         bool equals(const program &source);
 
     public:
-        bool cross(program &a, program &b, int middle = -1);
+        void cross(program &a, program &b);
 
     public:
         std::string serialise();
@@ -86,7 +89,7 @@ namespace organisation
     public:
         void save(std::string filename);
         void load(std::string filename);
-
+        
     protected:
         void makeNull();
         void cleanup();
