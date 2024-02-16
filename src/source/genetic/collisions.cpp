@@ -50,10 +50,12 @@ void organisation::genetic::collisions::append(genetic *source, int src_start, i
 std::string organisation::genetic::collisions::serialise()
 {
     std::string result;
+    int offset = 0;
 
     for(auto &it: values)
     {
-        result += "C " + std::to_string(it) + "\n";
+        result += "C " + std::to_string(offset) + " " + std::to_string(it) + "\n";
+        ++offset;
     }
 
     return result;
@@ -66,6 +68,7 @@ void organisation::genetic::collisions::deserialise(std::string source)
 
     int value = 0;
     int index = 0;
+    int offset = 0;
 
     while(std::getline(ss,str,' '))
     {
@@ -75,8 +78,12 @@ void organisation::genetic::collisions::deserialise(std::string source)
         }
         else if(index == 1)
         {
+            offset = std::atoi(str.c_str());
+        }
+        else if(index == 2)
+        {
             int value = std::atoi(str.c_str());
-            values.push_back(value);
+            values[offset] = value;
         }
 
         ++index;
