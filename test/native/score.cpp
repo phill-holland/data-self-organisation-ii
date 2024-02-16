@@ -5,7 +5,7 @@
 
 TEST(BasicScoreEqualsOneParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     std::string value("daisy daisy give me your answer do .");
     std::string expected("daisy daisy give me your answer do .");
@@ -37,7 +37,7 @@ TEST(BasicScoreEqualsOneParallel, BasicAssertions)
 
 TEST(BasicScoreOneOffParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
     
     std::string value("daisy daisy monkey me your answer do .");
     std::string expected("daisy daisy give me your answer do .");
@@ -73,7 +73,7 @@ TEST(BasicScoreOneOffParallel, BasicAssertions)
 
 TEST(BasicScoreOneOffErrorParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     std::string value("daisy daisy me give your answer do .");
     std::string expected("daisy daisy give me your answer do .");
@@ -109,7 +109,7 @@ TEST(BasicScoreOneOffErrorParallel, BasicAssertions)
 
 TEST(BasicScoreTwoOffErrorParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     std::string value("daisy daisy me your give answer do .");
     std::string expected("daisy daisy give me your answer do .");
@@ -144,7 +144,7 @@ TEST(BasicScoreTwoOffErrorParallel, BasicAssertions)
 
 TEST(BasicScoreThreeOffErrorParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     std::string value("daisy daisy me your answer give do .");
     std::string expected("daisy daisy give me your answer do .");
@@ -179,7 +179,7 @@ TEST(BasicScoreThreeOffErrorParallel, BasicAssertions)
 
 TEST(BasicScoreRepeatOneParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     std::string value("daisy daisy daisy give me your answer do .");
     std::string expected("daisy daisy give me your answer do .");
@@ -214,7 +214,7 @@ TEST(BasicScoreRepeatOneParallel, BasicAssertions)
 
 TEST(BasicScoreRepeatTwoParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     std::string value("daisy daisy daisy daisy give me your answer do .");
     std::string expected("daisy daisy give me your answer do .");
@@ -249,7 +249,7 @@ TEST(BasicScoreRepeatTwoParallel, BasicAssertions)
 
 TEST(BasicScoreRepeatThreeParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     std::string value("daisy daisy daisy daisy daisy give me your answer do .");
     std::string expected("daisy daisy give me your answer do .");
@@ -284,7 +284,7 @@ TEST(BasicScoreRepeatThreeParallel, BasicAssertions)
 
 TEST(BasicScoreShortSentenceParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     std::string value("daisy");
     std::string expected("daisy daisy give me your answer do .");
@@ -319,7 +319,7 @@ TEST(BasicScoreShortSentenceParallel, BasicAssertions)
 
 TEST(BasicScoreBadOrderOneParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     std::string value("me your answer do . daisy daisy give");
     std::string expected("daisy daisy give me your answer do .");
@@ -354,7 +354,7 @@ TEST(BasicScoreBadOrderOneParallel, BasicAssertions)
 
 TEST(BasicScoreIncorrectParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     std::string value("incorrect");
     std::string expected("daisy daisy give me your answer do .");

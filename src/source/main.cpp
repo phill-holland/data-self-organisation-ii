@@ -35,8 +35,15 @@ organisation::parameters get_parameters(organisation::data &mappings)
 
     parameters.dim_clients = organisation::point(5,5,1);
     parameters.iterations = 30;
-    parameters.population = 10;
     parameters.max_values = 30;
+
+    // ***
+    parameters.population = 10;
+    // ***
+
+    // ***
+    parameters.output_stationary_only = true;
+    // ***
     
     parameters.width = width;
     parameters.height = height;
@@ -55,10 +62,6 @@ organisation::parameters get_parameters(organisation::data &mappings)
     parameters.input.push_back(epoch1);
     parameters.input.push_back(epoch2);
     
-    // ***
-    parameters.output_stationary_only = true;
-    // ***
-
     return parameters;
 }
 
