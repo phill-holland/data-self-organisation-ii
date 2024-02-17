@@ -41,6 +41,8 @@ void organisation::genetic::insert::generate(data &source)
 
 bool organisation::genetic::insert::mutate(data &source)
 {    
+    if(values.empty()) return false;
+
     const int COUNTER = 15;
 
     int offset = 0;

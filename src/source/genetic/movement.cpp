@@ -45,7 +45,11 @@ void organisation::genetic::movement::deserialise(std::string source)
 
 bool organisation::genetic::movement::validate(data &source)
 {
-    if(directions.empty()) { std::cout << "movement::validate(false): directions is empty\r\n"; return false; }
+    if(directions.empty()) 
+    { 
+        std::cout << "movement::validate(false): directions is empty\r\n"; 
+        return false; 
+    }
 
     for(auto &it: directions)
     {
@@ -84,6 +88,8 @@ void organisation::genetic::movement::generate(data &source)
 
 bool organisation::genetic::movement::mutate(data &source)
 {
+    if(directions.empty()) return false;
+
     const int COUNTER = 15;
 
     int n = 0; 
@@ -91,7 +97,7 @@ bool organisation::genetic::movement::mutate(data &source)
     int counter = 0;
 
     do
-    {
+    {        
         n = (std::uniform_int_distribution<int>{0, (int)(directions.size() - 1)})(generator);
         value = (std::uniform_int_distribution<int>{0, 26})(generator);
 

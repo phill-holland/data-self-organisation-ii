@@ -317,11 +317,17 @@ void organisation::populations::population::pull(organisation::schema **buffer, 
     else
     {
         int offset = 0;
+        int length = settings.clients();
+
         for(int i = r.start; i <= r.end; ++i)
         { 
-            organisation::schema *temp = schemas->get(i);
-            if(temp != NULL)           
-                buffer[offset++]->copy(*temp);
+            if(offset < length)
+            {                
+                organisation::schema *temp = schemas->get(i);
+                if(temp != NULL)           
+                    buffer[offset++]->copy(*temp);
+            }
+            else break;
         }
     }
 
@@ -345,11 +351,16 @@ void organisation::populations::population::push(organisation::schema **buffer, 
     else
     {
         int offset = 0;
+        int length = settings.clients();
+
         for(int i = r.start; i <= r.end; ++i)
         {
-            organisation::schema *temp = schemas->get(i);
-            if(temp != NULL)
-                temp->copy(*buffer[offset++]);
+            if(offset < length)
+            {
+                organisation::schema *temp = schemas->get(i);
+                if(temp != NULL)
+                    temp->copy(*buffer[offset++]);
+            } else break;
         }
     }
 
@@ -361,10 +372,14 @@ void organisation::populations::population::push(organisation::schema **buffer, 
 void organisation::populations::population::fill(organisation::schema **destination, region r)
 {
     int offset = 0;
+    int length = settings.clients();
+
     for(int i = r.start; i <= r.end; ++i)
     {
-        destination[offset++]->copy(*schemas->get(i));
-    }
+        if(offset < length) 
+            destination[offset++]->copy(*schemas->get(i));
+        else break;
+    }    
 }
 
 void organisation::populations::population::makeNull() 

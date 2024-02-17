@@ -46,7 +46,7 @@
         {
             "label": "Make Release",
             "type": "shell",
-            "command": "cmake -DCMAKE_CXX_FLAGS=\"-O2\" -DBUILD_FOR_CUDA=true ../",
+            "command": "cmake -DCMAKE_BUILD_TYPE=\"Release -O2 -g\" -DBUILD_FOR_CUDA=true ../",
             "hide": true,
             "group": {
                 "kind": "build",

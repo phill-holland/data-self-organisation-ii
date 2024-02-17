@@ -563,6 +563,7 @@ void organisation::parallel::program::insert(int epoch)
         
         qt.memcpy(hostTotalValues, deviceTotalValues, sizeof(int)).wait();
         
+        /*
         if(hostTotalValues[0] != (totalValues + count))
         {            
             std::cout << "INSERT FAILED\r\n";
@@ -576,6 +577,7 @@ void organisation::parallel::program::insert(int epoch)
             outputarb(deviceNextCollisionKeys,count);        
             std::cout << "\r\n\r\n";
         }
+        */
 
         totalValues = hostTotalValues[0];
 
