@@ -256,7 +256,7 @@ organisation::schema *organisation::populations::population::best(region r)
             score = t2;
         }         
 	}
-
+//std::cout << "BEST " << best << "\r\n";
     return schemas->get(best);
 }
 
@@ -294,6 +294,7 @@ organisation::schema *organisation::populations::population::worst(region r)
         }
 	}
 
+//std::cout << "WORST " << "\r\n";
     return schemas->get(worst);
 }
 

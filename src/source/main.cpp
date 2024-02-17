@@ -33,7 +33,7 @@ organisation::parameters get_parameters(organisation::data &mappings)
 {
     organisation::parameters parameters(width, height, depth);
 
-    parameters.dim_clients = organisation::point(5,5,1);
+    parameters.dim_clients = organisation::point(5,1,1);
     parameters.iterations = 30;
     parameters.max_values = 30;
 
