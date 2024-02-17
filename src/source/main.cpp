@@ -38,7 +38,7 @@ organisation::parameters get_parameters(organisation::data &mappings)
     parameters.max_values = 30;
 
     // ***
-    parameters.population = 10;
+    parameters.population = 5000;
     // ***
 
     // ***
@@ -65,28 +65,28 @@ organisation::parameters get_parameters(organisation::data &mappings)
     return parameters;
 }
 
-organisation::schema run(organisation::templates::programs *program, organisation::parameters &parameters)
+bool run(organisation::templates::programs *program, organisation::parameters &parameters, organisation::schema &result)
 {         	
     organisation::populations::population p(program, parameters);
+    if(!p.initalised()) return false;
 
     int generations = 2;
     int actual = 0;
 
     p.clear();
     p.generate();
-
-    organisation::schema best(width,height,depth);
-    best.copy(p.go(actual, generations));
+    
+    result.copy(p.go(actual, generations));
 
     if(actual <= generations) 
     {
         std::string filename("output/run");
         filename += ".txt";
 
-        best.prog.save(filename);
+        result.prog.save(filename);
     }
     
-    return best;
+    return true;
 }
 
 int main(int argc, char *argv[])
@@ -96,14 +96,18 @@ int main(int argc, char *argv[])
     
     organisation::parameters parameters = get_parameters(mappings);
 
-	::parallel::device *device = new ::parallel::device(device_idx);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(device_idx);
+	::parallel::queue queue(device);
 
     parallel::mapper::configuration mapper;
-    
-    organisation::parallel::program program(*device, queue, mapper, parameters);
 
-    run(&program, parameters);
-    
+    organisation::schema result(width,height,depth);   
+    organisation::parallel::program program(device, &queue, mapper, parameters);
+
+    if(program.initalised())
+    {
+        run(&program, parameters, result);
+    }
+       
     return 0;
 }
