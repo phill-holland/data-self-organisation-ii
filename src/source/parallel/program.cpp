@@ -765,6 +765,10 @@ void organisation::parallel::program::outputting(int iteration)
         {  
             if(_positions[i].w() == 0)
             {   
+                cl::sycl::atomic_ref<int, cl::sycl::memory_order::relaxed, 
+                sycl::memory_scope::device, 
+                sycl::access::address_space::ext_intel_global_device_space> ac(_collisionCounts[_client[i].w()]);
+
                 bool output = false;
                 int value = 0;
 
@@ -780,6 +784,9 @@ void organisation::parallel::program::outputting(int iteration)
                             value = _values[currentCollision.y()];
                             output = true;
                         }
+
+                        if(_positions[currentCollision.y()].w() != -2)         
+                            ac.fetch_add(1);
                     }
                 }
 
@@ -791,9 +798,12 @@ void organisation::parallel::program::outputting(int iteration)
                         value = _values[nextCollision.y()];
                         output = true;
                     }
+
+                    if(_positions[nextCollision.y()].w() != -2)
+                        ac.fetch_add(1);
                 }
 
-                if(output == true)
+                if(output)
                 {
                     cl::sycl::atomic_ref<int, cl::sycl::memory_order::relaxed, 
                     sycl::memory_scope::device, 
@@ -805,13 +815,7 @@ void organisation::parallel::program::outputting(int iteration)
                     {                    
                         _outputValues[idx] = value;
                         _outputIndex[idx] = _iteration;
-                        _outputClient[idx] = _client[i];
-
-                        cl::sycl::atomic_ref<int, cl::sycl::memory_order::relaxed, 
-                        sycl::memory_scope::device, 
-                        sycl::access::address_space::ext_intel_global_device_space> ac(_collisionCounts[_client[i].w()]);
-
-                        ac.fetch_add(1);
+                        _outputClient[idx] = _client[i];                        
                     }
                 }  
             }
