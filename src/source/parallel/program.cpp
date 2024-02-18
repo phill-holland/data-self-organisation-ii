@@ -59,6 +59,9 @@ void organisation::parallel::program::reset(::parallel::device &dev,
     deviceMovementIdx = sycl::malloc_device<int>(settings.max_values * settings.clients(), qt);
     if(deviceMovementIdx == NULL) return;
 
+    deviceLifetime = sycl::malloc_device<int>(settings.max_values * settings.clients(), qt);
+    if(deviceLifetime == NULL) return;
+
     deviceClient = sycl::malloc_device<sycl::int4>(settings.max_values * settings.clients(), qt);
     if(deviceClient == NULL) return;
 
@@ -78,6 +81,9 @@ void organisation::parallel::program::reset(::parallel::device &dev,
 
     deviceMovementsCounts = sycl::malloc_device<int>(settings.clients(), qt);
     if(deviceMovementsCounts == NULL) return;
+
+    deviceCollisionCounts = sycl::malloc_device<int>(settings.clients(), qt);
+    if(deviceCollisionCounts == NULL) return;
 
     deviceCollisions = sycl::malloc_device<sycl::float4>(settings.max_collisions * settings.clients(), qt);
     if(deviceCollisions == NULL) return;
@@ -207,6 +213,7 @@ void organisation::parallel::program::clear()
     events.push_back(qt.memset(deviceValues, 0, sizeof(int) * settings.max_values * settings.clients()));
     events.push_back(qt.memset(deviceNextDirections, 0, sizeof(sycl::float4) * settings.max_values * settings.clients()));
     events.push_back(qt.memset(deviceMovementIdx, 0, sizeof(int) * settings.max_values * settings.clients()));
+    events.push_back(qt.memset(deviceLifetime, 0, sizeof(int) * settings.max_values * settings.clients()));
     events.push_back(qt.memset(deviceClient, 0, sizeof(sycl::int4) * settings.max_values * settings.clients()));
     
     events.push_back(qt.memset(deviceCachePositions, 0, sizeof(sycl::float4) * settings.max_values * settings.clients()));
@@ -215,6 +222,7 @@ void organisation::parallel::program::clear()
     
     events.push_back(qt.memset(deviceMovements, 0, sizeof(sycl::float4) * settings.max_movements * settings.clients()));
     events.push_back(qt.memset(deviceMovementsCounts, 0, sizeof(int) * settings.clients()));
+    events.push_back(qt.memset(deviceCollisionCounts, 0, sizeof(int) * settings.clients()));
     events.push_back(qt.memset(deviceCollisions, 0, sizeof(sycl::float4) * settings.max_collisions * settings.clients()));
 
     events.push_back(qt.memset(deviceNextCollisionKeys, 0, sizeof(sycl::int2) * settings.max_values * settings.clients()));
@@ -243,6 +251,8 @@ void organisation::parallel::program::restart()
     events1.push_back(qt.memset(deviceValues, 0, sizeof(int) * settings.max_values * settings.clients()));
     events1.push_back(qt.memset(deviceNextDirections, 0, sizeof(sycl::float4) * settings.max_values * settings.clients()));
     events1.push_back(qt.memset(deviceMovementIdx, 0, sizeof(int) * settings.max_values * settings.clients()));
+    events1.push_back(qt.memset(deviceLifetime, 0, sizeof(int) * settings.max_values * settings.clients()));
+    events1.push_back(qt.memset(deviceCollisionCounts, 0, sizeof(int) * settings.clients()));
     events1.push_back(qt.memset(deviceClient, 0, sizeof(sycl::int4) * settings.max_values * settings.clients()));
     events1.push_back(qt.memset(deviceTotalValues, 0, sizeof(int)));
 
@@ -306,7 +316,7 @@ void organisation::parallel::program::run(organisation::data &mappings)
         int iterations = 0;
         while(iterations++ < settings.iterations)
         {        
-            insert(epoch);
+            insert(epoch, iterations);
 
             qt.memcpy(deviceOldPositions, devicePositions, sizeof(sycl::float4) * totalValues).wait();                            
 
@@ -506,7 +516,7 @@ void organisation::parallel::program::next()
 
 }
 
-void organisation::parallel::program::insert(int epoch)
+void organisation::parallel::program::insert(int epoch, int iteration)
 {
     int count = inserter->insert(epoch);
 
@@ -530,6 +540,7 @@ void organisation::parallel::program::insert(int epoch)
         {        
             auto _positions = devicePositions; 
             auto _values = deviceValues;
+            auto _lifetime = deviceLifetime;
             auto _client = deviceClient;
             
             auto _srcPosition = inserter->deviceNewPositions;
@@ -539,6 +550,8 @@ void organisation::parallel::program::insert(int epoch)
             auto _keys = deviceNextCollisionKeys;
 
             auto _valuesLength = settings.max_values * settings.clients();
+
+            auto _iteration = iteration;
 
             auto _totalValues = deviceTotalValues;
 
@@ -555,6 +568,7 @@ void organisation::parallel::program::insert(int epoch)
                     {
                         _positions[idx] = _srcPosition[i];
                         _values[idx] = _srcValues[i];
+                        _lifetime[idx] = _iteration;
                         _client[idx] = _srcClient[i];
                     }
                 }
@@ -731,6 +745,7 @@ void organisation::parallel::program::outputting(int iteration)
         auto _values = deviceValues;
         auto _positions = devicePositions;           
         auto _oldPositions = deviceOldPositions;
+        auto _collisionCounts = deviceCollisionCounts;
         auto _client = deviceClient;        
         auto _nextCollisionKeys = deviceNextCollisionKeys;
         auto _currentCollisionKeys = deviceCurrentCollisionKeys;
@@ -791,6 +806,12 @@ void organisation::parallel::program::outputting(int iteration)
                         _outputValues[idx] = value;
                         _outputIndex[idx] = _iteration;
                         _outputClient[idx] = _client[i];
+
+                        cl::sycl::atomic_ref<int, cl::sycl::memory_order::relaxed, 
+                        sycl::memory_scope::device, 
+                        sycl::access::address_space::ext_intel_global_device_space> ac(_collisionCounts[_client[i].w()]);
+
+                        ac.fetch_add(1);
                     }
                 }  
             }
@@ -1129,6 +1150,7 @@ void organisation::parallel::program::makeNull()
     deviceNextDirections = NULL;
     
     deviceMovementIdx = NULL;
+    deviceLifetime = NULL;
     deviceClient = NULL;
 
     deviceCachePositions = NULL;
@@ -1137,6 +1159,7 @@ void organisation::parallel::program::makeNull()
 
     deviceMovements = NULL;
     deviceMovementsCounts = NULL;
+    deviceCollisionCounts = NULL;
     deviceCollisions = NULL;
 
     deviceNextCollisionKeys = NULL;
@@ -1227,6 +1250,7 @@ void organisation::parallel::program::cleanup()
         if(deviceNextCollisionKeys != NULL) sycl::free(deviceNextCollisionKeys, q);
 
         if(deviceCollisions != NULL) sycl::free(deviceCollisions, q);
+        if(deviceCollisionCounts != NULL) sycl::free(deviceCollisionCounts, q);
         if(deviceMovementsCounts != NULL) sycl::free(deviceMovementsCounts, q);
         if(deviceMovements != NULL) sycl::free(deviceMovements, q);
         
@@ -1235,6 +1259,7 @@ void organisation::parallel::program::cleanup()
         if(deviceCachePositions != NULL) sycl::free(deviceCachePositions, q);
         
         if(deviceClient != NULL) sycl::free(deviceClient, q);
+        if(deviceLifetime != NULL) sycl::free(deviceLifetime, q);
         if(deviceMovementIdx != NULL) sycl::free(deviceMovementIdx, q);
         if(deviceValues != NULL) sycl::free(deviceValues, q);
 

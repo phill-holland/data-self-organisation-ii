@@ -31,7 +31,8 @@ namespace organisation
             int *deviceValues;
             sycl::float4 *deviceNextDirections;
 
-            int *deviceMovementIdx;            
+            int *deviceMovementIdx;   
+            int *deviceLifetime;         
             sycl::int4 *deviceClient;
 
             sycl::float4 *deviceCachePositions;
@@ -40,6 +41,7 @@ namespace organisation
 
             sycl::float4 *deviceMovements;
             int *deviceMovementsCounts;
+            int *deviceCollisionCounts;
             sycl::float4 *deviceCollisions;
 
             sycl::int2 *deviceNextCollisionKeys;
@@ -126,7 +128,7 @@ namespace organisation
             void update();
             void positions();
             void next();
-            void insert(int epoch);
+            void insert(int epoch, int iteration);
             void boundaries();
             void corrections(bool debug = false);
             void outputting(int iteration);
