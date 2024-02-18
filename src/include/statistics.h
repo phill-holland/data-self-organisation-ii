@@ -8,31 +8,21 @@ namespace organisation
 {
     namespace statistics
     {
-        class data
+        class statistic
         {
         public:
             int collisions;
+            int epoch;
             int client;
 
         public:
-            data(int _collisions = 0, int _client = 0)
+            statistic(int _collisions = 0, int _epoch = 0, int _client = 0)
             {
                 collisions = _collisions;
+                epoch = _epoch;
                 client = _client;
             }
         };
-
-        class statistics
-        {
-        public:
-            std::vector<data> values;
-
-        public:
-            void clear()
-            {
-                values.clear();
-            }
-        };   
     }; 
 };
 
