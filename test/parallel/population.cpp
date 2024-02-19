@@ -53,8 +53,8 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(values1);
     organisation::data mappings(strings);
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -67,7 +67,7 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
     parameters.input.push_back(epoch1);
 
     parallel::mapper::configuration mapper;    
-    organisation::parallel::program program(*device, queue, mapper, parameters);
+    organisation::parallel::program program(device, &queue, mapper, parameters);
         
     EXPECT_TRUE(program.initalised());
         
@@ -131,8 +131,8 @@ TEST(BasicPopulationTestTwoEpochsParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(values1);
     organisation::data mappings(strings);
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -148,7 +148,7 @@ TEST(BasicPopulationTestTwoEpochsParallel, BasicAssertions)
     parameters.input.push_back(epoch2);
 
     parallel::mapper::configuration mapper;    
-    organisation::parallel::program program(*device, queue, mapper, parameters);
+    organisation::parallel::program program(device, &queue, mapper, parameters);
         
     EXPECT_TRUE(program.initalised());
         
@@ -188,7 +188,7 @@ TEST(BasicPopulationTestTwoEpochsParallel, BasicAssertions)
     }    
 
     int generation = 0;
-    int generations = 2;
+int generations = 2;
 
     population.go(generation, generations);
 

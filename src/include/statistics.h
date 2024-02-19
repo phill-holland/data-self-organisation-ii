@@ -22,6 +22,14 @@ namespace organisation
                 epoch = _epoch;
                 client = _client;
             }
+
+        public:
+            bool operator==(const ::organisation::statistics::statistic &src) const
+            {
+                return src.collisions == collisions &&
+                       src.epoch == epoch &&
+                       src.client == client;
+            }
         };
     }; 
 };

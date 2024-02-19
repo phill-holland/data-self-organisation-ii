@@ -255,7 +255,6 @@ void organisation::parallel::program::restart()
     events1.push_back(qt.memset(deviceNextDirections, 0, sizeof(sycl::float4) * settings.max_values * settings.clients()));
     events1.push_back(qt.memset(deviceMovementIdx, 0, sizeof(int) * settings.max_values * settings.clients()));
     events1.push_back(qt.memset(deviceLifetime, 0, sizeof(int) * settings.max_values * settings.clients()));
-    events1.push_back(qt.memset(deviceCollisionCounts, 0, sizeof(int) * settings.clients()));
     events1.push_back(qt.memset(deviceClient, 0, sizeof(sycl::int4) * settings.max_values * settings.clients()));
     events1.push_back(qt.memset(deviceTotalValues, 0, sizeof(int)));
 
@@ -774,7 +773,7 @@ void organisation::parallel::program::outputting(int epoch, int iteration)
                 sycl::memory_scope::device, 
                 sycl::access::address_space::ext_intel_global_device_space> ac(_collisionCounts[(_epoch * _clients) + _client[i].w()]);
 
-                bool output = false;
+                bool output = false, collision = false;
                 int value = 0;
 
                 if((((int)_positions[i].x()) == ((int)_oldPositions[i].x()))
@@ -791,7 +790,7 @@ void organisation::parallel::program::outputting(int epoch, int iteration)
                         }
 
                         if(_positions[currentCollision.y()].w() != -2)         
-                            ac.fetch_add(1);
+                            collision = true;
                     }
                 }
 
@@ -805,8 +804,11 @@ void organisation::parallel::program::outputting(int epoch, int iteration)
                     }
 
                     if(_positions[nextCollision.y()].w() != -2)
-                        ac.fetch_add(1);
+                        collision = true;
                 }
+
+                if(collision) 
+                    ac.fetch_add(1);
 
                 if(output)
                 {
@@ -840,9 +842,10 @@ std::vector<organisation::parallel::value> organisation::parallel::program::get(
     {
         std::vector<int> values = dev->get(deviceValues, totals);
         std::vector<sycl::int4> clients = dev->get(deviceClient, totals);
+        std::vector<int> lifetimes = dev->get(deviceLifetime, totals);
         std::vector<sycl::float4> positions = dev->get(devicePositions, totals);
 
-        if((values.size() == totals)&&(clients.size() == totals)&&(positions.size() == totals))
+        if((values.size() == totals)&&(clients.size() == totals)&&(positions.size() == totals)&&(lifetimes.size() == totals))
         {
             int len = values.size();
             for(int i = 0; i < len; ++i)
@@ -853,6 +856,7 @@ std::vector<organisation::parallel::value> organisation::parallel::program::get(
 
                     temp.value = values[i];
                     temp.client = clients[i].w();
+                    temp.lifetime = lifetimes[i];
                     temp.position = point(positions[i].x(), positions[i].y(), positions[i].z());
 
                     result.push_back(temp);
