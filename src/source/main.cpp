@@ -35,12 +35,12 @@ organisation::parameters get_parameters(organisation::data &mappings)
 {
     organisation::parameters parameters(width, height, depth);
 
-    parameters.dim_clients = organisation::point(20,20,20);
+    parameters.dim_clients = organisation::point(10,10,10);
     parameters.iterations = 30;
     parameters.max_values = 30;
 
     // ***
-    parameters.population = 16000;
+    parameters.population = 2000;//16000;
     // ***
 
     // ***
@@ -52,12 +52,12 @@ organisation::parameters get_parameters(organisation::data &mappings)
     parameters.depth = depth;
     parameters.mappings = mappings;
         
-    std::string input1("daisy daisy daisy daisy I'm half");
+    std::string input1("daisy daisy daisy daisy I'm half .");
     std::string expected1("I'm half");
     //std::string expected1("I'm half .");
 
-    std::string input2("it won't .");
-    std::string expected2("but you'll .");
+    std::string input2("it won't");
+    std::string expected2("but you'll");
     
     organisation::inputs::epoch epoch1(input1, expected1);
     organisation::inputs::epoch epoch2(input2, expected2);

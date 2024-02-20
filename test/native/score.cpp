@@ -6,7 +6,7 @@
 
 TEST(BasicScoreEqualsOneParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     std::string value("daisy daisy give me your answer do .");
     std::string expected("daisy daisy give me your answer do .");
@@ -39,7 +39,7 @@ TEST(BasicScoreEqualsOneParallel, BasicAssertions)
 
 TEST(BasicScoreOneOffParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
     
     std::string value("daisy daisy monkey me your answer do .");
     std::string expected("daisy daisy give me your answer do .");

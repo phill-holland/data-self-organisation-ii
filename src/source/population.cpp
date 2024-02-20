@@ -149,14 +149,21 @@ organisation::populations::results organisation::populations::population::execut
         if(settings.input.get(e,epoch))
         {
             std::vector<organisation::outputs::data> scores = outputs[epoch].values;
+            
             for(auto &it:scores)
             {
                 if(output_mappings.find(it.client) == output_mappings.end())
-                    output_mappings[it.client] = { };
-                    
-                compute c(e.expected, it.value, statistics[it.client].epochs[epoch]);
-                output_mappings[it.client].push_back(compute(e.expected, it.value, statistics[it.client].epochs[epoch]));
+                    output_mappings[it.client] = std::vector<compute>(outputs.size());
+
+                if(output_mappings[it.client][epoch].value.size() > 0) output_mappings[it.client][epoch].value += " ";
+                output_mappings[it.client][epoch].value += it.value;  
             }
+            
+            for(auto &it:output_mappings)
+            {
+                output_mappings[it.first][epoch].expected = e.expected;
+                output_mappings[it.first][epoch].stats = statistics[it.first].epochs[epoch];
+            }                
         }
     }
     
@@ -179,6 +186,18 @@ organisation::populations::results organisation::populations::population::execut
         }
     }
     
+    std::cout << "result.index [" << result.index << "] " << result.best << "\r\n";
+    for(auto &it:output_mappings[result.index])
+    {
+        std::string temp = it.value;
+        if(temp.size() > 80)
+        {
+            temp.resize(80);
+            temp += "...";
+        }
+        std::cout << it.expected << "=" << temp << "\r\n";
+    }
+
     if(outputs.size() > 0)
         result.average /= (float)outputs.size();
 
