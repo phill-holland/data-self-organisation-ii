@@ -2,6 +2,7 @@
 #include "output.h"
 #include "schema.h"
 #include "input.h"
+#include "statistics.h"
 #include <stddef.h>
 #include <vector>
 
@@ -23,6 +24,7 @@ namespace organisation
 
             virtual void set(organisation::data &mappings, inputs::input &source) = 0;
             virtual std::vector<outputs::output> get(organisation::data &mappings) = 0;
+            virtual std::vector<organisation::statistics::statistic> statistics() = 0;
 
             virtual void copy(::organisation::schema **source, int source_size) = 0;
         };

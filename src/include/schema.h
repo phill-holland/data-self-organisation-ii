@@ -2,6 +2,8 @@
 #include "data.h"
 #include "score.h"
 #include "kdpoint.h"
+#include "statistics.h"
+#include "compute.h"
 #include <string>
 #include <random>
 #include <vector>
@@ -41,8 +43,8 @@ namespace organisation
         float get(int dimension);
 
         float sum();
-        
-        void compute(std::vector<std::tuple<std::string,std::string>> values);
+            
+        void compute(std::vector<organisation::compute> values);
 
     public:        
         void cross(schema *destination, schema *value);

@@ -1,5 +1,6 @@
 #include <vector>
 #include <string>
+#include <unordered_map>
 
 #ifndef _ORGANISATION_STATISTICS
 #define _ORGANISATION_STATISTICS
@@ -8,27 +9,39 @@ namespace organisation
 {
     namespace statistics
     {
-        class statistic
+        class data
         {
         public:
+            static const int MAX_COLLISIONS = 10;
+
+        public:            
             int collisions;
-            int epoch;
-            int client;
 
         public:
-            statistic(int _collisions = 0, int _epoch = 0, int _client = 0)
+            data(int _collisions = 0)
             {
                 collisions = _collisions;
-                epoch = _epoch;
-                client = _client;
             }
+        
+        public:
+            bool operator==(const ::organisation::statistics::data &src) const
+            {
+                return src.collisions == collisions;
+            }
+        };
+
+        class statistic
+        {
+        public:                        
+            std::unordered_map<int, data> epochs;            
+
+        public:
+            statistic() { }
 
         public:
             bool operator==(const ::organisation::statistics::statistic &src) const
             {
-                return src.collisions == collisions &&
-                       src.epoch == epoch &&
-                       src.client == client;
+                return src.epochs == epochs;
             }
         };
     }; 

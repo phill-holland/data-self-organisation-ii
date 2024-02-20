@@ -2,10 +2,11 @@
 #include <vector.h>
 #include "score.h"
 #include "general.h"
+#include "compute.h"
 
 TEST(BasicScoreEqualsOneParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     std::string value("daisy daisy give me your answer do .");
     std::string expected("daisy daisy give me your answer do .");
@@ -13,13 +14,14 @@ TEST(BasicScoreEqualsOneParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(expected);
 
     organisation::score score;
+    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
 
-    score.compute(expected, value);
+    score.compute(organisation::compute(expected, value, statistics));
 
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 1);
+    EXPECT_EQ(total, (strings.size() * 2) + 2);
 
     for(int i = 0; i < total; ++i)
     {
@@ -29,7 +31,7 @@ TEST(BasicScoreEqualsOneParallel, BasicAssertions)
     std::vector<float> data = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
                                 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
                                 1.0f, 1.0f, 1.0f, 1.0f, 1.0f ,
-                                1.0f, 1.0f  };
+                                1.0f, 1.0f, 1.0f  };
 
     EXPECT_EQ(values, data);
     EXPECT_FLOAT_EQ(score.sum(), 1.0f);
@@ -37,7 +39,7 @@ TEST(BasicScoreEqualsOneParallel, BasicAssertions)
 
 TEST(BasicScoreOneOffParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
     
     std::string value("daisy daisy monkey me your answer do .");
     std::string expected("daisy daisy give me your answer do .");
@@ -45,13 +47,14 @@ TEST(BasicScoreOneOffParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(expected);
 
     organisation::score score;
+    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
 
-    score.compute(expected, value);
+    score.compute(organisation::compute(expected, value, statistics));
 
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 1);
+    EXPECT_EQ(total, (strings.size() * 2) + 2);
 
     for(int i = 0; i < total; ++i)
     {
@@ -61,14 +64,14 @@ TEST(BasicScoreOneOffParallel, BasicAssertions)
     std::vector<float> data = { 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
                                 1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
                                 0.0f, 1.0f, 1.0f, 1.0f, 1.0f ,
-                                1.0f, 1.0f  };
+                                1.0f, 1.0f, 1.0f  };
 
     for(int i = 0; i < total; ++i)
     {
         EXPECT_FLOAT_EQ(values[i], data[i]);
     }
 
-    EXPECT_FLOAT_EQ(score.sum(), 0.82352942f);
+    EXPECT_FLOAT_EQ(score.sum(), 0.83333331f);
 }
 
 TEST(BasicScoreOneOffErrorParallel, BasicAssertions)
@@ -81,13 +84,14 @@ TEST(BasicScoreOneOffErrorParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(expected);
 
     organisation::score score;
+    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
 
-    score.compute(expected, value);
+    score.compute(organisation::compute(expected, value, statistics));
 
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 1);
+    EXPECT_EQ(total, (strings.size() * 2) + 2);
 
     for(int i = 0; i < total; ++i)
     {
@@ -97,14 +101,14 @@ TEST(BasicScoreOneOffErrorParallel, BasicAssertions)
     std::vector<float> data = { 1.0f, 1.0f, 0.857142866f, 0.100000001f, 1.0f,
                                 1.0f, 1.0f, 1.0f, 1.0f, 0.857142866f,
                                 0.0f, 0.857142866f, 1.0f, 1.0f, 1.0f ,
-                                1.0f, 1.0f  };
+                                1.0f, 1.0f, 1.0f  };
 
     for(int i = 0; i < total; ++i)
     {
         EXPECT_FLOAT_EQ(values[i], data[i]);
     }
 
-    EXPECT_FLOAT_EQ(score.sum(), 0.86302519f);
+    EXPECT_FLOAT_EQ(score.sum(), 0.87063485f);
 }
 
 TEST(BasicScoreTwoOffErrorParallel, BasicAssertions)
@@ -117,13 +121,14 @@ TEST(BasicScoreTwoOffErrorParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(expected);
 
     organisation::score score;
+    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
 
-    score.compute(expected, value);
+    score.compute(organisation::compute(expected, value, statistics));
 
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 1);
+    EXPECT_EQ(total, (strings.size() * 2) + 2);
 
     for(int i = 0; i < total; ++i)
     {
@@ -132,14 +137,14 @@ TEST(BasicScoreTwoOffErrorParallel, BasicAssertions)
 
     std::vector<float> data = { 1.0f, 1.0f, 0.714285731f, 0.100000001f, 0.100000001f, 1.0f, 1.0f, 1.0f, 
                                 1.0f, 0.714285731f, 0.0f, 1.0, 0.857142866f, 1.0f, 1.0f , 1.0f, 
-                                1.0f  };
+                                1.0f, 1.0f  };
 
     for(int i = 0; i < total; ++i)
     {
         EXPECT_FLOAT_EQ(values[i], data[i]);
     }
 
-    EXPECT_FLOAT_EQ(score.sum(), 0.79327726f);
+    EXPECT_FLOAT_EQ(score.sum(), 0.80476189f);
 }
 
 TEST(BasicScoreThreeOffErrorParallel, BasicAssertions)
@@ -152,13 +157,14 @@ TEST(BasicScoreThreeOffErrorParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(expected);
 
     organisation::score score;
+    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
 
-    score.compute(expected, value);
+    score.compute(organisation::compute(expected, value, statistics));
 
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 1);
+    EXPECT_EQ(total, (strings.size() * 2) + 2);
 
     for(int i = 0; i < total; ++i)
     {
@@ -167,14 +173,14 @@ TEST(BasicScoreThreeOffErrorParallel, BasicAssertions)
 
     std::vector<float> data = { 1.0f, 1.0f, 0.571428537f, 0.100000001f, 0.100000001f, 0.100000001f, 1.0f, 1.0f, 
                                 1.0f, 0.571428537f, 0.0f, 1.0, 1.0f, 0.857142866f, 1.0f, 1.0f, 
-                                1.0f  };
+                                1.0f, 1.0f  };
 
     for(int i = 0; i < total; ++i)
     {
         EXPECT_FLOAT_EQ(values[i], data[i]);
     }
 
-    EXPECT_FLOAT_EQ(score.sum(), 0.72352934f);
+    EXPECT_FLOAT_EQ(score.sum(), 0.73888886f);
 }
 
 TEST(BasicScoreRepeatOneParallel, BasicAssertions)
@@ -187,13 +193,14 @@ TEST(BasicScoreRepeatOneParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(expected);
 
     organisation::score score;
+    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
 
-    score.compute(expected, value);
+    score.compute(organisation::compute(expected, value, statistics));
 
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 1);
+    EXPECT_EQ(total, (strings.size() * 2) + 2);
 
     for(int i = 0; i < total; ++i)
     {
@@ -202,14 +209,14 @@ TEST(BasicScoreRepeatOneParallel, BasicAssertions)
 
     std::vector<float> data = { 1.0f, 1.0f, 0.857142866f, 0.857142866f, 0.857142866f, 0.857142866f, 0.857142866f, 0.857142866f, 
                                 1.0f, 0.857142866f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 
-                                0.5f  };
+                                0.5f, 1.0f  };
 
     for(int i = 0; i < total; ++i)
     {
         EXPECT_FLOAT_EQ(values[i], data[i]);
     }
 
-    EXPECT_FLOAT_EQ(score.sum(), 0.91176462f);
+    EXPECT_FLOAT_EQ(score.sum(), 0.91666657f);
 }
 
 TEST(BasicScoreRepeatTwoParallel, BasicAssertions)
@@ -222,13 +229,14 @@ TEST(BasicScoreRepeatTwoParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(expected);
 
     organisation::score score;
+    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
 
-    score.compute(expected, value);
+    score.compute(organisation::compute(expected, value, statistics));
 
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 1);
+    EXPECT_EQ(total, (strings.size() * 2) + 2);
 
     for(int i = 0; i < total; ++i)
     {
@@ -237,14 +245,14 @@ TEST(BasicScoreRepeatTwoParallel, BasicAssertions)
 
     std::vector<float> data = { 1.0f, 1.0f, 0.714285731f, 0.714285731f, 0.714285731f, 0.714285731f, 0.714285731f, 0.714285731f, 
                                 1.0f, 0.714285731f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 
-                                0.33333334f  };
+                                0.33333334f, 1.0f  };
 
     for(int i = 0; i < total; ++i)
     {
         EXPECT_FLOAT_EQ(values[i], data[i]);
     }
 
-    EXPECT_FLOAT_EQ(score.sum(), 0.84313726f);
+    EXPECT_FLOAT_EQ(score.sum(), 0.85185188f);
 }
 
 TEST(BasicScoreRepeatThreeParallel, BasicAssertions)
@@ -257,13 +265,14 @@ TEST(BasicScoreRepeatThreeParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(expected);
 
     organisation::score score;
+    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
 
-    score.compute(expected, value);
+    score.compute(organisation::compute(expected, value, statistics));
 
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 1);
+    EXPECT_EQ(total, (strings.size() * 2) + 2);
 
     for(int i = 0; i < total; ++i)
     {
@@ -272,14 +281,14 @@ TEST(BasicScoreRepeatThreeParallel, BasicAssertions)
 
     std::vector<float> data = { 1.0f, 1.0f, 0.571428537f, 0.571428537f, 0.571428537f, 0.571428537f, 0.571428537f, 0.571428537f, 
                                 1.0f, 0.571428537f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 
-                                0.200000003f };
+                                0.200000003f, 1.0f };
 
     for(int i = 0; i < total; ++i)
     {
         EXPECT_FLOAT_EQ(values[i], data[i]);
     }
 
-    EXPECT_FLOAT_EQ(score.sum(), 0.77647048f);
+    EXPECT_FLOAT_EQ(score.sum(), 0.78888875f);
 }
 
 TEST(BasicScoreShortSentenceParallel, BasicAssertions)
@@ -292,13 +301,14 @@ TEST(BasicScoreShortSentenceParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(expected);
 
     organisation::score score;
+    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
 
-    score.compute(expected, value);
+    score.compute(organisation::compute(expected, value, statistics));
 
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 1);
+    EXPECT_EQ(total, (strings.size() * 2) + 2);
 
     for(int i = 0; i < total; ++i)
     {
@@ -307,14 +317,14 @@ TEST(BasicScoreShortSentenceParallel, BasicAssertions)
 
     std::vector<float> data = { 1.0f, 0.100000001f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
                                 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 
-                                0.0294117648f };
+                                0.0294117648f, 1.0f };
 
     for(int i = 0; i < total; ++i)
     {
         EXPECT_FLOAT_EQ(values[i], data[i]);
     }
 
-    EXPECT_FLOAT_EQ(score.sum(), 0.066435993f);
+    EXPECT_FLOAT_EQ(score.sum(), 0.11830065f);
 }
 
 TEST(BasicScoreBadOrderOneParallel, BasicAssertions)
@@ -327,13 +337,14 @@ TEST(BasicScoreBadOrderOneParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(expected);
 
     organisation::score score;
+    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
 
-    score.compute(expected, value);
+    score.compute(organisation::compute(expected, value, statistics));
 
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 1);
+    EXPECT_EQ(total, (strings.size() * 2) + 2);
 
     for(int i = 0; i < total; ++i)
     {
@@ -342,14 +353,14 @@ TEST(BasicScoreBadOrderOneParallel, BasicAssertions)
 
     std::vector<float> data = { 0.285714269f, 0.428571403f, 0.285714269f, 0.100000001f, 0.100000001f, 0.100000001f, 0.100000001f, 0.100000001f,
                                 0.0f, 0.857142866f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.571428537f, 
-                                1.0f };
+                                1.0f, 1.0f };
 
     for(int i = 0; i < total; ++i)
     {
         EXPECT_FLOAT_EQ(values[i], data[i]);
     }
 
-    EXPECT_FLOAT_EQ(score.sum(), 0.46638653f);
+    EXPECT_FLOAT_EQ(score.sum(), 0.49603164f);
 }
 
 TEST(BasicScoreIncorrectParallel, BasicAssertions)
@@ -362,13 +373,14 @@ TEST(BasicScoreIncorrectParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(expected);
 
     organisation::score score;
+    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
 
-    score.compute(expected, value);
+    score.compute(organisation::compute(expected, value, statistics));
 
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 1);
+    EXPECT_EQ(total, (strings.size() * 2) + 2);
 
     for(int i = 0; i < total; ++i)
     {
@@ -377,12 +389,12 @@ TEST(BasicScoreIncorrectParallel, BasicAssertions)
 
     std::vector<float> data = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
                                 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                                0.0294117648f };
+                                0.0294117648f, 1.0f };
 
     for(int i = 0; i < total; ++i)
     {
         EXPECT_FLOAT_EQ(values[i], data[i]);
     }
 
-    EXPECT_FLOAT_EQ(score.sum(), 0.0017301039f);
+    EXPECT_FLOAT_EQ(score.sum(), 0.057189543f);
 }

@@ -1015,13 +1015,14 @@ TEST(BasicProgramDataSwapParallel, BasicAssertions)
 
     std::vector<organisation::statistics::statistic> statistics = program.statistics();
 
-    EXPECT_EQ(statistics.size(), 2);
+    EXPECT_EQ(statistics.size(), 1);
 
-    organisation::statistics::statistic a(2, 0, 0);
-    organisation::statistics::statistic b(2, 1, 0);
+    organisation::statistics::statistic a;
 
-    EXPECT_EQ(statistics[0], a);
-    EXPECT_EQ(statistics[1], b);
+    a.epochs[0] = organisation::statistics::data(2);
+    a.epochs[1] = organisation::statistics::data(2);
+
+    EXPECT_EQ(statistics, std::vector<organisation::statistics::statistic> { a });
 }
 
 TEST(BasicProgramScaleTestParallel, BasicAssertions)

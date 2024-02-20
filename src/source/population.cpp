@@ -1,5 +1,7 @@
 #include "population.h"
 #include "general.h"
+#include "statistics.h"
+#include "compute.h"
 #include <iostream>
 #include <fcntl.h>
 #include <future>
@@ -136,28 +138,31 @@ organisation::populations::results organisation::populations::population::execut
     programs->set(settings.mappings, settings.input);
     programs->run(settings.mappings);
 
-    std::vector<organisation::outputs::output> values = programs->get(settings.mappings);
-    std::unordered_map<int,std::vector<std::tuple<std::string,std::string>>> mappings;
+    std::vector<organisation::statistics::statistic> statistics = programs->statistics();
+    std::vector<organisation::outputs::output> outputs = programs->get(settings.mappings);
+        
+    std::unordered_map<int, std::vector<compute>> output_mappings;
 
-    for(int epoch = 0; epoch < values.size(); ++epoch)
+    for(int epoch = 0; epoch < outputs.size(); ++epoch)
     {
         organisation::inputs::epoch e;
         if(settings.input.get(e,epoch))
         {
-            std::vector<organisation::outputs::data> scores = values[epoch].values;
+            std::vector<organisation::outputs::data> scores = outputs[epoch].values;
             for(auto &it:scores)
             {
-                if(mappings.find(it.client) == mappings.end())
-                    mappings[it.client] = { };
-                
-                mappings[it.client].push_back(std::tuple<std::string,std::string>(e.expected,it.value));
+                if(output_mappings.find(it.client) == output_mappings.end())
+                    output_mappings[it.client] = { };
+                    
+                compute c(e.expected, it.value, statistics[it.client].epochs[epoch]);
+                output_mappings[it.client].push_back(compute(e.expected, it.value, statistics[it.client].epochs[epoch]));
             }
         }
     }
-
+    
     results result;
 
-    for(auto &it: mappings)
+    for(auto &it: output_mappings)
     {
         if((it.first >= 0)&&(it.first < settings.clients()))
         {
@@ -174,9 +179,9 @@ organisation::populations::results organisation::populations::population::execut
         }
     }
     
-    if(values.size() > 0)
-        result.average /= (float)values.size();
-    
+    if(outputs.size() > 0)
+        result.average /= (float)outputs.size();
+
     std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
 	std::chrono::duration<double> time_span = std::chrono::duration_cast<std::chrono::duration<double>>(now - previous);   
     std::cout << "execute " << time_span.count() << "\r\n";    

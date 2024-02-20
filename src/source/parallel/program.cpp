@@ -870,7 +870,7 @@ std::vector<organisation::parallel::value> organisation::parallel::program::get(
 
 std::vector<organisation::statistics::statistic> organisation::parallel::program::statistics()
 {
-    std::vector<organisation::statistics::statistic> result;
+    std::vector<organisation::statistics::statistic> result(settings.clients());
 
     sycl::queue& qt = ::parallel::queue::get_queue(*dev, queue);
     
@@ -880,14 +880,9 @@ std::vector<organisation::statistics::statistic> organisation::parallel::program
     {
         int offset = epoch * settings.clients();
         for(int client = 0; client < settings.clients(); ++client)
-        {
-                organisation::statistics::statistic temp;
-                
-                temp.collisions = hostCollisionCounts[offset + client];
-                temp.epoch = epoch;
-                temp.client = client;
-
-                result.push_back(temp);                
+        {                
+            organisation::statistics::data data(hostCollisionCounts[offset + client]);
+            result[client].epochs[epoch] = data; 
         }
     }
 

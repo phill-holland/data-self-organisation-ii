@@ -12,7 +12,7 @@ void organisation::score::clear()
 // second half, relative distance away from words "primary place"
 // last value, scoare rating on sentence length
 
-bool organisation::score::compute(std::string expected, std::string value)
+bool organisation::score::compute(organisation::compute value)
 {
 	auto _words = [](std::string source)
     {
@@ -104,27 +104,33 @@ bool organisation::score::compute(std::string expected, std::string value)
 		return result;
 	};
 
-	std::vector<std::tuple<std::string,int>> alphabet = _split(expected);
+	std::vector<std::tuple<std::string,int>> alphabet = _split(value.expected);
 	
 	int score_len = (alphabet.size() * 2) + 1;
-	for(int i = 0; i < score_len; ++i) set(0.0f, i);
+	for(int i = 0; i < score_len + 1; ++i) set(0.0f, i);
 
-    if(value.size() == 0) return true;
+    if(value.value.size() == 0) return true;
+	
+	const int MAX_WORDS = 5;
+	const int MAX_COLLISIONS = organisation::statistics::data::MAX_COLLISIONS;
 
 	bool valid = true;
-	const int MAX_WORDS = 5;
+	
+	int collisions = value.stats.collisions;
+	if(collisions > MAX_COLLISIONS) collisions = MAX_COLLISIONS;
+	if(!set(((float)collisions) / ((float)MAX_COLLISIONS), score_len)) valid = false;
  	
 	const int alphabet_len = alphabet.size();		
 	float max = (float)MAX_WORDS;
 	if(((float)(alphabet_len - 1))>max) max = (float)(alphabet_len - 1);
 
-	float len_score = compute_comparative_length_score(expected, value);
+	float len_score = compute_comparative_length_score(value.expected, value.value);
 	if(!set(len_score, score_len - 1)) valid = false;
 	
 	int index = 0;
 	for(auto &it : alphabet)
 	{            
-		int f1 = _closest(it, value, alphabet_len);
+		int f1 = _closest(it, value.value, alphabet_len);
 		int f3 = std::get<1>(it);
 					
 		if(f1 >= f3) 
@@ -147,8 +153,8 @@ bool organisation::score::compute(std::string expected, std::string value)
 		std::tuple<std::string,int> a1 = *it;
 		std::tuple<std::string,int> a2 = *(it + 1);
 
-		int f1 = _closest(a1, value, alphabet_len);
-		int f2 = _closest(a2, value, alphabet_len);			
+		int f1 = _closest(a1, value.value, alphabet_len);
+		int f2 = _closest(a2, value.value, alphabet_len);			
 		
 		if(f1 < f2) 
 		{
@@ -160,8 +166,8 @@ bool organisation::score::compute(std::string expected, std::string value)
 	}
 
 	std::tuple<std::string,int> last = *(alphabet.end() - 1);
-	int f1 = _closest(last, value, alphabet_len);
-	int f2 = _words(value);
+	int f1 = _closest(last, value.value, alphabet_len);
+	int f2 = _words(value.value);
 
 	if(f1 < f2) 
 	{
