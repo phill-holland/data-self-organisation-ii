@@ -12,6 +12,7 @@ namespace organisation
         public:
             point position;
             int value;
+            int lifetime;
             int client;
 
         public:
@@ -19,6 +20,7 @@ namespace organisation
             {
                 return src.position == position &&
                         src.value == value &&
+                        src.lifetime == lifetime &&
                         src.client == client;
             }
         };

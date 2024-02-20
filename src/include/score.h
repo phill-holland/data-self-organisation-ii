@@ -1,3 +1,4 @@
+#include "compute.h"
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -17,7 +18,8 @@ namespace organisation
         ~score() { }
 
         void clear();
-        bool compute(std::string expected, std::string value);
+        
+        bool compute(organisation::compute value);
 
         float sum();
 

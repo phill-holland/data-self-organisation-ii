@@ -6,6 +6,7 @@
 #include "data.h"
 #include "schema.h"
 #include "kdpoint.h"
+#include "statistics.h"
 #include <unordered_map>
 
 organisation::schema getSchema1(const int width, const int height, const int depth)
@@ -211,8 +212,8 @@ TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
         }
     };
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -227,7 +228,7 @@ TEST(BasicProgramMovementWithCollisionParallel, BasicAssertions)
 
     for(auto &it: directions)
     {        
-        organisation::parallel::program program(*device, queue, mapper, parameters);
+        organisation::parallel::program program(device, &queue, mapper, parameters);
         
         EXPECT_TRUE(program.initalised());
         
@@ -309,8 +310,8 @@ TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(input1 + " " + input2);
     organisation::data d(strings);
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -326,7 +327,7 @@ TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
     parallel::mapper::configuration mapper;
     mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
 
-    organisation::parallel::program program(*device, queue, mapper, parameters);
+    organisation::parallel::program program(device, &queue, mapper, parameters);
 
     EXPECT_TRUE(program.initalised());
 
@@ -382,8 +383,8 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
     std::vector<std::string> strings = organisation::split(data1);    
     organisation::data d(strings);
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -396,7 +397,7 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
     parallel::mapper::configuration mapper;
     mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
 
-    organisation::parallel::program program(*device, queue, mapper, parameters);
+    organisation::parallel::program program(device, &queue, mapper, parameters);
     
     EXPECT_TRUE(program.initalised());
 
@@ -454,10 +455,10 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionParallel, BasicA
     EXPECT_EQ(compare, expected);
 
     std::vector<organisation::parallel::value> values = {
-        { organisation::point(17,10,10),1,0 },
-        { organisation::point(16,10,10),2,0 },
-        { organisation::point(15,10,10),3,0 },
-        { organisation::point(14,10,10),7,0 },        
+        { organisation::point(17,10,10), 1, 2, 0 },
+        { organisation::point(16,10,10), 2, 5, 0 },
+        { organisation::point(15,10,10), 3, 9, 0 },
+        { organisation::point(14,10,10), 7,11, 0 },        
     };
     
     std::vector<organisation::parallel::value> data = program.get();
@@ -483,8 +484,8 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionOutputStationary
     std::vector<std::string> strings = organisation::split(data1);    
     organisation::data d(strings);
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -498,7 +499,7 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionOutputStationary
     parallel::mapper::configuration mapper;
     mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
 
-    organisation::parallel::program program(*device, queue, mapper, parameters);
+    organisation::parallel::program program(device, &queue, mapper, parameters);
     
     EXPECT_TRUE(program.initalised());
 
@@ -556,10 +557,10 @@ TEST(BasicProgramMovementReboundDirectionSameAsMovementDirectionOutputStationary
     EXPECT_EQ(compare, expected);
 
     std::vector<organisation::parallel::value> values = {
-        { organisation::point(17,10,10),1,0 },
-        { organisation::point(16,10,10),2,0 },
-        { organisation::point(15,10,10),3,0 },
-        { organisation::point(14,10,10),7,0 },        
+        { organisation::point(17,10,10), 1, 2, 0 },
+        { organisation::point(16,10,10), 2, 5, 0 },
+        { organisation::point(15,10,10), 3, 9, 0 },
+        { organisation::point(14,10,10), 7,11, 0 },        
     };
     
     std::vector<organisation::parallel::value> data = program.get();
@@ -578,8 +579,8 @@ TEST(BasicProgramMovementAllDirectionsBoundaryTestParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(input1);
     organisation::data d(strings);
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -591,7 +592,7 @@ TEST(BasicProgramMovementAllDirectionsBoundaryTestParallel, BasicAssertions)
     parameters.input.push_back(epoch1);
 
     parallel::mapper::configuration mapper;    
-    organisation::parallel::program program(*device, queue, mapper, parameters);
+    organisation::parallel::program program(device, &queue, mapper, parameters);
     
     EXPECT_TRUE(program.initalised());
 
@@ -625,8 +626,8 @@ TEST(BasicProgramMovementAllDirectionsPartialBoundaryParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(input1);
     organisation::data d(strings);
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -638,7 +639,7 @@ TEST(BasicProgramMovementAllDirectionsPartialBoundaryParallel, BasicAssertions)
     parameters.input.push_back(epoch1);
 
     parallel::mapper::configuration mapper;    
-    organisation::parallel::program program(*device, queue, mapper, parameters);
+    organisation::parallel::program program(device, &queue, mapper, parameters);
 
     EXPECT_TRUE(program.initalised());
 
@@ -659,9 +660,9 @@ TEST(BasicProgramMovementAllDirectionsPartialBoundaryParallel, BasicAssertions)
     std::vector<organisation::parallel::value> data = program.get();
 
     std::vector<organisation::parallel::value> values = {
-        { organisation::point(10, 1,10),0,3 },
-        { organisation::point(10,10,18),0,4 },
-        { organisation::point(10,10, 3),0,5 }        
+        { organisation::point(10, 1,10), 0, 2, 3 },
+        { organisation::point(10,10,18), 0, 3, 4 },
+        { organisation::point(10,10, 3), 0, 4, 5 }        
     };
 
     EXPECT_EQ(data,values);
@@ -678,8 +679,8 @@ TEST(BasicProgramMovementAllDirectionsBoundaryDeleteSuccessfulAndMovementSequenc
     std::vector<std::string> strings = organisation::split(input1);
     organisation::data d(strings);
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -691,7 +692,7 @@ TEST(BasicProgramMovementAllDirectionsBoundaryDeleteSuccessfulAndMovementSequenc
     parameters.input.push_back(epoch1);
 
     parallel::mapper::configuration mapper;    
-    organisation::parallel::program program(*device, queue, mapper, parameters);
+    organisation::parallel::program program(device, &queue, mapper, parameters);
 
     EXPECT_TRUE(program.initalised());
 
@@ -712,10 +713,10 @@ TEST(BasicProgramMovementAllDirectionsBoundaryDeleteSuccessfulAndMovementSequenc
     std::vector<organisation::parallel::value> data = program.get();
 
     std::vector<organisation::parallel::value> values = {
-        { organisation::point(15,15,10), 0, 2 },
-        { organisation::point(10, 1,10), 0, 3 },
-        { organisation::point(14,14,14), 0, 4 },
-        { organisation::point(10,10, 3), 0, 5 }        
+        { organisation::point(15,15,10), 0, 2, 2 },
+        { organisation::point(10, 1,10), 0, 3, 3 },
+        { organisation::point(14,14,14), 0, 4, 4 },
+        { organisation::point(10,10, 3), 0, 5, 5 }        
     };
 
     EXPECT_EQ(data,values);
@@ -738,8 +739,8 @@ TEST(BasicProgramTestHostBufferExceededLoadParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(values1);
     organisation::data d(strings);
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -752,7 +753,7 @@ TEST(BasicProgramTestHostBufferExceededLoadParallel, BasicAssertions)
     parameters.input.push_back(epoch1);
 
     parallel::mapper::configuration mapper;    
-    organisation::parallel::program program(*device, queue, mapper, parameters);
+    organisation::parallel::program program(device, &queue, mapper, parameters);
         
     EXPECT_TRUE(program.initalised());
 
@@ -798,12 +799,12 @@ TEST(BasicProgramTestHostBufferExceededLoadParallel, BasicAssertions)
     std::vector<organisation::parallel::value> data = program.get();
 
     std::vector<organisation::parallel::value> values = {
-        { organisation::point(15,11,10),0,0 },
-        { organisation::point( 5, 9,10),0,1 },
-        { organisation::point(11,15,10),0,2 },
-        { organisation::point( 9, 5,10),0,3 },
-        { organisation::point(11,10,15),0,4 },
-        { organisation::point( 9,10, 5),0,5 },
+        { organisation::point(15,11,10), 0, 2, 0 },
+        { organisation::point( 5, 9,10), 0, 2, 1 },
+        { organisation::point(11,15,10), 0, 2, 2 },
+        { organisation::point( 9, 5,10), 0, 2, 3 },
+        { organisation::point(11,10,15), 0, 2, 4 },
+        { organisation::point( 9,10, 5), 0, 2, 5 },
     };
 
     EXPECT_EQ(data,values);       
@@ -826,8 +827,8 @@ TEST(BasicProgramTestHostBufferNotEvenLoadParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(values1);
     organisation::data d(strings);
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -840,7 +841,7 @@ TEST(BasicProgramTestHostBufferNotEvenLoadParallel, BasicAssertions)
     parameters.input.push_back(epoch1);
 
     parallel::mapper::configuration mapper;    
-    organisation::parallel::program program(*device, queue, mapper, parameters);
+    organisation::parallel::program program(device, &queue, mapper, parameters);
         
     EXPECT_TRUE(program.initalised());
 
@@ -886,12 +887,12 @@ TEST(BasicProgramTestHostBufferNotEvenLoadParallel, BasicAssertions)
     std::vector<organisation::parallel::value> data = program.get();
 
     std::vector<organisation::parallel::value> values = {
-        { organisation::point(15,11,10),0,0 },
-        { organisation::point( 5, 9,10),0,1 },
-        { organisation::point(11,15,10),0,2 },
-        { organisation::point( 9, 5,10),0,3 },
-        { organisation::point(11,10,15),0,4 },
-        { organisation::point( 9,10, 5),0,5 },
+        { organisation::point(15,11,10), 0, 2, 0 },
+        { organisation::point( 5, 9,10), 0, 2, 1 },
+        { organisation::point(11,15,10), 0, 2, 2 },
+        { organisation::point( 9, 5,10), 0, 2, 3 },
+        { organisation::point(11,10,15), 0, 2, 4 },
+        { organisation::point( 9,10, 5), 0, 2, 5 },
     };
 
     EXPECT_EQ(data,values);       
@@ -907,16 +908,15 @@ TEST(BasicProgramDataSwapParallel, BasicAssertions)
     std::string input1("daisy give");
     
     std::vector<std::vector<std::string>> expected = {
-        { 
-            "givedaisy"
-        }
+        { "givedaisy" },
+        { "givedaisy" }
     };
 
     std::vector<std::string> strings = organisation::split(data1);    
     organisation::data d(strings);
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -925,11 +925,12 @@ TEST(BasicProgramDataSwapParallel, BasicAssertions)
 
     organisation::inputs::epoch epoch1(input1);
     parameters.input.push_back(epoch1);
+    parameters.input.push_back(epoch1);
 
     parallel::mapper::configuration mapper;
     mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
 
-    organisation::parallel::program program(*device, queue, mapper, parameters);
+    organisation::parallel::program program(device, &queue, mapper, parameters);
     
     EXPECT_TRUE(program.initalised());
 
@@ -1004,13 +1005,24 @@ TEST(BasicProgramDataSwapParallel, BasicAssertions)
     EXPECT_EQ(compare, expected);
 
     std::vector<organisation::parallel::value> values = {
-        { organisation::point( 7,11,10),0,0 },
-        { organisation::point( 8,11,10),1,0 }
+        { organisation::point( 7,11,10), 0, 2, 0 },
+        { organisation::point( 8,11,10), 1,11, 0 }
     };
     
     std::vector<organisation::parallel::value> data = program.get();
 
     EXPECT_EQ(data, values);
+
+    std::vector<organisation::statistics::statistic> statistics = program.statistics();
+
+    EXPECT_EQ(statistics.size(), 1);
+
+    organisation::statistics::statistic a;
+
+    a.epochs[0] = organisation::statistics::data(2);
+    a.epochs[1] = organisation::statistics::data(2);
+
+    EXPECT_EQ(statistics, std::vector<organisation::statistics::statistic> { a });
 }
 
 TEST(BasicProgramScaleTestParallel, BasicAssertions)
@@ -1030,8 +1042,8 @@ TEST(BasicProgramScaleTestParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(values1);
     organisation::data d(strings);
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -1044,7 +1056,7 @@ TEST(BasicProgramScaleTestParallel, BasicAssertions)
     parameters.input.push_back(epoch1);
 
     parallel::mapper::configuration mapper;    
-    organisation::parallel::program program(*device, queue, mapper, parameters);
+    organisation::parallel::program program(device, &queue, mapper, parameters);
         
     EXPECT_TRUE(program.initalised());
     
@@ -1107,12 +1119,12 @@ TEST(BasicProgramScaleTestParallel, BasicAssertions)
     EXPECT_EQ(source.size(), data.size());
 
     std::vector<organisation::parallel::value> values = {
-        { organisation::point(15,11,10),0 },
-        { organisation::point( 5, 9,10),0 },
-        { organisation::point(11,15,10),0 },
-        { organisation::point( 9, 5,10),0 },
-        { organisation::point(11,10,15),0 },
-        { organisation::point( 9,10, 5),0 },
+        { organisation::point(15,11,10), 0, 2, 0 },
+        { organisation::point( 5, 9,10), 0, 2, 0 },
+        { organisation::point(11,15,10), 0, 2, 0 },
+        { organisation::point( 9, 5,10), 0, 2, 0 },
+        { organisation::point(11,10,15), 0, 2, 0 },
+        { organisation::point( 9,10, 5), 0, 2, 0 },
     };
 
     std::unordered_map<int,organisation::parallel::value> lookup;
@@ -1139,8 +1151,8 @@ TEST(BasicProgramAllDirectionsParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(values1);
     organisation::data d(strings);
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -1153,7 +1165,7 @@ TEST(BasicProgramAllDirectionsParallel, BasicAssertions)
     parameters.input.push_back(epoch1);
 
     parallel::mapper::configuration mapper;    
-    organisation::parallel::program program(*device, queue, mapper, parameters);
+    organisation::parallel::program program(device, &queue, mapper, parameters);
         
     EXPECT_TRUE(program.initalised());
     
@@ -1194,7 +1206,7 @@ TEST(BasicProgramAllDirectionsParallel, BasicAssertions)
             prediction.z += _rebound.z;
         }
 
-        organisation::parallel::value value = { prediction, 0, i };
+        organisation::parallel::value value = { prediction, 0, 2, i };
         predictions.push_back(value);
     }
     

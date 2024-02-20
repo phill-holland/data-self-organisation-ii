@@ -89,22 +89,22 @@ float organisation::schema::sum()
     return result / ((float)scores.size());
 }
 
-void organisation::schema::compute(std::vector<std::tuple<std::string,std::string>> values)
+void organisation::schema::compute(std::vector<organisation::compute> values)
 {
     int i = 0;
     bool penalty = false;
-    for(std::vector<std::tuple<std::string,std::string>>::iterator it = values.begin(); it != values.end(); ++it)
+    for(std::vector<organisation::compute>::iterator it = values.begin(); it != values.end(); ++it)
     {
-        scores[i].compute(std::get<0>(*it),std::get<1>(*it));
+        scores[i].compute(*it);
         ++i;
 
-        if(std::get<1>(*it).size() <= 0) penalty = true;
+        if(it->value.size() <= 0) penalty = true;
     }
 
     if(penalty)
     {
         int i = 0;
-        for(std::vector<std::tuple<std::string,std::string>>::iterator it = values.begin(); it != values.end(); ++it)
+        for(std::vector<organisation::compute>::iterator it = values.begin(); it != values.end(); ++it)
         {
             scores[i].clear();
             ++i;
@@ -125,7 +125,7 @@ void organisation::schema::cross(schema *destination, schema *value)
 std::string organisation::schema::run(int epoch, std::string input, std::string expected, data &source)
 {		    
     std::string output = prog.run(input, source);
-    scores[epoch].compute(expected, output);
+    scores[epoch].compute(organisation::compute(expected, output));
     
     return output;
 }

@@ -20,8 +20,8 @@ TEST(BasicProgramInsertParallel, BasicAssertions)
     std::vector<std::string> strings = organisation::split(input1 + " " + input2);
     organisation::data d(strings);
 
-	::parallel::device *device = new ::parallel::device(0);
-	::parallel::queue *queue = new parallel::queue(*device);
+	::parallel::device device(0);
+	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
     
@@ -33,7 +33,7 @@ TEST(BasicProgramInsertParallel, BasicAssertions)
     parameters.input.push_back(epoch1);
     parameters.input.push_back(epoch2);
 
-    organisation::parallel::inserts inserts(*device, queue, parameters);
+    organisation::parallel::inserts inserts(device, &queue, parameters);
 
     organisation::schema s1(width, height, depth);
 

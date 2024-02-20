@@ -35,6 +35,12 @@
             "externalConsole": false,
             "MIMode": "gdb",
             "miDebuggerPath": "gdb-oneapi",
+            "sourceFileMap": {
+                "${workspaceFolder}": {
+                    "editorPath":"${workspaceFolder}",
+                    "useForBreakpoints":true
+                }
+            },
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

@@ -12,6 +12,7 @@
 #include "data.h"
 #include "output.h"
 #include "input.h"
+#include "statistics.h"
 
 #ifndef _PARALLEL_PROGRAM
 #define _PARALLEL_PROGRAM
@@ -31,7 +32,8 @@ namespace organisation
             int *deviceValues;
             sycl::float4 *deviceNextDirections;
 
-            int *deviceMovementIdx;            
+            int *deviceMovementIdx;   
+            int *deviceLifetime;         
             sycl::int4 *deviceClient;
 
             sycl::float4 *deviceCachePositions;
@@ -40,6 +42,8 @@ namespace organisation
 
             sycl::float4 *deviceMovements;
             int *deviceMovementsCounts;
+            int *deviceCollisionCounts;
+            int *hostCollisionCounts;
             sycl::float4 *deviceCollisions;
 
             sycl::int2 *deviceNextCollisionKeys;
@@ -54,7 +58,6 @@ namespace organisation
             int *hostMovementsCounts;
             sycl::float4 *hostCollisions;
             
-
             // ***
 
             int *deviceOutputValues;
@@ -120,16 +123,17 @@ namespace organisation
             void run(organisation::data &mappings);        
             void set(organisation::data &mappings, inputs::input &source);
             std::vector<outputs::output> get(organisation::data &mappings);
+            std::vector<organisation::statistics::statistic> statistics();
 
         protected:     
             void move(organisation::data &mappings);       
             void update();
             void positions();
             void next();
-            void insert(int epoch);
+            void insert(int epoch, int iteration);
             void boundaries();
             void corrections(bool debug = false);
-            void outputting(int iteration);
+            void outputting(int epoch, int iteration);
             void restart();            
 
         public:
