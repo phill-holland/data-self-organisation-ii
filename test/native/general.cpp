@@ -11,6 +11,7 @@
 #include "genetic/collisions.h"
 #include "genetic/insert.h"
 
+/*
 TEST(BasicMovementAndCollisionDetection, BasicAssertions)
 {
     GTEST_SKIP();
@@ -88,3 +89,4 @@ TEST(BasicMovementAndCollisionDetection, BasicAssertions)
         EXPECT_EQ(outputs, expected);
     }
 }
+*/

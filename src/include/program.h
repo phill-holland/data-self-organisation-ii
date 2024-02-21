@@ -20,12 +20,14 @@ namespace organisation
     {
         class program;
         class inserts;
+        class collisions;
     };
         
     class program
     {      
         friend class parallel::program;
         friend class parallel::inserts;
+        friend class parallel::collisions;
           
         static std::mt19937_64 generator;
 

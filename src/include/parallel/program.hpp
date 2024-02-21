@@ -2,6 +2,7 @@
 #include "parallel/device.hpp"
 #include "parallel/queue.hpp"
 #include "templates/programs.h"
+#include "parallel/collisions.hpp"
 #include "parallel/inserts.hpp"
 #include "parallel/map/map.hpp"
 #include "parallel/map/configuration.hpp"
@@ -44,7 +45,7 @@ namespace organisation
             int *deviceMovementsCounts;
             int *deviceCollisionCounts;
             int *hostCollisionCounts;
-            sycl::float4 *deviceCollisions;
+            //sycl::float4 *deviceCollisions;
 
             sycl::int2 *deviceNextCollisionKeys;
             sycl::int2 *deviceCurrentCollisionKeys;
@@ -56,7 +57,7 @@ namespace organisation
 
             sycl::float4 *hostMovements;
             int *hostMovementsCounts;
-            sycl::float4 *hostCollisions;
+            //sycl::float4 *hostCollisions;
             
             // ***
 
@@ -90,6 +91,8 @@ namespace organisation
             // ***
 
             ::parallel::mapper::map *impacter;
+            
+            collisions *collision;
             inserts *inserter;
 
             parameters settings;

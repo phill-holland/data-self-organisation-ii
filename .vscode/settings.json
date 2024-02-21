@@ -76,7 +76,12 @@
         "coroutine": "cpp",
         "strstream": "cpp",
         "cfenv": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "*.ipp": "cpp",
+        "ranges": "cpp",
+        "span": "cpp",
+        "valarray": "cpp",
+        "stacktrace": "cpp"
     },
     "editor.suggest.insertMode": "insert",
 }

@@ -4,6 +4,7 @@
 #include <vector>
 #include <random>
 #include <string>
+#include <unordered_map>
 
 #ifndef _ORGANISATION_GENETIC_COLLISIONS
 #define _ORGANISATION_GENETIC_COLLISIONS
@@ -18,20 +19,19 @@ namespace organisation
 
             static std::mt19937_64 generator;
 
-        public:
-            std::vector<int> values;
+            std::unordered_map<int,int> values;
 
         public:
-            collisions() { values.resize(LENGTH); }
+            collisions() {  }
 
-            size_t size() { return values.size(); }
+            size_t size() 
+            { 
+                return values.size(); 
+            }
 
             void clear() 
             {
-                for(auto &it: values)
-                {
-                    it = 0;
-                }
+                values.clear();
             }
 
             bool empty() { return false; }
@@ -44,6 +44,10 @@ namespace organisation
             void deserialise(std::string source);
 
             bool validate(data &source);
+
+        public:
+            bool get(int &result, int idx);
+            bool set(int source, int idx);
 
         public:
             void copy(const collisions &source);

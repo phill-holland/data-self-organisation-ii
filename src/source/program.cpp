@@ -364,7 +364,9 @@ std::string organisation::program::run(std::string input, data &source, int max)
 
                         // turns a vector direction, into a single encoded integer (for memory efficency!)
                         int encoded = temp.encode();
-                        int rebounded = collisions.values[encoded];
+#warning fix this                        
+                        //int rebounded = collisions.values[encoded];
+                        int rebounded = 0;
                         vector direction;
                         direction.decode(rebounded);
                         
