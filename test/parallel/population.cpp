@@ -14,7 +14,8 @@ organisation::schema getSchema(const int width, const int height, const int dept
                                organisation::vector rebound,
                                organisation::point wall,
                                int value,
-                               int delay)
+                               int delay,
+                               const organisation::data data)
 {
     organisation::schema s1(width, height, depth);
 
@@ -29,8 +30,14 @@ organisation::schema getSchema(const int width, const int height, const int dept
 
     organisation::genetic::collisions collisions;
 
-    collisions.values.resize(27);
-    collisions.values[direction.encode()] = rebound.encode();
+    //collisions.values.resize(27);
+    //collisions.values[direction.encode()] = rebound.encode();
+    int offset = 0;
+    for(int i = 0; i < data.maximum(); ++i)
+    {        
+        collisions.set(offset + direction.encode(),rebound.encode());
+        offset += settings.max_collisions;
+    }
 
     s1.prog.set(cache);
     s1.prog.set(insert);
@@ -71,12 +78,12 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
         
     EXPECT_TRUE(program.initalised());
         
-    organisation::schema s1 = getSchema(width, height, depth, { 1, 0, 0 }, { 0, 1, 0 }, { 12,10,10 }, 0, 1);
-    organisation::schema s2 = getSchema(width, height, depth, {-1, 0, 0 }, { 0,-1, 0 }, {  7,10,10 }, 1, 1);
-    organisation::schema s3 = getSchema(width, height, depth, { 0, 1, 0 }, { 1, 0, 0 }, {10, 12,10 }, 2, 1);
-    organisation::schema s4 = getSchema(width, height, depth, { 0,-1, 0 }, {-1, 0, 0 }, {10,  7,10 }, 3, 1);
-    organisation::schema s5 = getSchema(width, height, depth, { 0, 0, 1 }, { 1, 0, 0 }, {10, 10,12 }, 4, 1);
-    organisation::schema s6 = getSchema(width, height, depth, { 0, 0,-1 }, {-1, 0, 0 }, {10, 10, 7 }, 5, 1);
+    organisation::schema s1 = getSchema(width, height, depth, { 1, 0, 0 }, { 0, 1, 0 }, { 12,10,10 }, 0, 1, mappings);
+    organisation::schema s2 = getSchema(width, height, depth, {-1, 0, 0 }, { 0,-1, 0 }, {  7,10,10 }, 1, 1, mappings);
+    organisation::schema s3 = getSchema(width, height, depth, { 0, 1, 0 }, { 1, 0, 0 }, {10, 12,10 }, 2, 1, mappings);
+    organisation::schema s4 = getSchema(width, height, depth, { 0,-1, 0 }, {-1, 0, 0 }, {10,  7,10 }, 3, 1, mappings);
+    organisation::schema s5 = getSchema(width, height, depth, { 0, 0, 1 }, { 1, 0, 0 }, {10, 10,12 }, 4, 1, mappings);
+    organisation::schema s6 = getSchema(width, height, depth, { 0, 0,-1 }, {-1, 0, 0 }, {10, 10, 7 }, 5, 1, mappings);
 
     organisation::score match;
     match.set(1.0f,0); match.set(1.0f,1); match.set(1.0f,2); match.set(0.0f,3);
@@ -152,12 +159,12 @@ TEST(BasicPopulationTestTwoEpochsParallel, BasicAssertions)
         
     EXPECT_TRUE(program.initalised());
         
-    organisation::schema s1 = getSchema(width, height, depth, { 1, 0, 0 }, { 0, 1, 0 }, { 12,10,10 }, 0, 1);
-    organisation::schema s2 = getSchema(width, height, depth, {-1, 0, 0 }, { 0,-1, 0 }, {  7,10,10 }, 1, 1);
-    organisation::schema s3 = getSchema(width, height, depth, { 0, 1, 0 }, { 1, 0, 0 }, {10, 12,10 }, 2, 1);
-    organisation::schema s4 = getSchema(width, height, depth, { 0,-1, 0 }, {-1, 0, 0 }, {10,  7,10 }, 3, 1);
-    organisation::schema s5 = getSchema(width, height, depth, { 0, 0, 1 }, { 1, 0, 0 }, {10, 10,12 }, 4, 1);
-    organisation::schema s6 = getSchema(width, height, depth, { 0, 0,-1 }, {-1, 0, 0 }, {10, 10, 7 }, 5, 1);
+    organisation::schema s1 = getSchema(width, height, depth, { 1, 0, 0 }, { 0, 1, 0 }, { 12,10,10 }, 0, 1,mappings);
+    organisation::schema s2 = getSchema(width, height, depth, {-1, 0, 0 }, { 0,-1, 0 }, {  7,10,10 }, 1, 1, mappings);
+    organisation::schema s3 = getSchema(width, height, depth, { 0, 1, 0 }, { 1, 0, 0 }, {10, 12,10 }, 2, 1, mappings);
+    organisation::schema s4 = getSchema(width, height, depth, { 0,-1, 0 }, {-1, 0, 0 }, {10,  7,10 }, 3, 1, mappings);
+    organisation::schema s5 = getSchema(width, height, depth, { 0, 0, 1 }, { 1, 0, 0 }, {10, 10,12 }, 4, 1, mappings);
+    organisation::schema s6 = getSchema(width, height, depth, { 0, 0,-1 }, {-1, 0, 0 }, {10, 10, 7 }, 5, 1, mappings);
 
     organisation::score match;
     match.set(1.0f,0); match.set(1.0f,1); match.set(1.0f,2); match.set(0.0f,3);

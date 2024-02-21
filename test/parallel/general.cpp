@@ -9,7 +9,7 @@
 #include "statistics.h"
 #include <unordered_map>
 
-organisation::schema getSchema1(const int width, const int height, const int depth)
+organisation::schema getSchema1(const int width, const int height, const int depth, const organisation::data data)
 {
     organisation::schema s1(width, height, depth);
 
@@ -24,11 +24,18 @@ organisation::schema getSchema1(const int width, const int height, const int dep
 
     organisation::genetic::collisions collisions;
 
-    collisions.values.resize(27);
+    //collisions.values.resize(27);
     organisation::vector up(1,0,0);
     organisation::vector rebound(0,1,0);
-    collisions.values[up.encode()] = rebound.encode();
+    //collisions.values[up.encode()] = rebound.encode();
+    int offset = 0;
+    for(int i = 0; i < data.maximum(); ++i)
+    {        
+        collisions.set(offset + up.encode(),rebound.encode());
+        offset += settings.max_collisions;
+    }
 
+// need to pass in words here!
     s1.prog.set(cache);
     s1.prog.set(insert);
     s1.prog.set(movement);
@@ -37,7 +44,7 @@ organisation::schema getSchema1(const int width, const int height, const int dep
     return s1;
 }
 
-organisation::schema getSchema2(const int width, const int height, const int depth)
+organisation::schema getSchema2(const int width, const int height, const int depth, const organisation::data data)
 {
     organisation::schema s1(width, height, depth);
 
@@ -52,10 +59,18 @@ organisation::schema getSchema2(const int width, const int height, const int dep
 
     organisation::genetic::collisions collisions;
 
-    collisions.values.resize(27);
+    //collisions.values.resize(27);
     organisation::vector up(0,1,0);
     organisation::vector rebound(1,0,0);
-    collisions.values[up.encode()] = rebound.encode();
+    //int offset = (3 * settings.max_collisions) + up.encode();
+    //collisions.set(up.encode(),rebound.encode());
+    //collisions.values[up.encode()] = rebound.encode();
+    int offset = 0;
+    for(int i = 0; i < data.maximum(); ++i)
+    {        
+        collisions.set(offset + up.encode(),rebound.encode());
+        offset += settings.max_collisions;
+    }
 
     s1.prog.set(cache);
     s1.prog.set(insert);
@@ -93,7 +108,8 @@ organisation::schema getSchema4(const int width, const int height, const int dep
                                 organisation::vector rebound,
                                 organisation::point wall,
                                 int value,
-                                int delay)
+                                int delay, 
+                                const organisation::data data)
 {
     organisation::schema s1(width, height, depth);
 
@@ -108,8 +124,14 @@ organisation::schema getSchema4(const int width, const int height, const int dep
 
     organisation::genetic::collisions collisions;
 
-    collisions.values.resize(27);
-    collisions.values[direction.encode()] = rebound.encode();
+    //collisions.values.resize(27);
+    //collisions.values[direction.encode()] = rebound.encode();
+    int offset = 0;
+    for(int i = 0; i < data.maximum(); ++i)
+    {        
+        collisions.set(offset + direction.encode(),rebound.encode());
+        offset += settings.max_collisions;
+    }
 
     s1.prog.set(cache);
     s1.prog.set(insert);
@@ -124,7 +146,8 @@ organisation::schema getSchema5(const int width, const int height, const int dep
                                 int rebound,
                                 int iteration,
                                 int value,
-                                int delay)
+                                int delay,
+                                const organisation::data data)
 {
     organisation::schema s1(width, height, depth);
 
@@ -150,8 +173,14 @@ organisation::schema getSchema5(const int width, const int height, const int dep
 
     organisation::genetic::collisions collisions;
 
-    collisions.values.resize(27);
-    collisions.values[direction] = rebound;
+    //collisions.values.resize(27);
+    //collisions.values[direction] = rebound;
+    int offset = 0;
+    for(int i = 0; i < data.maximum(); ++i)
+    {        
+        collisions.set(offset + direction,rebound);
+        offset += settings.max_collisions;
+    }
 
     s1.prog.set(cache);
     s1.prog.set(insert);
@@ -331,8 +360,8 @@ TEST(BasicProgramMovementWithTwoClientsAndTwoEpochsParallel, BasicAssertions)
 
     EXPECT_TRUE(program.initalised());
 
-    organisation::schema s1 = getSchema1(width, height, depth);
-    organisation::schema s2 = getSchema2(width, height, depth);
+    organisation::schema s1 = getSchema1(width, height, depth, d);
+    organisation::schema s2 = getSchema2(width, height, depth, d);
 
     std::vector<organisation::schema*> source = { &s1, &s2 };
     

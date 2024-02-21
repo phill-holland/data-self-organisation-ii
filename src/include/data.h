@@ -31,7 +31,7 @@ namespace organisation
             max = 0;
         }
 
-        int maximum() { return max; }
+        int maximum() const { return max; }
         
         std::string map(int value);
         int map(std::string value);

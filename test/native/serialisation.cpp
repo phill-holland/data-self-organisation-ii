@@ -32,11 +32,13 @@ TEST(BasicSerialisationDeserialisation, BasicAssertions)
 
     organisation::genetic::collisions collisions;
 
-    collisions.values.resize(27);
+    //collisions.values.resize(27);
     organisation::vector up = { 1,0,0 };
     organisation::vector rebound = { 0,1,0 };
-    collisions.values[up.encode()] = rebound.encode();
-
+    collisions.set(up.encode(),rebound.encode());
+    //collisions.values[up.encode()] = rebound.encode();
+#warning serial test need to test more than one word and direction!!
+// need to test
     p1.set(cache);
     p1.set(insert);
     p1.set(movement);
