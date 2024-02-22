@@ -23,7 +23,7 @@ void organisation::populations::population::reset(templates::programs *programs,
     dimensions = settings.input.dimensions();
     if(dimensions == 0) return;
 
-    schemas = new organisation::schemas(settings.width, settings.height, settings.depth, settings.population);
+    schemas = new organisation::schemas(params);
     if (schemas == NULL) return;
     if (!schemas->initalised()) return;
 
@@ -32,7 +32,7 @@ void organisation::populations::population::reset(templates::programs *programs,
     for(int i = 0; i < settings.clients(); ++i) intermediateA[i] = NULL;
     for(int i = 0; i < settings.clients(); ++i)
     {
-        intermediateA[i] = new organisation::schema(settings.width, settings.height, settings.depth);
+        intermediateA[i] = new organisation::schema(params);
         if(intermediateA[i] == NULL) return;
         if(!intermediateA[i]->initalised()) return;
     }
@@ -42,7 +42,7 @@ void organisation::populations::population::reset(templates::programs *programs,
     for(int i = 0; i < settings.clients(); ++i) intermediateB[i] = NULL;
     for(int i = 0; i < settings.clients(); ++i)
     {
-        intermediateB[i] = new organisation::schema(settings.width, settings.height, settings.depth);
+        intermediateB[i] = new organisation::schema(params);
         if(intermediateB[i] == NULL) return;
         if(!intermediateB[i]->initalised()) return;
     }
@@ -52,7 +52,7 @@ void organisation::populations::population::reset(templates::programs *programs,
     for(int i = 0; i < settings.clients(); ++i) intermediateC[i] = NULL;
     for(int i = 0; i < settings.clients(); ++i)
     {
-        intermediateC[i] = new organisation::schema(settings.width, settings.height, settings.depth);
+        intermediateC[i] = new organisation::schema(params);
         if(intermediateC[i] == NULL) return;
         if(!intermediateC[i]->initalised()) return;
     }
@@ -76,7 +76,7 @@ organisation::schema organisation::populations::population::go(int &count, int i
     bool finished = false;
     count = 0;
 
-    schema res(settings.width, settings.height, settings.depth);
+    schema res(settings);
 
     organisation::schema **set = intermediateC, **run = intermediateA, **get = intermediateB;
 

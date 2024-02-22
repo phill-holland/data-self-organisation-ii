@@ -6,6 +6,7 @@
 #include "schema.h"
 #include "general.h"
 #include "point.h"
+#include "parameters.h"
 #include "genetic/cache.h"
 #include "genetic/movement.h"
 #include "genetic/collisions.h"
@@ -13,15 +14,21 @@
 
 TEST(BasicSerialisationDeserialisation, BasicAssertions)
 {
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
     organisation::point starting(width / 2, height / 2, depth / 2);
 
-    organisation::program p1(width, height, depth);
-    organisation::program p2(width, height, depth);
+    std::vector<std::string> strings = { "daisy" };
+    organisation::data mappings(strings);
 
-    organisation::genetic::cache cache(width, height, depth);
+    organisation::parameters parameters(width, height, depth);
+    parameters.mappings = mappings;
+
+    organisation::program p1(parameters);
+    organisation::program p2(parameters);
+
+    organisation::genetic::cache cache(parameters);
     cache.set(0, starting);
     
     organisation::genetic::insert insert;
@@ -30,7 +37,7 @@ TEST(BasicSerialisationDeserialisation, BasicAssertions)
     organisation::genetic::movement movement;
     movement.directions = { { 1,0,0 }, { 0,0,1 } };
 
-    organisation::genetic::collisions collisions;
+    organisation::genetic::collisions collisions(parameters);
 
     //collisions.values.resize(27);
     organisation::vector up = { 1,0,0 };

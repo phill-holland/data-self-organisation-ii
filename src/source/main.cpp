@@ -112,7 +112,7 @@ int main(int argc, char *argv[])
 
     parallel::mapper::configuration mapper;
 
-    organisation::schema result(width,height,depth);   
+    organisation::schema result(parameters);   
     organisation::parallel::program program(device, &queue, mapper, parameters);
 
     if(program.initalised())

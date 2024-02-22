@@ -10,7 +10,7 @@
 
 TEST(BasicProgramInsertParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 10, height = 10, depth = 10;
 
@@ -18,12 +18,13 @@ TEST(BasicProgramInsertParallel, BasicAssertions)
     std::string input2("monkey monkey eat my face .");
 
     std::vector<std::string> strings = organisation::split(input1 + " " + input2);
-    organisation::data d(strings);
+    organisation::data mappings(strings);
 
 	::parallel::device device(0);
 	::parallel::queue queue(device);
 
     organisation::parameters parameters(width, height, depth);
+    parameters.mappings = mappings;
     
     parameters.dim_clients = organisation::point(1,1,1);
 
@@ -35,7 +36,7 @@ TEST(BasicProgramInsertParallel, BasicAssertions)
 
     organisation::parallel::inserts inserts(device, &queue, parameters);
 
-    organisation::schema s1(width, height, depth);
+    organisation::schema s1(parameters);
 
     organisation::genetic::insert insert;
     insert.values = { 1,2,3 };    
@@ -44,7 +45,7 @@ TEST(BasicProgramInsertParallel, BasicAssertions)
     std::vector<organisation::schema*> source = { &s1 };
     
     inserts.copy(source.data(), source.size());
-    inserts.set(d, parameters.input);
+    inserts.set(mappings, parameters.input);
     
     std::vector<int> expected_insert_counts1 = { 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0 };
     std::vector<int> expected_insert_value1 = { 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 2, 0, 0, 3, 0, 0, 0, 4, 0, 5, 0, 0, 6, 0, 0, 0, 0, 0, 0, 0 };

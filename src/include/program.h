@@ -5,6 +5,7 @@
 #include "genetic/collisions.h"
 #include "genetic/insert.h"
 #include "vector.h"
+#include "parameters.h"
 #include <string>
 #include <random>
 #include <vector>
@@ -45,15 +46,15 @@ namespace organisation
         bool init;
         
     public:
-        program(int w, int h, int d) : caches(w,h,d)
+        program(parameters &settings) : caches(settings), collisions(settings)
         { 
             makeNull(); 
-            reset(w,h,d); 
+            reset(settings); 
         }
         ~program() { cleanup(); }
 
         bool initalised() { return init; }
-        void reset(int w, int h, int d);
+        void reset(parameters &settings);
 
     public:
         void set(genetic::cache &source) { caches = source; }

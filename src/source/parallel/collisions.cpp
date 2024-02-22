@@ -53,8 +53,7 @@ void organisation::parallel::collisions::copy(::organisation::schema **source, i
     {
         organisation::program *prog = &source[source_index]->prog;
 
-        int c_count = 0;
-        //for(auto &it: prog->collisions.size())        
+        int c_count = 0;        
         for(int i = 0; i < prog->collisions.size(); ++i)
         {
             int direction;
@@ -62,10 +61,9 @@ void organisation::parallel::collisions::copy(::organisation::schema **source, i
             {
                 vector temp;                
                 temp.decode(direction);
-
                 hostCollisions[c_count + (index * client_offset)] = { (float)temp.x, (float)temp.y, (float)temp.z, 0.0f };
                 ++c_count;
-                if(c_count > settings.max_collisions) break;            
+                if(c_count > client_offset) break;            
             }
         }
 

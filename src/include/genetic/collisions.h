@@ -1,10 +1,11 @@
 #include "genetic/templates/genetic.h"
 #include "genetic/templates/serialiser.h"
 #include "data.h"
+#include "parameters.h"
 #include <vector>
 #include <random>
 #include <string>
-#include <unordered_map>
+//#include <unordered_map>
 
 #ifndef _ORGANISATION_GENETIC_COLLISIONS
 #define _ORGANISATION_GENETIC_COLLISIONS
@@ -19,10 +20,14 @@ namespace organisation
 
             static std::mt19937_64 generator;
 
-            std::unordered_map<int,int> values;
+            //std::unordered_map<int,int> values;
+            std::vector<int> values;
 
         public:
-            collisions() {  }
+            collisions(parameters &settings) 
+            {  
+                values.resize(settings.max_collisions * settings.mappings.maximum());
+            }
 
             size_t size() 
             { 
@@ -31,7 +36,11 @@ namespace organisation
 
             void clear() 
             {
-                values.clear();
+                //values.clear();
+                for(auto &it:values)
+                {
+                    it = 0;
+                }
             }
 
             bool empty() { return false; }
