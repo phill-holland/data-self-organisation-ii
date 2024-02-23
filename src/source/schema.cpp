@@ -89,13 +89,13 @@ float organisation::schema::sum()
     return result / ((float)scores.size());
 }
 
-void organisation::schema::compute(std::vector<organisation::compute> values)
+void organisation::schema::compute(std::vector<organisation::compute> values, scores::settings settings)
 {
     int i = 0;
     bool penalty = false;
     for(std::vector<organisation::compute>::iterator it = values.begin(); it != values.end(); ++it)
     {
-        scores[i].compute(*it);
+        scores[i].compute(*it, settings);
         ++i;
 
         if(it->value.size() <= 0) penalty = true;

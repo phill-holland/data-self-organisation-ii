@@ -173,7 +173,7 @@ organisation::populations::results organisation::populations::population::execut
     {
         if((it.first >= 0)&&(it.first < settings.clients()))
         {
-            buffer[it.first]->compute(it.second);
+            buffer[it.first]->compute(it.second, settings.scores);
 
             float score = buffer[it.first]->sum();
             if(score > result.best)
@@ -189,13 +189,13 @@ organisation::populations::results organisation::populations::population::execut
     std::cout << "result.index [" << result.index << "] " << result.best << "\r\n";
     for(auto &it:output_mappings[result.index])
     {
-        std::string temp = it.value;
+        std::string temp = it.value;        
         if(temp.size() > 80)
         {
             temp.resize(80);
             temp += "...";
         }
-        std::cout << it.expected << "=" << temp << "\r\n";
+        std::cout << it.expected << "=" << temp << "(" << std::to_string(it.stats.collisions) << ")\r\n";
     }
 
     if(outputs.size() > 0)

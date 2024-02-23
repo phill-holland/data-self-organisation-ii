@@ -3,7 +3,7 @@
 #include <tuple>
 #include <sstream>
 
-void organisation::score::clear()
+void organisation::scores::score::clear()
 {
 	scores.clear();
 }
@@ -12,7 +12,7 @@ void organisation::score::clear()
 // second half, relative distance away from words "primary place"
 // last value, scoare rating on sentence length
 
-bool organisation::score::compute(organisation::compute value)
+bool organisation::scores::score::compute(organisation::compute value, settings params)
 {
 	auto _words = [](std::string source)
     {
@@ -111,8 +111,8 @@ bool organisation::score::compute(organisation::compute value)
 
     if(value.value.size() == 0) return true;
 	
-	const int MAX_WORDS = 5;
-	const int MAX_COLLISIONS = organisation::statistics::data::MAX_COLLISIONS;
+	const int MAX_WORDS = params.max_words;
+	const int MAX_COLLISIONS = params.max_collisions;
 
 	bool valid = true;
 	
@@ -179,7 +179,7 @@ bool organisation::score::compute(organisation::compute value)
 	return valid;
 }
 
-float organisation::score::sum()
+float organisation::scores::score::sum()
 {    
 	if(scores.size() <= 0) return 0.0f;
 	float result = 0.0f;
@@ -192,7 +192,7 @@ float organisation::score::sum()
     return result / ((float)scores.size());
 }
 
-bool organisation::score::set(float value, int index)
+bool organisation::scores::score::set(float value, int index)
 {
 	if(index < 0) return false;
 
@@ -201,14 +201,14 @@ bool organisation::score::set(float value, int index)
 	return true;
 }
 
-float organisation::score::get(int index)
+float organisation::scores::score::get(int index)
 {
 	if((index < 0)||(index >= scores.size())) return 0.0f;
 
 	return scores[index];
 }
 
-void organisation::score::copy(const score &source)
+void organisation::scores::score::copy(const score &source)
 {
 	clear();
 
@@ -218,7 +218,7 @@ void organisation::score::copy(const score &source)
     }
 }
 
-float organisation::score::compute_comparative_length_score(std::string expected, std::string value)
+float organisation::scores::score::compute_comparative_length_score(std::string expected, std::string value)
 {
 	auto _words = [](std::string source)
     {

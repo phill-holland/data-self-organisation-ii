@@ -82,7 +82,7 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
     organisation::schema s5 = getSchema(parameters, { 0, 0, 1 }, { 1, 0, 0 }, {10, 10,12 }, 4, 1);
     organisation::schema s6 = getSchema(parameters, { 0, 0,-1 }, {-1, 0, 0 }, {10, 10, 7 }, 5, 1);
 
-    organisation::score match;
+    organisation::scores::score match;
     match.set(1.0f,0); match.set(1.0f,1); match.set(1.0f,2); match.set(0.0f,3);
 
     s1.scores[0] = match;
@@ -163,10 +163,10 @@ TEST(BasicPopulationTestTwoEpochsParallel, BasicAssertions)
     organisation::schema s5 = getSchema(parameters, { 0, 0, 1 }, { 1, 0, 0 }, {10, 10,12 }, 4, 1);
     organisation::schema s6 = getSchema(parameters, { 0, 0,-1 }, {-1, 0, 0 }, {10, 10, 7 }, 5, 1);
 
-    organisation::score match;
+    organisation::scores::score match;
     match.set(1.0f,0); match.set(1.0f,1); match.set(1.0f,2); match.set(0.0f,3);
 
-    organisation::score incorrect;
+    organisation::scores::score incorrect;
     incorrect.set(0.0f,0); incorrect.set(0.0f,1); incorrect.set(1.0f,2); incorrect.set(0.0f,3);
 
     s1.scores[0] = match; s1.scores[1] = incorrect;

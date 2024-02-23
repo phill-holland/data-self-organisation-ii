@@ -39,12 +39,12 @@ organisation::parameters get_parameters(organisation::data &mappings)
 {
     organisation::parameters parameters(width, height, depth);
 
-    parameters.dim_clients = organisation::point(10,10,10);
+    parameters.dim_clients = organisation::point(13,13,13);
     parameters.iterations = 30;
     parameters.max_values = 30;
 
     // ***
-    parameters.population = 2000;//16000;
+    parameters.population = parameters.clients() * 2;//2000;//16000;
     // ***
 
     // ***
@@ -56,6 +56,7 @@ organisation::parameters get_parameters(organisation::data &mappings)
     parameters.depth = depth;
     parameters.mappings = mappings;
         
+    parameters.scores.max_collisions = 8;
     
     std::string expected1("hello world");
     std::string input1 = dictionary.random(4,organisation::split(expected1));

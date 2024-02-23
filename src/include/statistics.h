@@ -11,9 +11,6 @@ namespace organisation
     {
         class data
         {
-        public:
-            static const int MAX_COLLISIONS = 10;
-
         public:            
             int collisions;
 

@@ -24,7 +24,7 @@ namespace organisation
 
     public:
         program prog;
-        std::unordered_map<int, score> scores;
+        std::unordered_map<int, scores::score> scores;
 
     public:
         schema(parameters &settings) : prog(settings) { makeNull(); reset(); }        
@@ -45,7 +45,7 @@ namespace organisation
 
         float sum();
             
-        void compute(std::vector<organisation::compute> values);
+        void compute(std::vector<organisation::compute> values, scores::settings settings);
 
     public:        
         void cross(schema *destination, schema *value);
