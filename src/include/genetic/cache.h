@@ -26,7 +26,6 @@ namespace organisation
         public:
             cache(parameters &settings) 
             { 
-                //_width = w; _height = h; _depth = d; 
                 _width = settings.width;
                 _height = settings.height;
                 _depth = settings.depth;

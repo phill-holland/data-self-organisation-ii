@@ -92,8 +92,7 @@ void organisation::genetic::collisions::deserialise(std::string source)
 
 bool organisation::genetic::collisions::validate(data &source)
 {
-    div_t d = div(values.size(), LENGTH);
-    if(values.size() != LENGTH) { std::cout << "collisions::validate(false): values.size() != " << LENGTH << " (" << values.size() << ")\r\n"; return false; }
+    if(values.size() != length) { std::cout << "collisions::validate(false): values.size() != " << length << " (" << values.size() << ")\r\n"; return false; }
     
     for(auto &it: values)
     {

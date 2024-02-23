@@ -1257,7 +1257,6 @@ void organisation::parallel::program::cleanup()
         if(hostOutputTotalValues != NULL) sycl::free(hostOutputTotalValues, q);
         
 // ***        
-        //if(hostCollisions != NULL) sycl::free(hostCollisions, q);
         if(hostMovementsCounts != NULL) sycl::free(hostMovementsCounts, q);
         if(hostMovements != NULL) sycl::free(hostMovements, q);
         
@@ -1269,7 +1268,6 @@ void organisation::parallel::program::cleanup()
         if(deviceCurrentCollisionKeys != NULL) sycl::free(deviceCurrentCollisionKeys, q);        
         if(deviceNextCollisionKeys != NULL) sycl::free(deviceNextCollisionKeys, q);
 
-        //if(deviceCollisions != NULL) sycl::free(deviceCollisions, q);
         if(hostCollisionCounts != NULL) sycl::free(hostCollisionCounts, q);
         if(deviceCollisionCounts != NULL) sycl::free(deviceCollisionCounts, q);
         if(deviceMovementsCounts != NULL) sycl::free(deviceMovementsCounts, q);

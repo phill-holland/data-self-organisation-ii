@@ -29,8 +29,6 @@ organisation::schema getSchema(organisation::parameters &parameters,
 
     organisation::genetic::collisions collisions(parameters);
 
-    //collisions.values.resize(27);
-    //collisions.values[direction.encode()] = rebound.encode();
     int offset = 0;
     for(int i = 0; i < parameters.mappings.maximum(); ++i)
     {        
@@ -48,7 +46,7 @@ organisation::schema getSchema(organisation::parameters &parameters,
 
 TEST(BasicPopulationTestParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -115,7 +113,7 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
 
 TEST(BasicPopulationTestTwoEpochsParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 

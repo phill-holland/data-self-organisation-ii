@@ -14,17 +14,18 @@ namespace organisation
     namespace genetic
     {
         class collisions : public templates::genetic, public templates::serialiser
-        {
-            static const int LENGTH = 27;
-
+        {        
             static std::mt19937_64 generator;
 
             std::vector<int> values;
 
+            int length;
+
         public:
             collisions(parameters &settings) 
             {  
-                values.resize(settings.max_collisions * settings.mappings.maximum());
+                length = settings.max_collisions * settings.mappings.maximum();
+                values.resize(length);
             }
 
             size_t size() 
