@@ -5,7 +5,6 @@
 #include <vector>
 #include <random>
 #include <string>
-//#include <unordered_map>
 
 #ifndef _ORGANISATION_GENETIC_COLLISIONS
 #define _ORGANISATION_GENETIC_COLLISIONS
@@ -20,7 +19,6 @@ namespace organisation
 
             static std::mt19937_64 generator;
 
-            //std::unordered_map<int,int> values;
             std::vector<int> values;
 
         public:
@@ -36,7 +34,6 @@ namespace organisation
 
             void clear() 
             {
-                //values.clear();
                 for(auto &it:values)
                 {
                     it = 0;

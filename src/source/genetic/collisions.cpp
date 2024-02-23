@@ -7,8 +7,6 @@ std::mt19937_64 organisation::genetic::collisions::generator(std::random_device{
 
 void organisation::genetic::collisions::generate(data &source)
 {
-    //int length = source.maximum() * LENGTH;
-    //for(int i = 0; i < length; ++i)
     for(int i = 0; i < size(); ++i)
     {
         int value = (std::uniform_int_distribution<int>{0, 26})(generator);
@@ -99,7 +97,6 @@ bool organisation::genetic::collisions::validate(data &source)
     
     for(auto &it: values)
     {
-        //if((it.second < 0)||(it.second >= 27)) 
         if((it < 0)||(it >= 27)) 
         { 
             std::cout << "collisions::validate(false): it < 0 || it > 27\r\n"; 
@@ -110,8 +107,7 @@ bool organisation::genetic::collisions::validate(data &source)
 }
 
 bool organisation::genetic::collisions::get(int &result, int idx)
-{
-    //if(values.find(idx) == values.end()) return false;
+{    
     if((idx < 0)||(idx >= size())) return false;
     result = values[idx];
     return true;
@@ -128,11 +124,9 @@ void organisation::genetic::collisions::copy(const collisions &source)
 {
     clear();
 
-    //for(auto &it: source.values)
     for(int i = 0; i < size(); ++i)
     {
         values[i] = source.values[i];
-        //values[it.first] = it.second;
     }
 }
 
@@ -141,13 +135,10 @@ bool organisation::genetic::collisions::equals(const collisions &source)
     if(values.size() != source.values.size()) 
         return false;
 
-    //for(auto &it: source.values)
     for(int i = 0; i < size(); ++i)
     {
         if(values[i] != source.values[i])
             return false;
-        //if(values[it.first] != it.second)
-          //  return false;
     }
 
     return true;

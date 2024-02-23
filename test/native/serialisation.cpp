@@ -19,7 +19,7 @@ TEST(BasicSerialisationDeserialisation, BasicAssertions)
     const int width = 20, height = 20, depth = 20;
     organisation::point starting(width / 2, height / 2, depth / 2);
 
-    std::vector<std::string> strings = { "daisy" };
+    std::vector<std::string> strings = { "daisy", "give" };
     organisation::data mappings(strings);
 
     organisation::parameters parameters(width, height, depth);
@@ -39,13 +39,12 @@ TEST(BasicSerialisationDeserialisation, BasicAssertions)
 
     organisation::genetic::collisions collisions(parameters);
 
-    //collisions.values.resize(27);
     organisation::vector up = { 1,0,0 };
     organisation::vector rebound = { 0,1,0 };
-    collisions.set(up.encode(),rebound.encode());
-    //collisions.values[up.encode()] = rebound.encode();
-#warning serial test need to test more than one word and direction!!
-// need to test
+
+    collisions.set(rebound.encode(),up.encode());
+    collisions.set(rebound.encode(),up.encode() + parameters.max_collisions);
+    
     p1.set(cache);
     p1.set(insert);
     p1.set(movement);
