@@ -13,11 +13,14 @@
 
 std::mt19937_64 organisation::program::generator(std::random_device{}());
 
-void organisation::program::reset(int w, int h, int d)
+void organisation::program::reset(parameters &settings)
 {
     init = false; cleanup();
 
-    _width = w; _height = h; _depth = d;
+    _width = settings.width;
+    _height = settings.height;
+    _depth = settings.depth;
+
     length = _width * _height * _depth;
 
     clear();
@@ -364,7 +367,9 @@ std::string organisation::program::run(std::string input, data &source, int max)
 
                         // turns a vector direction, into a single encoded integer (for memory efficency!)
                         int encoded = temp.encode();
-                        int rebounded = collisions.values[encoded];
+#warning fix this                        
+                        //int rebounded = collisions.values[encoded];
+                        int rebounded = 0;
                         vector direction;
                         direction.decode(rebounded);
                         

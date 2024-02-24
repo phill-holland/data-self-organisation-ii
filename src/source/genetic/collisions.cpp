@@ -7,7 +7,7 @@ std::mt19937_64 organisation::genetic::collisions::generator(std::random_device{
 
 void organisation::genetic::collisions::generate(data &source)
 {
-    for(int i = 0; i < LENGTH; ++i)
+    for(int i = 0; i < size(); ++i)
     {
         int value = (std::uniform_int_distribution<int>{0, 26})(generator);
         values[i] = value;
@@ -50,12 +50,12 @@ void organisation::genetic::collisions::append(genetic *source, int src_start, i
 std::string organisation::genetic::collisions::serialise()
 {
     std::string result;
-    int offset = 0;
 
+    int index = 0;
     for(auto &it: values)
     {
-        result += "C " + std::to_string(offset) + " " + std::to_string(it) + "\n";
-        ++offset;
+        result += "C " + std::to_string(index) + " " + std::to_string(it) + "\n";
+        ++index;
     }
 
     return result;
@@ -92,7 +92,7 @@ void organisation::genetic::collisions::deserialise(std::string source)
 
 bool organisation::genetic::collisions::validate(data &source)
 {
-    if(values.size() != LENGTH) { std::cout << "collisions::validate(false): values.size() != " << LENGTH << " (" << values.size() << ")\r\n"; return false; }
+    if(values.size() != length) { std::cout << "collisions::validate(false): values.size() != " << length << " (" << values.size() << ")\r\n"; return false; }
     
     for(auto &it: values)
     {
@@ -105,9 +105,25 @@ bool organisation::genetic::collisions::validate(data &source)
     return true;
 }
 
+bool organisation::genetic::collisions::get(int &result, int idx)
+{    
+    if((idx < 0)||(idx >= size())) return false;
+    result = values[idx];
+    return true;
+}
+
+bool organisation::genetic::collisions::set(int source, int idx)
+{
+    if((idx < 0)||(idx >= size())) return false;
+    values[idx] = source;
+    return true;
+}
+
 void organisation::genetic::collisions::copy(const collisions &source)
 {
-    for(int i = 0; i < LENGTH; ++i)
+    clear();
+
+    for(int i = 0; i < size(); ++i)
     {
         values[i] = source.values[i];
     }
@@ -118,9 +134,9 @@ bool organisation::genetic::collisions::equals(const collisions &source)
     if(values.size() != source.values.size()) 
         return false;
 
-    for(int i = 0; i < values.size(); ++i)
+    for(int i = 0; i < size(); ++i)
     {
-        if(values[i] != source.values[i]) 
+        if(values[i] != source.values[i])
             return false;
     }
 

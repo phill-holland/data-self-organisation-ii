@@ -13,10 +13,12 @@ TEST(BasicScoreEqualsOneParallel, BasicAssertions)
 
     std::vector<std::string> strings = organisation::split(expected);
 
-    organisation::score score;
-    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
+    organisation::scores::score score;
+    organisation::scores::settings settings;
 
-    score.compute(organisation::compute(expected, value, statistics));
+    organisation::statistics::data statistics(settings.max_collisions);
+
+    score.compute(organisation::compute(expected, value, statistics), settings);
 
     std::vector<float> values;
     int total = score.size();
@@ -46,10 +48,13 @@ TEST(BasicScoreOneOffParallel, BasicAssertions)
 
     std::vector<std::string> strings = organisation::split(expected);
 
-    organisation::score score;
-    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
+    organisation::scores::score score;
+    organisation::scores::settings settings;
 
-    score.compute(organisation::compute(expected, value, statistics));
+    organisation::statistics::data statistics(settings.max_collisions);
+
+
+    score.compute(organisation::compute(expected, value, statistics), settings);
 
     std::vector<float> values;
     int total = score.size();
@@ -83,10 +88,13 @@ TEST(BasicScoreOneOffErrorParallel, BasicAssertions)
     
     std::vector<std::string> strings = organisation::split(expected);
 
-    organisation::score score;
-    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
+    organisation::scores::score score;
+    organisation::scores::settings settings;
 
-    score.compute(organisation::compute(expected, value, statistics));
+    organisation::statistics::data statistics(settings.max_collisions);
+
+
+    score.compute(organisation::compute(expected, value, statistics), settings);
 
     std::vector<float> values;
     int total = score.size();
@@ -120,10 +128,13 @@ TEST(BasicScoreTwoOffErrorParallel, BasicAssertions)
     
     std::vector<std::string> strings = organisation::split(expected);
 
-    organisation::score score;
-    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
+    organisation::scores::score score;
+    organisation::scores::settings settings;
 
-    score.compute(organisation::compute(expected, value, statistics));
+    organisation::statistics::data statistics(settings.max_collisions);
+
+
+    score.compute(organisation::compute(expected, value, statistics), settings);
 
     std::vector<float> values;
     int total = score.size();
@@ -156,10 +167,13 @@ TEST(BasicScoreThreeOffErrorParallel, BasicAssertions)
     
     std::vector<std::string> strings = organisation::split(expected);
 
-    organisation::score score;
-    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
+    organisation::scores::score score;
+    organisation::scores::settings settings;
 
-    score.compute(organisation::compute(expected, value, statistics));
+    organisation::statistics::data statistics(settings.max_collisions);
+
+
+    score.compute(organisation::compute(expected, value, statistics), settings);
 
     std::vector<float> values;
     int total = score.size();
@@ -192,10 +206,13 @@ TEST(BasicScoreRepeatOneParallel, BasicAssertions)
     
     std::vector<std::string> strings = organisation::split(expected);
 
-    organisation::score score;
-    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
+    organisation::scores::score score;
+    organisation::scores::settings settings;
 
-    score.compute(organisation::compute(expected, value, statistics));
+    organisation::statistics::data statistics(settings.max_collisions);
+
+
+    score.compute(organisation::compute(expected, value, statistics), settings);
 
     std::vector<float> values;
     int total = score.size();
@@ -228,10 +245,13 @@ TEST(BasicScoreRepeatTwoParallel, BasicAssertions)
     
     std::vector<std::string> strings = organisation::split(expected);
 
-    organisation::score score;
-    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
+    organisation::scores::score score;
+    organisation::scores::settings settings;
 
-    score.compute(organisation::compute(expected, value, statistics));
+    organisation::statistics::data statistics(settings.max_collisions);
+
+
+    score.compute(organisation::compute(expected, value, statistics), settings);
 
     std::vector<float> values;
     int total = score.size();
@@ -264,10 +284,13 @@ TEST(BasicScoreRepeatThreeParallel, BasicAssertions)
     
     std::vector<std::string> strings = organisation::split(expected);
 
-    organisation::score score;
-    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
+    organisation::scores::score score;
+    organisation::scores::settings settings;
 
-    score.compute(organisation::compute(expected, value, statistics));
+    organisation::statistics::data statistics(settings.max_collisions);
+
+
+    score.compute(organisation::compute(expected, value, statistics), settings);
 
     std::vector<float> values;
     int total = score.size();
@@ -300,10 +323,12 @@ TEST(BasicScoreShortSentenceParallel, BasicAssertions)
     
     std::vector<std::string> strings = organisation::split(expected);
 
-    organisation::score score;
-    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
+    organisation::scores::score score;
+    organisation::scores::settings settings;
 
-    score.compute(organisation::compute(expected, value, statistics));
+    organisation::statistics::data statistics(settings.max_collisions);
+
+    score.compute(organisation::compute(expected, value, statistics), settings);
 
     std::vector<float> values;
     int total = score.size();
@@ -336,10 +361,12 @@ TEST(BasicScoreBadOrderOneParallel, BasicAssertions)
     
     std::vector<std::string> strings = organisation::split(expected);
 
-    organisation::score score;
-    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
+    organisation::scores::score score;
+    organisation::scores::settings settings;
 
-    score.compute(organisation::compute(expected, value, statistics));
+    organisation::statistics::data statistics(settings.max_collisions);
+
+    score.compute(organisation::compute(expected, value, statistics), settings);
 
     std::vector<float> values;
     int total = score.size();
@@ -372,10 +399,13 @@ TEST(BasicScoreIncorrectParallel, BasicAssertions)
     
     std::vector<std::string> strings = organisation::split(expected);
 
-    organisation::score score;
-    organisation::statistics::data statistics(organisation::statistics::data::MAX_COLLISIONS);
+    organisation::scores::score score;
+    organisation::scores::settings settings;
 
-    score.compute(organisation::compute(expected, value, statistics));
+    organisation::statistics::data statistics(settings.max_collisions);
+
+
+    score.compute(organisation::compute(expected, value, statistics), settings);
 
     std::vector<float> values;
     int total = score.size();

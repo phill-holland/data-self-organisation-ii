@@ -1,6 +1,7 @@
 #include "data.h"
 #include "input.h"
 #include "point.h"
+#include "score.h"
 
 #ifndef _ORGANISATION_PARAMETERS
 #define _ORGANISATION_PARAMETERS
@@ -43,7 +44,7 @@ namespace organisation
         bool worst;
 
         bool output_stationary_only;
-
+        
     public:
         int width, height, depth;
 
@@ -54,6 +55,8 @@ namespace organisation
         int population;
 
         point starting;
+
+        scores::settings scores;        
 
     public:
         parameters(int _width = WIDTH, int _height = HEIGHT, int _depth = DEPTH) 

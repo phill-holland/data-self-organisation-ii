@@ -76,7 +76,22 @@
         "coroutine": "cpp",
         "strstream": "cpp",
         "cfenv": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "*.ipp": "cpp",
+        "ranges": "cpp",
+        "span": "cpp",
+        "valarray": "cpp",
+        "stacktrace": "cpp",
+        "csetjmp": "cpp",
+        "barrier": "cpp",
+        "codecvt": "cpp",
+        "cuchar": "cpp",
+        "source_location": "cpp",
+        "latch": "cpp",
+        "scoped_allocator": "cpp",
+        "syncstream": "cpp",
+        "expected": "cpp",
+        "spanstream": "cpp"
     },
     "editor.suggest.insertMode": "insert",
 }

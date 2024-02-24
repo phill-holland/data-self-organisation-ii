@@ -1,5 +1,6 @@
 #include "schema.h"
 #include "data.h"
+#include "parameters.h"
 #include <random>
 #include <atomic>
 #include <vector>
@@ -18,11 +19,11 @@ namespace organisation
         bool init;
         
     public:
-        schemas(int width, int height, int depth, int size) { makeNull(); reset(width, height, depth, size); }
+        schemas(parameters &settings) { makeNull(); reset(settings); }
         ~schemas() { cleanup(); }
 
         bool initalised() { return init; }
-        void reset(int width, int height, int depth, int size);
+        void reset(parameters &settings);
 
         bool clear();
 

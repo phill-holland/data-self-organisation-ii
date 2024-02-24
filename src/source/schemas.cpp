@@ -4,18 +4,18 @@
 #include <limits>
 #include <iostream>
 
-void organisation::schemas::reset(int width, int height, int depth, int size)
+void organisation::schemas::reset(parameters &settings)
 {
     init = false; cleanup();
-    this->length = size;
+    this->length = settings.population;
     
-    data.resize(size);
+    data.resize(this->length);
 
-    for(int i = 0; i < size; ++i) { data[i] = NULL; }
+    for(int i = 0; i < this->length; ++i) { data[i] = NULL; }
 
-    for(int i = 0; i < size; ++i)   
+    for(int i = 0; i < this->length; ++i)   
     { 
-        data[i] = new organisation::schema(width, height, depth);
+        data[i] = new organisation::schema(settings);
         if(data[i] == NULL) return;
     }
 

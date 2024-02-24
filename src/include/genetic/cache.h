@@ -1,6 +1,7 @@
 #include "genetic/templates/genetic.h"
 #include "genetic/templates/serialiser.h"
 #include "point.h"
+#include "parameters.h"
 #include <vector>
 #include <unordered_map>
 #include <random>
@@ -23,9 +24,11 @@ namespace organisation
             std::unordered_map<int,point> points;
 
         public:
-            cache(int w, int h, int d) 
+            cache(parameters &settings) 
             { 
-                _width = w; _height = h; _depth = d; 
+                _width = settings.width;
+                _height = settings.height;
+                _depth = settings.depth;
             }
 
         public:

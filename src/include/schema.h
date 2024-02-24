@@ -4,6 +4,7 @@
 #include "kdpoint.h"
 #include "statistics.h"
 #include "compute.h"
+#include "parameters.h"
 #include <string>
 #include <random>
 #include <vector>
@@ -23,10 +24,10 @@ namespace organisation
 
     public:
         program prog;
-        std::unordered_map<int, score> scores;
+        std::unordered_map<int, scores::score> scores;
 
     public:
-        schema(int width, int height, int depth) : prog(width, height, depth) { makeNull(); reset(); }        
+        schema(parameters &settings) : prog(settings) { makeNull(); reset(); }        
         ~schema() { cleanup(); }
 
     public:
@@ -44,7 +45,7 @@ namespace organisation
 
         float sum();
             
-        void compute(std::vector<organisation::compute> values);
+        void compute(std::vector<organisation::compute> values, scores::settings settings);
 
     public:        
         void cross(schema *destination, schema *value);
