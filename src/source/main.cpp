@@ -18,60 +18,39 @@
 #include "parallel/program.hpp"
 
 using namespace std;
-/*
-std::string source = R"(daisy daisy give me your answer do .
-I'm half crazy for the love of you .
-it won't be a stylish marriage .
-I can't afford a carriage .
-but you'll look sweet upon the seat .
-of a bicycle built for two .
-)";
-*/
-
-//std::string source = R"(daisy I'm half it won't but you'll .)";
 
 const organisation::dictionary dictionary;
 
-const int width = 20, height = 20, depth = 20;
+const int width = 10, height = 10, depth = 10;
 const int device_idx = 0;
+const int generations = 500;//200;
 
 organisation::parameters get_parameters(organisation::data &mappings)
 {
     organisation::parameters parameters(width, height, depth);
 
-    parameters.dim_clients = organisation::point(13,13,13);
-    parameters.iterations = 30;
-    parameters.max_values = 30;
+    parameters.dim_clients = organisation::point(10,10,10);
+    parameters.iterations = 40;//30;
+    parameters.max_values = 40;
 
-    // ***
-    parameters.population = parameters.clients() * 2;//2000;//16000;
-    // ***
+    parameters.population = 4000;//parameters.clients() * 2;
+    parameters.max_collisions = 10;
 
-    // ***
     parameters.output_stationary_only = true;
-    // ***
     
     parameters.width = width;
     parameters.height = height;
     parameters.depth = depth;
     parameters.mappings = mappings;
         
-    parameters.scores.max_collisions = 8;
-    
-    std::string expected1("hello world");
-    std::string input1 = dictionary.random(4,organisation::split(expected1));
-    
-    //std::string input1("daisy daisy daisy daisy I'm half .");
-    //std::string expected1("I'm half");
-    
-    //std::string input2("it won't");
-    //std::string expected2("but you'll");
-    
+    parameters.scores.max_collisions = 2;//2;
+        
+    std::string input1("daisy daisy give me your answer do .");// give me your answer do .");
+    std::string expected1("I'm half crazy for");// crazy for the love of you .");
+        
     organisation::inputs::epoch epoch1(input1, expected1);
-    //organisation::inputs::epoch epoch2(input2, expected2);
-
+    
     parameters.input.push_back(epoch1);
-    //parameters.input.push_back(epoch2);
     
     std::cout << "input: \"" << input1 << "\" expected: \"" << expected1 << "\"\r\n";
 
@@ -83,7 +62,6 @@ bool run(organisation::templates::programs *program, organisation::parameters &p
     organisation::populations::population p(program, parameters);
     if(!p.initalised()) return false;
 
-    int generations = 200;
     int actual = 0;
 
     p.clear();
@@ -102,7 +80,6 @@ bool run(organisation::templates::programs *program, organisation::parameters &p
 
 int main(int argc, char *argv[])
 {  
-    //auto strings = organisation::split(source);
     auto strings = dictionary.get();
     organisation::data mappings(strings);
     
