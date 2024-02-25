@@ -11,7 +11,7 @@ namespace organisation
         {
         public:
             point position;
-            int value;
+            point value;
             int lifetime;
             int client;
 

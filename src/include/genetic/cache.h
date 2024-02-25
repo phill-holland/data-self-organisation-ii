@@ -20,7 +20,7 @@ namespace organisation
             int _width, _height, _depth;
 
         public:
-            std::vector<std::tuple<int,point>> values;
+            std::vector<std::tuple<point,point>> values;
             std::unordered_map<int,point> points;
 
         public:
@@ -44,7 +44,7 @@ namespace organisation
                 return values.empty() || points.empty();
             }
 
-            bool set(int value, point position);
+            bool set(point value, point position);
 
             std::string serialise();
             void deserialise(std::string source);

@@ -5,13 +5,13 @@
 
 std::mt19937_64 organisation::genetic::cache::generator(std::random_device{}());
 
-bool organisation::genetic::cache::set(int value, point position)
+bool organisation::genetic::cache::set(point value, point position)
 {
     int index = ((_width * _height) * position.z) + ((position.y * _width) + position.x);
     if(points.find(index) == points.end())
     {
         points[index] = position;
-        values.push_back(std::tuple<int,point>(value,position));
+        values.push_back(std::tuple<point,point>(value,position));
 
         return true;
     }
@@ -25,7 +25,7 @@ std::string organisation::genetic::cache::serialise()
 
     for(auto &it: values)
     {     
-        result += "D " + std::to_string(std::get<0>(it));
+        result += "D " + std::get<0>(it).serialise();//std::to_string(std::get<0>(it));
         result += " " + std::get<1>(it).serialise() + "\n";            
     }
 
@@ -37,7 +37,7 @@ void organisation::genetic::cache::deserialise(std::string source)
     std::stringstream ss(source);
     std::string str;
 
-    int value = 0;
+    point value(-1,-1,-1);
     int index = 0;
 
     while(std::getline(ss,str,' '))
@@ -47,20 +47,20 @@ void organisation::genetic::cache::deserialise(std::string source)
             if(str.compare("D")!=0) return;
         }
         else if(index == 1)
-        {
-            int value = std::atoi(str.c_str());
+        {            
+            value.deserialise(str);            
         }
         else if(index == 2)
         {
-            organisation::point temp;
+            organisation::point position;
 
-            temp.deserialise(str);
-            int index = ((_width * _height) * temp.z) + ((temp.y * _width) + temp.x);
+            position.deserialise(str);
+            int index = ((_width * _height) * position.z) + ((position.y * _width) + position.x);
 
             if(points.find(index) == points.end())
             {
-                points[index] = temp;
-                values.push_back(std::tuple<int,point>(value,temp));
+                points[index] = position;
+                values.push_back(std::tuple<point,point>(value,position));
             }
         }
 
@@ -76,9 +76,17 @@ bool organisation::genetic::cache::validate(data &source)
 
     for(auto &it: values)
     {
-        int value = std::get<0>(it);
+        point value = std::get<0>(it);
+        int coordinates[] = { value.x, value.y, value.z };
 
-        if(source.map(value).empty()) { std::cout << "cache::validate(false): map empty\r\n"; return false; }
+        for(int i = 0; i < 3; ++i)
+        {
+            if(coordinates[i] != -1)
+            {
+                if(source.map(coordinates[i]).empty()) { std::cout << "cache::validate(false): map empty [" << coordinates[i] << "]\r\n"; 
+                    return false; }
+            }
+        }
 
         point position = std::get<1>(it);
 
@@ -107,26 +115,25 @@ bool organisation::genetic::cache::validate(data &source)
 void organisation::genetic::cache::generate(data &source)
 {
     clear();
-
-    const int max_repeats = 2;
-    const int max_cache = source.maximum();
-
-    std::vector<int> raw = source.all();
     
-    for(auto &it: raw)
+    const int max_cache = source.maximum();
+    std::vector<int> raw = source.all();
+
+    int count = (std::uniform_int_distribution<int>{0, (int)raw.size()})(generator);
+    for(int i = 0; i < count; ++i)
     {
-        int n = (std::uniform_int_distribution<int>{0, max_repeats})(generator);
-        for(int i = 0; i < n; ++i)
+        point position;
+        position.generate(_width, _height, _depth);
+        int index = ((_width * _height) * position.z) + ((position.y * _width) + position.x);
+        if(points.find(index) == points.end())
         {
-            point p1;
-            p1.generate(_width, _height, _depth);
-            int index = ((_width * _height) * p1.z) + ((p1.y * _width) + p1.x);
-            if(points.find(index) == points.end())
-            {
-                points[index] = p1;
-                values.push_back(std::tuple<int,point>(it,p1));
-                if(values.size() >= max_cache) return;
-            }
+            point value;
+            value.generate(raw);
+
+            points[index] = position;
+            values.push_back(std::tuple<point,point>(value,position));
+            if(values.size() >= max_cache) return;
+
         }
     }
 }
@@ -139,34 +146,33 @@ bool organisation::genetic::cache::mutate(data &source)
 
     int offset = (std::uniform_int_distribution<int>{0, (int)(values.size() - 1)})(generator);
 
-    point p1;
+    point position;
 
-    p1.generate(_width, _height, _depth);
-    int index = ((_width * _height) * p1.z) + ((p1.y * _width) + p1.x);
+    position.generate(_width, _height, _depth);
+    int index = ((_width * _height) * position.z) + ((position.y * _width) + position.x);
 
     std::vector<int> all = source.all();
-    int t1 = (std::uniform_int_distribution<int>{0, (int)(all.size() - 1)})(generator);
-    int value = all[t1];
+    point value;
+    value.generate(all);
 
     if(points.find(index) == points.end()) 
     {
         points[index] = { };
-        points[index] = p1;
-        values.push_back(std::tuple<int,point>(value,p1));
+        points[index] = position;
+        values.push_back(std::tuple<point,point>(value,position));
     }
     else
     {
         for(auto &it: values)
         {
             point &temp = std::get<1>(it);
-            if(temp == p1) 
+            if(temp == position) 
             {   
                 int counter = 0;
-                int old = std::get<0>(it);
+                point old = std::get<0>(it);
                 while((old==value)&&(counter++<COUNTER))
                 {
-                    int t1 = (std::uniform_int_distribution<int>{0, (int)(all.size() - 1)})(generator);
-                    value = all[t1];
+                    value.generate(all);
                 }
                 
                 std::get<0>(it) = value;
@@ -186,7 +192,7 @@ void organisation::genetic::cache::append(genetic *source, int src_start, int sr
 
     for(int i = 0; i < length; ++i)
     {
-        std::tuple<int,point> temp = s->values[src_start + i];        
+        std::tuple<point,point> temp = s->values[src_start + i];        
 
         point p1 = std::get<1>(temp);
         int index = ((_width * _height) * p1.z) + ((p1.y * _width) + p1.x);
@@ -218,8 +224,8 @@ bool organisation::genetic::cache::equals(const cache &source)
 
     for(int i = 0; i < values.size(); ++i)
     {
-        std::tuple<int,point> a = values[i];
-        std::tuple<int,point> b = source.values[i];
+        std::tuple<point,point> a = values[i];
+        std::tuple<point,point> b = source.values[i];
 
         if(a != b) 
             return false;

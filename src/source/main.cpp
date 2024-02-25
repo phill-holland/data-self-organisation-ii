@@ -21,7 +21,7 @@ using namespace std;
 
 const organisation::dictionary dictionary;
 
-const int width = 10, height = 10, depth = 10;
+const int width = 5, height = 5, depth = 5;
 const int device_idx = 0;
 const int generations = 500;//200;
 
@@ -33,8 +33,8 @@ organisation::parameters get_parameters(organisation::data &mappings)
     parameters.iterations = 40;//30;
     parameters.max_values = 40;
 
-    parameters.population = 4000;//parameters.clients() * 2;
-    parameters.max_collisions = 10;
+    parameters.population = 20000;//4000;//parameters.clients() * 2;
+    parameters.max_collisions = 8;
 
     parameters.output_stationary_only = true;
     
@@ -46,7 +46,7 @@ organisation::parameters get_parameters(organisation::data &mappings)
     parameters.scores.max_collisions = 2;//2;
         
     std::string input1("daisy daisy give me your answer do .");// give me your answer do .");
-    std::string expected1("I'm half crazy for");// crazy for the love of you .");
+    std::string expected1("I'm half crazy for the");// crazy for the love of you .");
         
     organisation::inputs::epoch epoch1(input1, expected1);
     
