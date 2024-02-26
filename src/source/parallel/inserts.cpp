@@ -202,7 +202,7 @@ std::vector<organisation::parallel::value> organisation::parallel::inserts::get(
             {
                 value temp;
 
-                temp.value = values[i];
+                temp.data = values[i];
                 temp.client = clients[i].w();
                 temp.position = point(positions[i].x(), positions[i].y(), positions[i].z());
 

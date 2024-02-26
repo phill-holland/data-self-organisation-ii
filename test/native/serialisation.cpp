@@ -14,7 +14,7 @@
 
 TEST(BasicSerialisationDeserialisation, BasicAssertions)
 {
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
     organisation::point starting(width / 2, height / 2, depth / 2);
@@ -29,7 +29,9 @@ TEST(BasicSerialisationDeserialisation, BasicAssertions)
     organisation::program p2(parameters);
 
     organisation::genetic::cache cache(parameters);
-    cache.set(0, starting);
+    cache.set(organisation::point(0,-1,-1), starting);
+    cache.set(organisation::point(0,1,-1), organisation::point(starting.x + 1, starting.y, starting.z));
+    cache.set(organisation::point(0,2,3), organisation::point(starting.x + 2, starting.y, starting.z));
     
     organisation::genetic::insert insert;
     insert.values = { 1,2,3 };

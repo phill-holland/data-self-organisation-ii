@@ -25,7 +25,7 @@ std::string organisation::genetic::cache::serialise()
 
     for(auto &it: values)
     {     
-        result += "D " + std::get<0>(it).serialise();//std::to_string(std::get<0>(it));
+        result += "D " + std::get<0>(it).serialise();
         result += " " + std::get<1>(it).serialise() + "\n";            
     }
 
@@ -133,7 +133,6 @@ void organisation::genetic::cache::generate(data &source)
             points[index] = position;
             values.push_back(std::tuple<point,point>(value,position));
             if(values.size() >= max_cache) return;
-
         }
     }
 }

@@ -865,7 +865,7 @@ std::vector<organisation::parallel::value> organisation::parallel::program::get(
                 {
                     value temp;
 
-                    temp.value = point(values[i].x(), values[i].y(), values[i].z());
+                    temp.data = point(values[i].x(), values[i].y(), values[i].z());
                     temp.client = clients[i].w();
                     temp.lifetime = lifetimes[i];
                     temp.position = point(positions[i].x(), positions[i].y(), positions[i].z());
