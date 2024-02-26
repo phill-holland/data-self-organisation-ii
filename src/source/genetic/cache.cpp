@@ -115,12 +115,12 @@ bool organisation::genetic::cache::validate(data &source)
 void organisation::genetic::cache::generate(data &source)
 {
     clear();
-    
-    const int max_cache = source.maximum();
+                
     std::vector<int> raw = source.all();
 
-    int count = (std::uniform_int_distribution<int>{0, (int)raw.size()})(generator);
-    for(int i = 0; i < count; ++i)
+    int count = (std::uniform_int_distribution<int>{0, _max_cache})(generator);
+ 
+    for(int i = 0; i < count; ++i)    
     {
         point position;
         position.generate(_width, _height, _depth);
@@ -132,7 +132,7 @@ void organisation::genetic::cache::generate(data &source)
 
             points[index] = position;
             values.push_back(std::tuple<point,point>(value,position));
-            if(values.size() >= max_cache) return;
+            if(values.size() >= _max_values) return;
         }
     }
 }

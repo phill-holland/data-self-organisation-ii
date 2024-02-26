@@ -19,6 +19,9 @@ namespace organisation
 
             int _width, _height, _depth;
 
+            int _max_cache;
+            int _max_values;
+
         public:
             std::vector<std::tuple<point,point>> values;
             std::unordered_map<int,point> points;
@@ -29,6 +32,9 @@ namespace organisation
                 _width = settings.width;
                 _height = settings.height;
                 _depth = settings.depth;
+
+                _max_cache = settings.max_cache;
+                _max_values = settings.max_values;
             }
 
         public:

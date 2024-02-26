@@ -299,6 +299,7 @@ void organisation::parallel::program::restart()
     totalOutputValues = 0;
     qt.memcpy(hostTotalValues, deviceTotalValues, sizeof(int)).wait();
     totalValues = hostTotalValues[0];
+  
     if(totalValues > settings.max_values * settings.clients())
             totalValues = settings.max_values * settings.clients();
 }
@@ -322,7 +323,7 @@ void organisation::parallel::program::run(organisation::data &mappings)
             qt.memcpy(deviceOldPositions, devicePositions, sizeof(sycl::float4) * totalValues).wait();                            
 
             positions();
-            
+
             std::vector<sycl::event> events;
             events.push_back(qt.memset(deviceNextCollisionKeys, 0, sizeof(sycl::int2) * totalValues));
             events.push_back(qt.memset(deviceCurrentCollisionKeys, 0, sizeof(sycl::int2) * totalValues));
@@ -348,7 +349,6 @@ void organisation::parallel::program::run(organisation::data &mappings)
             
             update();
             next();
-                        
             corrections();
             outputting(epoch, iterations);
             boundaries();
@@ -946,7 +946,7 @@ void organisation::parallel::program::copy(::organisation::schema **source, int 
             hostCacheClients[d_count + (index * settings.max_values)] = m;
 
             ++d_count;
-            if(d_count > settings.max_values) break;
+            if(d_count >= settings.max_values) break;
         }
 
         int m_count = 0;
@@ -954,7 +954,7 @@ void organisation::parallel::program::copy(::organisation::schema **source, int 
         {            
             hostMovements[m_count + (index * settings.max_movements)] = { (float)it.x, (float)it.y, (float)it.z, 0.0f };
             ++m_count;
-            if(m_count > settings.max_movements) break;            
+            if(m_count >= settings.max_movements) break;            
         }
         hostMovementsCounts[index] = m_count;
 

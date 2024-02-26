@@ -19,6 +19,7 @@ namespace organisation
         const static int MAX_COLLISIONS = 27;
         const static int MAX_INSERTS = 10;
         const static int MAX_INPUT_DATA =  15;
+        const static int MAX_CACHE = 10;
     
         const static int HOST_BUFFER = 20;
 
@@ -35,6 +36,7 @@ namespace organisation
         int max_collisions;
         int max_inserts;
         int max_input_data;
+        int max_cache;
 
         int host_buffer;
 
@@ -70,6 +72,7 @@ namespace organisation
             max_collisions = MAX_COLLISIONS;
             max_inserts = MAX_INSERTS;
             max_input_data = MAX_INPUT_DATA;
+            max_cache = MAX_CACHE;
         
             host_buffer = HOST_BUFFER;
 

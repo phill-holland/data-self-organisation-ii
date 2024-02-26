@@ -32,8 +32,10 @@ organisation::parameters get_parameters(organisation::data &mappings)
     parameters.dim_clients = organisation::point(10,10,10);
     parameters.iterations = 40;//30;
     parameters.max_values = 40;
+    parameters.max_cache = parameters.max_values / 2;
 
-    parameters.population = 20000;//4000;//parameters.clients() * 2;
+    parameters.population = 8000;//4000;//parameters.clients() * 2;
+    //parameters.population = parameters.clients() * 2;
     parameters.max_collisions = 8;
 
     parameters.output_stationary_only = true;
