@@ -21,20 +21,20 @@ using namespace std;
 
 const organisation::dictionary dictionary;
 
-const int width = 5, height = 5, depth = 5;
+const int width = 7, height = 7, depth = 7;
 const int device_idx = 0;
-const int generations = 500;//200;
+const int generations = 800;//200;
 
 organisation::parameters get_parameters(organisation::data &mappings)
 {
     organisation::parameters parameters(width, height, depth);
 
     parameters.dim_clients = organisation::point(10,10,10);
-    parameters.iterations = 40;//30;
-    parameters.max_values = 40;
-    parameters.max_cache = parameters.max_values / 2;
+    parameters.iterations = 30;//30;
+    parameters.max_values = 60;//50;//40;//500;//40;
+    parameters.max_cache = parameters.max_values;// / 2;
 
-    parameters.population = 8000;//4000;//parameters.clients() * 2;
+    parameters.population = 2000;//16000;//8000;//4000;//parameters.clients() * 2;
     //parameters.population = parameters.clients() * 2;
     parameters.max_collisions = 8;
 
@@ -45,10 +45,14 @@ organisation::parameters get_parameters(organisation::data &mappings)
     parameters.depth = depth;
     parameters.mappings = mappings;
         
-    parameters.scores.max_collisions = 2;//2;
+    parameters.scores.max_collisions = 4;//2;
+    parameters.scores.max_words = 8;//8;
+    parameters.max_cache_dimension = 2;
         
-    std::string input1("daisy daisy give me your answer do .");// give me your answer do .");
-    std::string expected1("I'm half crazy for the");// crazy for the love of you .");
+// limit MAX_DATA_VALUES parameter (from 3 to 1)
+
+    std::string input1("daisy daisy give me your answer do");// give me your answer do .");
+    std::string expected1("I'm half crazy for the love of you");// crazy for the love of you .");
         
     organisation::inputs::epoch epoch1(input1, expected1);
     

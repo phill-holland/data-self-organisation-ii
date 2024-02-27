@@ -31,7 +31,7 @@ namespace organisation
     public:
         void generate(int max_x, int max_y, int max_z, int min_x = 0, int min_y = 0, int min_z = 0);
 
-        void generate(std::vector<int> &data);
+        void generate(std::vector<int> &data, int dimensions = 3);
 
         point min(const point &src)
         {
