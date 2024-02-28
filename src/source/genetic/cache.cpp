@@ -142,43 +142,46 @@ bool organisation::genetic::cache::mutate(data &source)
     const int COUNTER = 15;
 
     if(values.empty()) return false;
+    std::vector<int> all = source.all();
 
     int offset = (std::uniform_int_distribution<int>{0, (int)(values.size() - 1)})(generator);
 
-    point position;
+    int mode = (std::uniform_int_distribution<int>{0, 1})(generator);
 
-    position.generate(_width, _height, _depth);
-    int index = ((_width * _height) * position.z) + ((position.y * _width) + position.x);
-
-    std::vector<int> all = source.all();
-    point value;
-    value.generate(all,_max_cache_dimension);
-
-    if(points.find(index) == points.end()) 
+    if(mode == 0)
     {
-        points[index] = { };
-        points[index] = position;
-        values.push_back(std::tuple<point,point>(value,position));
+        int counter = 0;
+
+        point old = std::get<0>(values[offset]);
+        point value = old;
+
+        while((old==value)&&(counter++<COUNTER))
+        {
+            value = old;
+            value.mutate(all,_max_cache_dimension);
+        }
+
+        if(value == old) return false;
+
+        std::get<0>(values[offset]) = value;
     }
     else
     {
-        for(auto &it: values)
+        int counter = 0;
+        point position;
+        int new_index = 0;
+        do
         {
-            point &temp = std::get<1>(it);
-            if(temp == position) 
-            {   
-                int counter = 0;
-                point old = std::get<0>(it);
-                while((old==value)&&(counter++<COUNTER))
-                {
-                    value.generate(all,_max_cache_dimension);
-                }
-                
-                std::get<0>(it) = value;
+            position.generate(_width, _height, _depth);
+            new_index = ((_width * _height) * position.z) + ((position.y * _width) + position.x);    
+        }while((points.find(new_index) != points.end())&&(counter++ < COUNTER));
 
-                return old != value;
-            }
-        }
+        point old = std::get<1>(values[offset]);
+        int old_index = ((_width * _height) * old.z) + ((old.y * _width) + old.x);    
+
+        points.erase(old_index);
+        points[new_index] = position;
+        std::get<1>(values[offset]) = position;
     }
 
     return true;

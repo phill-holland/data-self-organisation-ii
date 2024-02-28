@@ -24,8 +24,6 @@ void organisation::point::generate(std::vector<int> &data, int dimensions)
     std::vector<int> results;
     for(int j = 0; j < count; ++j)
     {
-        //int idx = (std::uniform_int_distribution<int>{0, (int)(data.size() - 1)})(generator);
-        //int value = data[idx];      
         int value = 0;
         do
         {
@@ -42,15 +40,25 @@ void organisation::point::generate(std::vector<int> &data, int dimensions)
     {
         *coordinates[j] = results[j];
     }
-/*
-    for(int j = 0; j < count; ++j)
+}
+
+void organisation::point::mutate(std::vector<int> &data, int dimensions)
+{
+    int _dimensions = dimensions;
+    if(_dimensions < 1) _dimensions = 1;
+    if(_dimensions > 3) _dimensions = 3;
+    
+    int *coordinates[] = { &x, &y, &z };
+
+    int count = 0;
+
+    do
     {
-     
-        int idx = (std::uniform_int_distribution<int>{0, (int)(data.size() - 1)})(generator);
-        int value = data[idx];             
-        *coordinates[j] = data[idx];
-    }
-    */
+        count = (std::uniform_int_distribution<int>{0, _dimensions - 1})(generator);          
+    }while(!((count == 0)||(count > 0 && *coordinates[count - 1] != -1)));
+
+    int idx = (std::uniform_int_distribution<int>{0, (int)(data.size() - 1)})(generator);
+    *coordinates[count] = data[idx];      
 }
 
 std::string organisation::point::serialise()

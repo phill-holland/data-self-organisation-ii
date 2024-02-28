@@ -34,7 +34,7 @@ organisation::parameters get_parameters(organisation::data &mappings)
     parameters.max_values = 60;//50;//40;//500;//40;
     parameters.max_cache = parameters.max_values;// / 2;
 
-    parameters.population = 2000;//16000;//8000;//4000;//parameters.clients() * 2;
+    parameters.population = 4000;//16000;//8000;//4000;//parameters.clients() * 2;
     //parameters.population = parameters.clients() * 2;
     parameters.max_collisions = 8;
 
@@ -45,14 +45,14 @@ organisation::parameters get_parameters(organisation::data &mappings)
     parameters.depth = depth;
     parameters.mappings = mappings;
         
-    parameters.scores.max_collisions = 4;//2;
-    parameters.scores.max_words = 8;//8;
-    parameters.max_cache_dimension = 2;
+    parameters.scores.max_collisions = 2;//4;//2;
+    //parameters.scores.max_words = 8;//8;
+    parameters.max_cache_dimension = 2;//2;
         
 // limit MAX_DATA_VALUES parameter (from 3 to 1)
 
     std::string input1("daisy daisy give me your answer do");// give me your answer do .");
-    std::string expected1("I'm half crazy for the love of you");// crazy for the love of you .");
+    std::string expected1("I'm half crazy for the");// the love of you");// crazy for the love of you .");
         
     organisation::inputs::epoch epoch1(input1, expected1);
     
