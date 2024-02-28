@@ -126,6 +126,9 @@ void organisation::parallel::program::reset(::parallel::device &dev,
     deviceOutputClient = sycl::malloc_device<sycl::int4>(settings.max_values * settings.clients(), qt);
     if(deviceOutputClient == NULL) return;
 
+    deviceOutputPosition = sycl::malloc_device<sycl::float4>(settings.max_values * settings.clients(), qt);
+    if(deviceOutputPosition == NULL) return;
+
     deviceOutputTotalValues = sycl::malloc_device<int>(1, qt);
     if(deviceOutputTotalValues == NULL) return;
 
@@ -138,6 +141,9 @@ void organisation::parallel::program::reset(::parallel::device &dev,
     
     hostOutputClient = sycl::malloc_host<sycl::int4>(settings.max_values * settings.clients(), qt);
     if(hostOutputClient == NULL) return;
+
+    hostOutputPosition = sycl::malloc_host<sycl::float4>(settings.max_values * settings.clients(), qt);
+    if(hostOutputPosition == NULL) return;
 
     hostOutputTotalValues = sycl::malloc_host<int>(1, qt);
     if(hostOutputTotalValues == NULL) return;
@@ -384,6 +390,7 @@ void organisation::parallel::program::move(organisation::data &mappings)
         events.push_back(qt.memcpy(hostOutputValues, deviceOutputValues, sizeof(sycl::int4) * output_length));
         events.push_back(qt.memcpy(hostOutputIndex, deviceOutputIndex, sizeof(int) * output_length));
         events.push_back(qt.memcpy(hostOutputClient, deviceOutputClient, sizeof(sycl::int4) * output_length));
+        events.push_back(qt.memcpy(hostOutputPosition, deviceOutputPosition, sizeof(sycl::float4) * output_length));
 
         sycl::event::wait(events);
 
@@ -403,6 +410,7 @@ void organisation::parallel::program::move(organisation::data &mappings)
                     temp.value = mappings.map(coordinates[j]);
                     temp.client = hostOutputClient[i].w();
                     temp.index = hostOutputIndex[i];
+                    temp.position = point((int)hostOutputPosition[i].x(),(int)hostOutputPosition[i].y(),(int)hostOutputPosition[i].z());
 
                     out.values.push_back(temp);
                 }
@@ -766,6 +774,7 @@ void organisation::parallel::program::outputting(int epoch, int iteration)
         auto _outputValues = deviceOutputValues;
         auto _outputIndex = deviceOutputIndex;
         auto _outputClient = deviceOutputClient;
+        auto _outputPosition = deviceOutputPosition;
         auto _outputTotalValues = deviceOutputTotalValues;
 
         auto _outputLength = settings.max_values * settings.clients();
@@ -833,7 +842,8 @@ void organisation::parallel::program::outputting(int epoch, int iteration)
                     {                    
                         _outputValues[idx] = value;
                         _outputIndex[idx] = _iteration;
-                        _outputClient[idx] = _client[i];                        
+                        _outputClient[idx] = _client[i];  
+                        _outputPosition[idx] = _positions[i];                      
                     }
                 }  
             }
@@ -1205,11 +1215,13 @@ void organisation::parallel::program::makeNull()
     deviceOutputValues = NULL;
     deviceOutputIndex = NULL;
     deviceOutputClient = NULL;
+    deviceOutputPosition = NULL;
     deviceOutputTotalValues = NULL;
 
     hostOutputValues = NULL;
     hostOutputIndex = NULL;
     hostOutputClient = NULL;
+    hostOutputPosition = NULL;
     hostOutputTotalValues = NULL;
 
     deviceTotalValues = NULL;
@@ -1259,11 +1271,13 @@ void organisation::parallel::program::cleanup()
         if(deviceOutputValues != NULL) sycl::free(deviceOutputValues, q);
         if(deviceOutputIndex != NULL) sycl::free(deviceOutputIndex, q);
         if(deviceOutputClient != NULL) sycl::free(deviceOutputClient, q);
+        if(deviceOutputPosition != NULL) sycl::free(deviceOutputPosition, q);
         if(deviceOutputTotalValues != NULL) sycl::free(deviceOutputTotalValues, q);
 
         if(hostOutputValues != NULL) sycl::free(hostOutputValues, q);
         if(hostOutputIndex != NULL) sycl::free(hostOutputIndex, q);
         if(hostOutputClient != NULL) sycl::free(hostOutputClient, q);
+        if(hostOutputPosition != NULL) sycl::free(hostOutputPosition, q);
         if(hostOutputTotalValues != NULL) sycl::free(hostOutputTotalValues, q);
         
 // ***        

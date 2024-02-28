@@ -62,12 +62,14 @@ namespace organisation
             sycl::int4 *deviceOutputValues; // ***
             int *deviceOutputIndex;
             sycl::int4 *deviceOutputClient;
+            sycl::float4 *deviceOutputPosition;
 
             int *deviceOutputTotalValues; // single int
             
             sycl::int4 *hostOutputValues; // ***
             int *hostOutputIndex; // host iteration output
             sycl::int4 *hostOutputClient;
+            sycl::float4 *hostOutputPosition;
 
             int *hostOutputTotalValues;
 
