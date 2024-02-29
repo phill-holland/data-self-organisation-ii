@@ -45,7 +45,7 @@ namespace organisation
 
         float sum();
             
-        void compute(std::vector<organisation::compute> values, scores::settings settings);
+        void compute(std::vector<organisation::compute> &values, std::unordered_map<std::string, std::vector<point>> &positions, scores::settings &settings);
 
     public:        
         void cross(schema *destination, schema *value);

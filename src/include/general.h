@@ -31,6 +31,19 @@ namespace organisation
         
         return result;    
     }
+
+    inline std::string concat(std::vector<std::string> &source)
+    {
+        std::string result;
+
+        for(auto &it: source)
+        {
+            if(result.size() > 0) result += " ";
+            result += it;
+        }
+
+        return result;
+    };
 };
 
 #endif

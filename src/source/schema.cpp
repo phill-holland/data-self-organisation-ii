@@ -89,13 +89,13 @@ float organisation::schema::sum()
     return result / ((float)scores.size());
 }
 
-void organisation::schema::compute(std::vector<organisation::compute> values, scores::settings settings)
+void organisation::schema::compute(std::vector<organisation::compute> &values, std::unordered_map<std::string, std::vector<point>> &positions, scores::settings &settings)
 {
     int i = 0;
     bool penalty = false;
     for(std::vector<organisation::compute>::iterator it = values.begin(); it != values.end(); ++it)
     {
-        scores[i].compute(*it, settings);
+        scores[i].compute(*it, positions, settings);
         ++i;
 
         if(it->value.size() <= 0) penalty = true;
@@ -125,7 +125,7 @@ void organisation::schema::cross(schema *destination, schema *value)
 std::string organisation::schema::run(int epoch, std::string input, std::string expected, data &source)
 {		    
     std::string output = prog.run(input, source);
-    scores[epoch].compute(organisation::compute(expected, output));
+    //scores[epoch].compute(organisation::compute(expected, output));
     
     return output;
 }

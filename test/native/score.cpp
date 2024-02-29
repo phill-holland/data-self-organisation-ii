@@ -1,7 +1,10 @@
 #include <gtest/gtest.h>
 #include <vector.h>
+#include <unordered_map>
+#include <string>
 #include "score.h"
 #include "general.h"
+#include "point.h"
 #include "compute.h"
 
 TEST(BasicScoreEqualsOneParallel, BasicAssertions)
@@ -11,19 +14,41 @@ TEST(BasicScoreEqualsOneParallel, BasicAssertions)
     std::string value("daisy daisy give me your answer do .");
     std::string expected("daisy daisy give me your answer do .");
 
-    std::vector<std::string> strings = organisation::split(expected);
+    std::vector<std::string> value_strings = organisation::split(value);
+    std::vector<std::string> expected_strings = organisation::split(expected);
+        
+    std::unordered_map<std::string, std::vector<organisation::point>> positions;
+    organisation::point expected_position(0,0,0);
+    for(auto &it: expected_strings)    
+    {
+        if(positions.find(it) == positions.end()) positions[it] = { };
+        positions[it].push_back(expected_position);
+        expected_position.x += 1;
+    }
 
     organisation::scores::score score;
     organisation::scores::settings settings;
 
+    organisation::compute compute;
+    
+    organisation::point value_position(0,0,0);
+    for(auto &it: value_strings)
+    {
+        compute.value.push_back(std::tuple<std::string, organisation::point>(it, value_position));
+        value_position.x += 1;
+    }
+
     organisation::statistics::data statistics(settings.max_collisions);
 
-    score.compute(organisation::compute(expected, value, statistics), settings);
+    compute.expected = expected_strings;
+    compute.stats = statistics;
 
+    score.compute(compute, positions, settings);
+    
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 2);
+    EXPECT_EQ(total, expected_strings.size() + 2);
 
     for(int i = 0; i < total; ++i)
     {
@@ -31,10 +56,8 @@ TEST(BasicScoreEqualsOneParallel, BasicAssertions)
     }
 
     std::vector<float> data = { 1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-                                1.0f, 1.0f, 1.0f, 1.0f, 1.0f,
-                                1.0f, 1.0f, 1.0f, 1.0f, 1.0f ,
-                                1.0f, 1.0f, 1.0f  };
-
+                                1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+                                
     EXPECT_EQ(values, data);
     EXPECT_FLOAT_EQ(score.sum(), 1.0f);
 }
@@ -42,24 +65,45 @@ TEST(BasicScoreEqualsOneParallel, BasicAssertions)
 TEST(BasicScoreOneOffParallel, BasicAssertions)
 {    
     GTEST_SKIP();
-    
+
     std::string value("daisy daisy monkey me your answer do .");
     std::string expected("daisy daisy give me your answer do .");
 
-    std::vector<std::string> strings = organisation::split(expected);
+    std::vector<std::string> value_strings = organisation::split(value);
+    std::vector<std::string> expected_strings = organisation::split(expected);
+        
+    std::unordered_map<std::string, std::vector<organisation::point>> positions;
+    organisation::point expected_position(0,0,0);
+    for(auto &it: expected_strings)    
+    {
+        if(positions.find(it) == positions.end()) positions[it] = { };
+        positions[it].push_back(expected_position);
+        expected_position.x += 1;
+    }
 
     organisation::scores::score score;
     organisation::scores::settings settings;
 
+    organisation::compute compute;
+    
+    organisation::point value_position(0,0,0);
+    for(auto &it: value_strings)
+    {
+        compute.value.push_back(std::tuple<std::string, organisation::point>(it, value_position));
+        value_position.x += 1;
+    }
+
     organisation::statistics::data statistics(settings.max_collisions);
 
+    compute.expected = expected_strings;
+    compute.stats = statistics;
 
-    score.compute(organisation::compute(expected, value, statistics), settings);
-
+    score.compute(compute, positions, settings);
+    
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 2);
+    EXPECT_EQ(total, expected_strings.size() + 2);
 
     for(int i = 0; i < total; ++i)
     {
@@ -67,364 +111,229 @@ TEST(BasicScoreOneOffParallel, BasicAssertions)
     }
 
     std::vector<float> data = { 1.0f, 1.0f, 0.0f, 1.0f, 1.0f,
-                                1.0f, 1.0f, 1.0f, 1.0f, 0.0f,
-                                0.0f, 1.0f, 1.0f, 1.0f, 1.0f ,
-                                1.0f, 1.0f, 1.0f  };
-
-    for(int i = 0; i < total; ++i)
-    {
-        EXPECT_FLOAT_EQ(values[i], data[i]);
-    }
-
-    EXPECT_FLOAT_EQ(score.sum(), 0.83333331f);
+                                1.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+                                
+    EXPECT_EQ(values, data);
+    EXPECT_FLOAT_EQ(score.sum(), 0.89999998f);
 }
 
-TEST(BasicScoreOneOffErrorParallel, BasicAssertions)
+TEST(BasicScoreCorrectButMixedParallel, BasicAssertions)
 {    
     GTEST_SKIP();
 
-    std::string value("daisy daisy me give your answer do .");
+    std::string value(". do answer your me give daisy daisy");
     std::string expected("daisy daisy give me your answer do .");
-    
-    std::vector<std::string> strings = organisation::split(expected);
+
+    std::vector<std::string> value_strings = organisation::split(value);
+    std::vector<std::string> expected_strings = organisation::split(expected);
+        
+    std::unordered_map<std::string, std::vector<organisation::point>> positions;
+    organisation::point expected_position(0,0,0);
+    for(auto &it: expected_strings)    
+    {
+        if(positions.find(it) == positions.end()) positions[it] = { };
+        positions[it].push_back(expected_position);
+        expected_position.x += 1;
+    }
 
     organisation::scores::score score;
     organisation::scores::settings settings;
 
+    organisation::compute compute;
+    
+    organisation::point value_position(0,0,0);
+    for(auto &it: value_strings)
+    {
+        compute.value.push_back(std::tuple<std::string, organisation::point>(it, value_position));
+        value_position.x += 1;
+    }
+
     organisation::statistics::data statistics(settings.max_collisions);
 
+    compute.expected = expected_strings;
+    compute.stats = statistics;
 
-    score.compute(organisation::compute(expected, value, statistics), settings);
-
+    score.compute(compute, positions, settings);
+    
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 2);
+    EXPECT_EQ(total, expected_strings.size() + 2);
 
     for(int i = 0; i < total; ++i)
     {
         values.push_back(score.get(i));
     }
 
-    std::vector<float> data = { 1.0f, 1.0f, 0.857142866f, 0.100000001f, 1.0f,
-                                1.0f, 1.0f, 1.0f, 1.0f, 0.857142866f,
-                                0.0f, 0.857142866f, 1.0f, 1.0f, 1.0f ,
-                                1.0f, 1.0f, 1.0f  };
-
-    for(int i = 0; i < total; ++i)
-    {
-        EXPECT_FLOAT_EQ(values[i], data[i]);
-    }
-
-    EXPECT_FLOAT_EQ(score.sum(), 0.87063485f);
+    std::vector<float> data = { 0.125f, 0.375f, 0.625f, 0.875f, 0.875f,
+                                0.625f, 0.375f, 0.25f, 1.0f, 1.0f };
+                                
+    EXPECT_EQ(values, data);
+    EXPECT_FLOAT_EQ(score.sum(), 0.61250001f);
 }
 
-TEST(BasicScoreTwoOffErrorParallel, BasicAssertions)
+TEST(BasicScoreCorrectButMixedWithGreaterLengthParallel, BasicAssertions)
 {    
     GTEST_SKIP();
 
-    std::string value("daisy daisy me your give answer do .");
+    std::string value(". do answer your me give daisy daisy monkey monkey chestnut");
     std::string expected("daisy daisy give me your answer do .");
-    
-    std::vector<std::string> strings = organisation::split(expected);
+
+    std::vector<std::string> value_strings = organisation::split(value);
+    std::vector<std::string> expected_strings = organisation::split(expected);
+        
+    std::unordered_map<std::string, std::vector<organisation::point>> positions;
+    organisation::point expected_position(0,0,0);
+    for(auto &it: expected_strings)    
+    {
+        if(positions.find(it) == positions.end()) positions[it] = { };
+        positions[it].push_back(expected_position);
+        expected_position.x += 1;
+    }
 
     organisation::scores::score score;
     organisation::scores::settings settings;
 
+    organisation::compute compute;
+    
+    organisation::point value_position(0,0,0);
+    for(auto &it: value_strings)
+    {
+        compute.value.push_back(std::tuple<std::string, organisation::point>(it, value_position));
+        value_position.x += 1;
+    }
+
     organisation::statistics::data statistics(settings.max_collisions);
 
+    compute.expected = expected_strings;
+    compute.stats = statistics;
 
-    score.compute(organisation::compute(expected, value, statistics), settings);
-
+    score.compute(compute, positions, settings);
+    
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 2);
+    EXPECT_EQ(total, expected_strings.size() + 2);
 
     for(int i = 0; i < total; ++i)
     {
         values.push_back(score.get(i));
     }
 
-    std::vector<float> data = { 1.0f, 1.0f, 0.714285731f, 0.100000001f, 0.100000001f, 1.0f, 1.0f, 1.0f, 
-                                1.0f, 0.714285731f, 0.0f, 1.0, 0.857142866f, 1.0f, 1.0f , 1.0f, 
-                                1.0f, 1.0f  };
-
-    for(int i = 0; i < total; ++i)
-    {
-        EXPECT_FLOAT_EQ(values[i], data[i]);
-    }
-
-    EXPECT_FLOAT_EQ(score.sum(), 0.80476189f);
+    std::vector<float> data = { 0.125f, 0.375f, 0.625f, 0.875f, 0.875f,
+                                0.625f, 0.375f, 0.25f, 1.0f, 0.625f };
+                                
+    EXPECT_EQ(values, data);
+    EXPECT_FLOAT_EQ(score.sum(), 0.57499999f);
 }
 
-TEST(BasicScoreThreeOffErrorParallel, BasicAssertions)
+TEST(BasicScoreCorrectButMixedWithLessLengthParallel, BasicAssertions)
 {    
     GTEST_SKIP();
 
-    std::string value("daisy daisy me your answer give do .");
+    std::string value(". do answer your me give");
     std::string expected("daisy daisy give me your answer do .");
-    
-    std::vector<std::string> strings = organisation::split(expected);
+
+    std::vector<std::string> value_strings = organisation::split(value);
+    std::vector<std::string> expected_strings = organisation::split(expected);
+        
+    std::unordered_map<std::string, std::vector<organisation::point>> positions;
+    organisation::point expected_position(0,0,0);
+    for(auto &it: expected_strings)    
+    {
+        if(positions.find(it) == positions.end()) positions[it] = { };
+        positions[it].push_back(expected_position);
+        expected_position.x += 1;
+    }
 
     organisation::scores::score score;
     organisation::scores::settings settings;
 
+    organisation::compute compute;
+    
+    organisation::point value_position(0,0,0);
+    for(auto &it: value_strings)
+    {
+        compute.value.push_back(std::tuple<std::string, organisation::point>(it, value_position));
+        value_position.x += 1;
+    }
+
     organisation::statistics::data statistics(settings.max_collisions);
 
+    compute.expected = expected_strings;
+    compute.stats = statistics;
 
-    score.compute(organisation::compute(expected, value, statistics), settings);
-
+    score.compute(compute, positions, settings);
+    
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 2);
+    EXPECT_EQ(total, expected_strings.size() + 2);
 
     for(int i = 0; i < total; ++i)
     {
         values.push_back(score.get(i));
     }
 
-    std::vector<float> data = { 1.0f, 1.0f, 0.571428537f, 0.100000001f, 0.100000001f, 0.100000001f, 1.0f, 1.0f, 
-                                1.0f, 0.571428537f, 0.0f, 1.0, 1.0f, 0.857142866f, 1.0f, 1.0f, 
-                                1.0f, 1.0f  };
-
-    for(int i = 0; i < total; ++i)
-    {
-        EXPECT_FLOAT_EQ(values[i], data[i]);
-    }
-
-    EXPECT_FLOAT_EQ(score.sum(), 0.73888886f);
+    std::vector<float> data = { 0.125f, 0.375f, 0.625f, 0.875f, 0.875f,
+                                0.625f, 0.0f, 0.0f, 1.0f, 0.75f };
+                                
+    EXPECT_EQ(values, data);
+    EXPECT_FLOAT_EQ(score.sum(), 0.52499998f);
 }
 
-TEST(BasicScoreRepeatOneParallel, BasicAssertions)
+TEST(BasicScoreAllInCorrectButWithSameLengthParallel, BasicAssertions)
 {    
     GTEST_SKIP();
 
-    std::string value("daisy daisy daisy give me your answer do .");
+    std::string value("monkey banana apple ape susan landmine tea hedgehog");
     std::string expected("daisy daisy give me your answer do .");
-    
-    std::vector<std::string> strings = organisation::split(expected);
+
+    std::vector<std::string> value_strings = organisation::split(value);
+    std::vector<std::string> expected_strings = organisation::split(expected);
+        
+    std::unordered_map<std::string, std::vector<organisation::point>> positions;
+    organisation::point expected_position(0,0,0);
+    for(auto &it: expected_strings)    
+    {
+        if(positions.find(it) == positions.end()) positions[it] = { };
+        positions[it].push_back(expected_position);
+        expected_position.x += 1;
+    }
 
     organisation::scores::score score;
     organisation::scores::settings settings;
 
+    organisation::compute compute;
+    
+    organisation::point value_position(0,0,0);
+    for(auto &it: value_strings)
+    {
+        compute.value.push_back(std::tuple<std::string, organisation::point>(it, value_position));
+        value_position.x += 1;
+    }
+
     organisation::statistics::data statistics(settings.max_collisions);
 
+    compute.expected = expected_strings;
+    compute.stats = statistics;
 
-    score.compute(organisation::compute(expected, value, statistics), settings);
-
+    score.compute(compute, positions, settings);
+    
     std::vector<float> values;
     int total = score.size();
 
-    EXPECT_EQ(total, (strings.size() * 2) + 2);
+    EXPECT_EQ(total, expected_strings.size() + 2);
 
     for(int i = 0; i < total; ++i)
     {
         values.push_back(score.get(i));
     }
 
-    std::vector<float> data = { 1.0f, 1.0f, 0.857142866f, 0.857142866f, 0.857142866f, 0.857142866f, 0.857142866f, 0.857142866f, 
-                                1.0f, 0.857142866f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 
-                                0.5f, 1.0f  };
-
-    for(int i = 0; i < total; ++i)
-    {
-        EXPECT_FLOAT_EQ(values[i], data[i]);
-    }
-
-    EXPECT_FLOAT_EQ(score.sum(), 0.91666657f);
+    std::vector<float> data = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+                                0.0f, 0.0f, 0.0f, 1.0f, 1.0f };
+                                
+    EXPECT_EQ(values, data);
+    EXPECT_FLOAT_EQ(score.sum(), 0.2f);
 }
 
-TEST(BasicScoreRepeatTwoParallel, BasicAssertions)
-{    
-    GTEST_SKIP();
-
-    std::string value("daisy daisy daisy daisy give me your answer do .");
-    std::string expected("daisy daisy give me your answer do .");
-    
-    std::vector<std::string> strings = organisation::split(expected);
-
-    organisation::scores::score score;
-    organisation::scores::settings settings;
-
-    organisation::statistics::data statistics(settings.max_collisions);
-
-
-    score.compute(organisation::compute(expected, value, statistics), settings);
-
-    std::vector<float> values;
-    int total = score.size();
-
-    EXPECT_EQ(total, (strings.size() * 2) + 2);
-
-    for(int i = 0; i < total; ++i)
-    {
-        values.push_back(score.get(i));
-    }
-
-    std::vector<float> data = { 1.0f, 1.0f, 0.714285731f, 0.714285731f, 0.714285731f, 0.714285731f, 0.714285731f, 0.714285731f, 
-                                1.0f, 0.714285731f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 
-                                0.33333334f, 1.0f  };
-
-    for(int i = 0; i < total; ++i)
-    {
-        EXPECT_FLOAT_EQ(values[i], data[i]);
-    }
-
-    EXPECT_FLOAT_EQ(score.sum(), 0.85185188f);
-}
-
-TEST(BasicScoreRepeatThreeParallel, BasicAssertions)
-{    
-    GTEST_SKIP();
-
-    std::string value("daisy daisy daisy daisy daisy give me your answer do .");
-    std::string expected("daisy daisy give me your answer do .");
-    
-    std::vector<std::string> strings = organisation::split(expected);
-
-    organisation::scores::score score;
-    organisation::scores::settings settings;
-
-    organisation::statistics::data statistics(settings.max_collisions);
-
-
-    score.compute(organisation::compute(expected, value, statistics), settings);
-
-    std::vector<float> values;
-    int total = score.size();
-
-    EXPECT_EQ(total, (strings.size() * 2) + 2);
-
-    for(int i = 0; i < total; ++i)
-    {
-        values.push_back(score.get(i));
-    }
-
-    std::vector<float> data = { 1.0f, 1.0f, 0.571428537f, 0.571428537f, 0.571428537f, 0.571428537f, 0.571428537f, 0.571428537f, 
-                                1.0f, 0.571428537f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 
-                                0.200000003f, 1.0f };
-
-    for(int i = 0; i < total; ++i)
-    {
-        EXPECT_FLOAT_EQ(values[i], data[i]);
-    }
-
-    EXPECT_FLOAT_EQ(score.sum(), 0.78888875f);
-}
-
-TEST(BasicScoreShortSentenceParallel, BasicAssertions)
-{    
-    GTEST_SKIP();
-
-    std::string value("daisy");
-    std::string expected("daisy daisy give me your answer do .");
-    
-    std::vector<std::string> strings = organisation::split(expected);
-
-    organisation::scores::score score;
-    organisation::scores::settings settings;
-
-    organisation::statistics::data statistics(settings.max_collisions);
-
-    score.compute(organisation::compute(expected, value, statistics), settings);
-
-    std::vector<float> values;
-    int total = score.size();
-
-    EXPECT_EQ(total, (strings.size() * 2) + 2);
-
-    for(int i = 0; i < total; ++i)
-    {
-        values.push_back(score.get(i));
-    }
-
-    std::vector<float> data = { 1.0f, 0.100000001f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 
-                                0.0294117648f, 1.0f };
-
-    for(int i = 0; i < total; ++i)
-    {
-        EXPECT_FLOAT_EQ(values[i], data[i]);
-    }
-
-    EXPECT_FLOAT_EQ(score.sum(), 0.11830065f);
-}
-
-TEST(BasicScoreBadOrderOneParallel, BasicAssertions)
-{    
-    GTEST_SKIP();
-
-    std::string value("me your answer do . daisy daisy give");
-    std::string expected("daisy daisy give me your answer do .");
-    
-    std::vector<std::string> strings = organisation::split(expected);
-
-    organisation::scores::score score;
-    organisation::scores::settings settings;
-
-    organisation::statistics::data statistics(settings.max_collisions);
-
-    score.compute(organisation::compute(expected, value, statistics), settings);
-
-    std::vector<float> values;
-    int total = score.size();
-
-    EXPECT_EQ(total, (strings.size() * 2) + 2);
-
-    for(int i = 0; i < total; ++i)
-    {
-        values.push_back(score.get(i));
-    }
-
-    std::vector<float> data = { 0.285714269f, 0.428571403f, 0.285714269f, 0.100000001f, 0.100000001f, 0.100000001f, 0.100000001f, 0.100000001f,
-                                0.0f, 0.857142866f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.571428537f, 
-                                1.0f, 1.0f };
-
-    for(int i = 0; i < total; ++i)
-    {
-        EXPECT_FLOAT_EQ(values[i], data[i]);
-    }
-
-    EXPECT_FLOAT_EQ(score.sum(), 0.49603164f);
-}
-
-TEST(BasicScoreIncorrectParallel, BasicAssertions)
-{    
-    GTEST_SKIP();
-
-    std::string value("incorrect");
-    std::string expected("daisy daisy give me your answer do .");
-    
-    std::vector<std::string> strings = organisation::split(expected);
-
-    organisation::scores::score score;
-    organisation::scores::settings settings;
-
-    organisation::statistics::data statistics(settings.max_collisions);
-
-
-    score.compute(organisation::compute(expected, value, statistics), settings);
-
-    std::vector<float> values;
-    int total = score.size();
-
-    EXPECT_EQ(total, (strings.size() * 2) + 2);
-
-    for(int i = 0; i < total; ++i)
-    {
-        values.push_back(score.get(i));
-    }
-
-    std::vector<float> data = { 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                                0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-                                0.0294117648f, 1.0f };
-
-    for(int i = 0; i < total; ++i)
-    {
-        EXPECT_FLOAT_EQ(values[i], data[i]);
-    }
-
-    EXPECT_FLOAT_EQ(score.sum(), 0.057189543f);
-}

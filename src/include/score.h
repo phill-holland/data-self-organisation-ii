@@ -1,4 +1,5 @@
 #include "compute.h"
+//#include "genetic/cache.h"
 #include <string>
 #include <vector>
 #include <unordered_map>
@@ -12,17 +13,14 @@ namespace organisation
     {
         class settings
         {
-            static const int MAX_WORDS = 5;
             static const int MAX_COLLISIONS = 10;
 
-        public:
-            int max_words;
+        public:         
             int max_collisions;
 
         public:
-            settings(int _max_words = MAX_WORDS, int _max_collisions = MAX_COLLISIONS)
-            {
-                max_words = _max_words;
+            settings(int _max_collisions = MAX_COLLISIONS)
+            {                
                 max_collisions = _max_collisions;
             }
         };
@@ -38,8 +36,10 @@ namespace organisation
 
             void clear();
             
-            bool compute(organisation::compute value, settings params = settings());
+            //bool compute(organisation::compute value, settings params = settings());
 
+            bool compute(organisation::compute value, std::unordered_map<std::string, std::vector<point>> &positions, settings params = settings());
+        
             float sum();
 
             bool set(float value, int index);
@@ -50,8 +50,8 @@ namespace organisation
         public:
             void copy(const score &source);
             
-        protected:
-            float compute_comparative_length_score(std::string expected, std::string value);
+        //protected:
+            //float compute_comparative_length_score(std::vector<std::string> &expected, std::vector<std::string> &value);
             
         public:
             bool operator==(const score &src) const

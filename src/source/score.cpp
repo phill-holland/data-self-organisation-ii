@@ -2,16 +2,99 @@
 #include <iostream>
 #include <tuple>
 #include <sstream>
+#include <algorithm>
 
 void organisation::scores::score::clear()
 {
 	scores.clear();
 }
 
+
+// conditions for this are;
+// parmeters.dimensions = 1
+// params.output_stationary_only = true
+
+bool organisation::scores::score::compute(organisation::compute value, std::unordered_map<std::string, std::vector<organisation::point>> &positions, settings params)
+{
+	auto _distance = [](float f1, float f2, float max)
+	{
+		float distance = (float)std::abs(f1 - f2);
+
+		if(distance > max) distance = max;
+		float result = ((distance / max) * -1.0f) + 1.0f;
+		
+		if(result < 0.0f) result = 0.0f;
+		if(result > 1.0f) result = 1.0f;
+
+		return result;
+	};
+
+	clear();
+
+	for(int i = 0; i < value.expected.size() + 2; ++i) 
+	{
+		set(0.0f, i);
+	}
+
+	set(_distance((float)value.value.size(), (float)value.expected.size(), (float)value.expected.size()), value.expected.size() + 1);
+
+	int collisions = value.stats.collisions;
+	if(collisions > params.max_collisions) collisions = params.max_collisions;
+	if(params.max_collisions > 0)
+		set(((float)collisions) / ((float)params.max_collisions), value.expected.size());
+	else
+		set(1.0f, value.expected.size());
+
+	int length = value.value.size();
+	if(length > value.expected.size()) length = value.expected.size();
+	
+	for(int i = 0; i < length; ++i)
+	{
+		std::string expected = value.expected[i];
+		std::tuple<std::string, point> candidate = value.value[i];
+
+		if(expected.compare(std::get<0>(candidate)) == 0)
+		{
+			set(1.0f, i);	
+		}
+		else if(std::find(value.expected.begin(),value.expected.end(),std::get<0>(candidate)) == value.expected.end())
+		{
+			set(0.0f, i);
+		}
+		else
+		{
+			const float maximum_distance = (float)value.expected.size();
+			float minimum_distance = maximum_distance;
+
+			point a = std::get<1>(candidate);
+
+			if(positions.find(std::get<0>(candidate)) != positions.end())
+			{				
+				for(auto &it : positions[std::get<0>(candidate)])
+				{
+					point b = it;
+
+					float ax = (float)(a.x - b.x);
+					float ay = (float)(a.y - b.y);
+					float az = (float)(a.z - b.z);
+
+					float temp = sqrtf(ax * ax + ay * ay + az * az);
+					if(temp < minimum_distance) minimum_distance = temp;
+				}
+			}
+
+			set(((minimum_distance / (float)(maximum_distance)) * -1.0f) + 1.0f, i);
+		}
+	}
+
+	return true;
+}
+
 // first half relative distance from word in front
 // second half, relative distance away from words "primary place"
 // last value, scoare rating on sentence length
 
+/*
 bool organisation::scores::score::compute(organisation::compute value, settings params)
 {
 	auto _words = [](std::string source)
@@ -104,7 +187,8 @@ bool organisation::scores::score::compute(organisation::compute value, settings 
 		return result;
 	};
 
-	std::vector<std::tuple<std::string,int>> alphabet = _split(value.expected);
+	//std::vector<std::tuple<std::string,int>> alphabet = _split(value.expected);
+	std::vector<std::string> alphabet = value.expected;
 	
 	int score_len = (alphabet.size() * 2) + 1;
 	for(int i = 0; i < score_len + 1; ++i) set(0.0f, i);
@@ -178,7 +262,7 @@ bool organisation::scores::score::compute(organisation::compute value, settings 
 	
 	return valid;
 }
-
+*/
 float organisation::scores::score::sum()
 {    
 	if(scores.size() <= 0) return 0.0f;
@@ -218,8 +302,10 @@ void organisation::scores::score::copy(const score &source)
     }
 }
 
-float organisation::scores::score::compute_comparative_length_score(std::string expected, std::string value)
+/*
+float organisation::scores::score::compute_comparative_length_score(std::vector<std::string> &expected, std::vector<std::string> &value)
 {
+	
 	auto _words = [](std::string source)
     {
         std::stringstream stream(source);  
@@ -233,11 +319,12 @@ float organisation::scores::score::compute_comparative_length_score(std::string 
 
         return index;
     };
+	
 
 	const int MAX_WORD_COUNT_DELTA = 10;
 
-	int l1 = _words(expected);
-	int l2 = _words(value);
+	int l1 = expected.size(); //_words(expected);
+	int l2 = value.size();//_words(value);
 
 	const float fib[] = { 1.0f, 2.0f, 3.0f, 5.0f, 8.0f, 13.0f, 21.0f, 34.0f, 55.0f, 89.0f, 144.0f };
 	
@@ -246,3 +333,4 @@ float organisation::scores::score::compute_comparative_length_score(std::string 
 
 	return (1.0f / fib[delta]);
 }
+*/

@@ -131,6 +131,19 @@ organisation::schema organisation::populations::population::go(int &count, int i
 
 organisation::populations::results organisation::populations::population::execute(organisation::schema **buffer)
 {  
+    auto _build = [](std::vector<std::tuple<std::string,point>> &source)
+    {
+        std::string result;
+
+        for(auto &it: source)
+        {
+            if(result.size() > 0) result += " ";
+            result += std::get<0>(it);
+        }
+
+        return result;
+    };
+
     std::chrono::high_resolution_clock::time_point previous = std::chrono::high_resolution_clock::now();   
 
     programs->clear();
@@ -148,6 +161,7 @@ organisation::populations::results organisation::populations::population::execut
         organisation::inputs::epoch e;
         if(settings.input.get(e,epoch))
         {
+            std::vector<std::string> expected = split(e.expected);
             std::vector<organisation::outputs::data> scores = outputs[epoch].values;
             
             for(auto &it:scores)
@@ -155,13 +169,12 @@ organisation::populations::results organisation::populations::population::execut
                 if(output_mappings.find(it.client) == output_mappings.end())
                     output_mappings[it.client] = std::vector<compute>(outputs.size());
 
-                if(output_mappings[it.client][epoch].value.size() > 0) output_mappings[it.client][epoch].value += " ";
-                output_mappings[it.client][epoch].value += it.value;  
+                output_mappings[it.client][epoch].value.push_back(std::tuple<std::string,point>(it.value, it.position));
             }
             
             for(auto &it:output_mappings)
             {
-                output_mappings[it.first][epoch].expected = e.expected;
+                output_mappings[it.first][epoch].expected = expected;
                 output_mappings[it.first][epoch].stats = statistics[it.first].epochs[epoch];
             }                
         }
@@ -173,7 +186,9 @@ organisation::populations::results organisation::populations::population::execut
     {
         if((it.first >= 0)&&(it.first < settings.clients()))
         {
-            buffer[it.first]->compute(it.second, settings.scores);
+            std::unordered_map<std::string, std::vector<point>> positions = buffer[it.first]->prog.get(settings.mappings);
+         
+            buffer[it.first]->compute(it.second, positions, settings.scores);
 
             float score = buffer[it.first]->sum();
             if(score > result.best)
@@ -189,13 +204,13 @@ organisation::populations::results organisation::populations::population::execut
     std::cout << "result.index [" << result.index << "] " << result.best << "\r\n";
     for(auto &it:output_mappings[result.index])
     {
-        std::string temp = it.value;        
+        std::string temp = _build(it.value);
         if(temp.size() > 80)
         {
             temp.resize(80);
             temp += "...";
         }
-        std::cout << it.expected << "=" << temp << "(" << std::to_string(it.stats.collisions) << ")\r\n";
+        std::cout << concat(it.expected) << "=" << temp << "(" << std::to_string(it.stats.collisions) << ")\r\n";
     }
 
     if(outputs.size() > 0)

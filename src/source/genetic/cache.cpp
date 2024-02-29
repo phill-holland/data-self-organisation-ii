@@ -19,17 +19,18 @@ bool organisation::genetic::cache::set(point value, point position)
     return false;
 }
 
-std::unordered_map<int, std::vector<organisation::point>> organisation::genetic::cache::get()
+std::unordered_map<std::string, std::vector<organisation::point>> organisation::genetic::cache::get(data &source)
 {
-    std::unordered_map<int, std::vector<organisation::point>> result;
+    std::unordered_map<std::string, std::vector<organisation::point>> result;
 
     for(auto &it: values)
     {     
         point data = std::get<0>(it);
         point position = std::get<1>(it);
 
-        if(result.find(data.x) == result.end()) result[data.x] = { };
-        result[data.x].push_back(position);
+        std::string mapped = source.map(data.x);
+        if(result.find(mapped) == result.end()) result[mapped] = { };
+        result[mapped].push_back(position);
     }
 
     return result;

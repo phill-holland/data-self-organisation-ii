@@ -46,7 +46,7 @@ organisation::schema getSchema(organisation::parameters &parameters,
 
 TEST(BasicPopulationTestParallel, BasicAssertions)
 {    
-    GTEST_SKIP();
+    //GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -83,7 +83,7 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
     organisation::schema s6 = getSchema(parameters, { 0, 0,-1 }, {-1, 0, 0 }, {10, 10, 7 }, { 5, -1, -1 }, 1);
 
     organisation::scores::score match;
-    match.set(1.0f,0); match.set(1.0f,1); match.set(1.0f,2); match.set(0.0f,3);
+    match.set(1.0f,0); match.set(0.0f,1); match.set(1.0f,2);
 
     s1.scores[0] = match;
 
@@ -108,7 +108,7 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
     organisation::schema result = population.go(generation, generations);
 
     EXPECT_TRUE(result.equals(s1));
-    EXPECT_FLOAT_EQ(result.sum(), 0.75f);
+    EXPECT_FLOAT_EQ(result.sum(), 0.66666669f);
 }
 
 TEST(BasicPopulationTestTwoEpochsParallel, BasicAssertions)
@@ -125,11 +125,11 @@ TEST(BasicPopulationTestTwoEpochsParallel, BasicAssertions)
 
     std::vector<float> expected_sums = {
         0.5f,
-        0.25f,
+        0.33333334f,
         0.5f,
-        0.25f,
-        0.25f,
-        0.25f
+        0.33333334f,
+        0.33333334f,
+        0.33333334f
     };
 
     std::vector<std::string> strings = organisation::split(values1);
@@ -164,10 +164,10 @@ TEST(BasicPopulationTestTwoEpochsParallel, BasicAssertions)
     organisation::schema s6 = getSchema(parameters, { 0, 0,-1 }, {-1, 0, 0 }, {10, 10, 7 }, { 5, -1, -1 }, 1);
 
     organisation::scores::score match;
-    match.set(1.0f,0); match.set(1.0f,1); match.set(1.0f,2); match.set(0.0f,3);
+    match.set(1.0f,0); match.set(0.0f,1); match.set(1.0f,2);
 
     organisation::scores::score incorrect;
-    incorrect.set(0.0f,0); incorrect.set(0.0f,1); incorrect.set(1.0f,2); incorrect.set(0.0f,3);
+    incorrect.set(0.0f,0); incorrect.set(0.0f,1); incorrect.set(1.0f,2);
 
     s1.scores[0] = match; s1.scores[1] = incorrect;
     s2.scores[0] = incorrect; s2.scores[1] = incorrect;

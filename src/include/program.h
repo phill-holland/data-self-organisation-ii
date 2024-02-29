@@ -78,6 +78,11 @@ namespace organisation
         int height() { return _height; }
         int depth() { return _depth; }
         
+        std::unordered_map<std::string, std::vector<point>> get(data &source)
+        {
+            return caches.get(source);
+        }
+
     public:
         void copy(const program &source);
         bool equals(const program &source);

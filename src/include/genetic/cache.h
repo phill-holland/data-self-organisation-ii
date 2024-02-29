@@ -54,7 +54,7 @@ namespace organisation
 
             bool set(point value, point position);
 
-            std::unordered_map<int, std::vector<point>> get();
+            std::unordered_map<std::string, std::vector<point>> get(data &source);
             
             std::string serialise();
             void deserialise(std::string source);
