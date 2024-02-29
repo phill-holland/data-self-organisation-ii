@@ -117,7 +117,7 @@ TEST(BasicScoreOneOffParallel, BasicAssertions)
     EXPECT_FLOAT_EQ(score.sum(), 0.89999998f);
 }
 
-TEST(BasicScoreCorrectButMixedParallel, BasicAssertions)
+TEST(BasicWordsCorrectButMixedParallel, BasicAssertions)
 {    
     GTEST_SKIP();
 
@@ -141,11 +141,11 @@ TEST(BasicScoreCorrectButMixedParallel, BasicAssertions)
 
     organisation::compute compute;
     
-    organisation::point value_position(0,0,0);
+    organisation::point value_position(0,1,0);
     for(auto &it: value_strings)
     {
         compute.value.push_back(std::tuple<std::string, organisation::point>(it, value_position));
-        value_position.x += 1;
+        value_position.y += 1;
     }
 
     organisation::statistics::data statistics(settings.max_collisions);
@@ -165,11 +165,16 @@ TEST(BasicScoreCorrectButMixedParallel, BasicAssertions)
         values.push_back(score.get(i));
     }
 
-    std::vector<float> data = { 0.125f, 0.375f, 0.625f, 0.875f, 0.875f,
-                                0.625f, 0.375f, 0.25f, 1.0f, 1.0f };
+    std::vector<float> data = { 0.9f, 0.8f, 0.639445f, 0.5f, 0.35968757f,
+                                0.218975f, 0.078045547f, 0.0f, 1.0f, 1.0f };
                                 
-    EXPECT_EQ(values, data);
-    EXPECT_FLOAT_EQ(score.sum(), 0.61250001f);
+    EXPECT_EQ(values.size(), data.size());
+    for(int i = 0; i < values.size(); ++i)
+    {
+        EXPECT_FLOAT_EQ(values[i], data[i]);
+    }
+    
+    EXPECT_FLOAT_EQ(score.sum(), 0.54961532f);
 }
 
 TEST(BasicScoreCorrectButMixedWithGreaterLengthParallel, BasicAssertions)
@@ -196,11 +201,11 @@ TEST(BasicScoreCorrectButMixedWithGreaterLengthParallel, BasicAssertions)
 
     organisation::compute compute;
     
-    organisation::point value_position(0,0,0);
+    organisation::point value_position(0,1,0);
     for(auto &it: value_strings)
     {
         compute.value.push_back(std::tuple<std::string, organisation::point>(it, value_position));
-        value_position.x += 1;
+        value_position.y += 1;
     }
 
     organisation::statistics::data statistics(settings.max_collisions);
@@ -220,11 +225,16 @@ TEST(BasicScoreCorrectButMixedWithGreaterLengthParallel, BasicAssertions)
         values.push_back(score.get(i));
     }
 
-    std::vector<float> data = { 0.125f, 0.375f, 0.625f, 0.875f, 0.875f,
-                                0.625f, 0.375f, 0.25f, 1.0f, 0.625f };
+    std::vector<float> data = { 0.9f, 0.8f, 0.639445f, 0.5f, 0.35968757f,
+                                0.218975f, 0.078045547f, 0.0f, 1.0f, 0.625f };
                                 
-    EXPECT_EQ(values, data);
-    EXPECT_FLOAT_EQ(score.sum(), 0.57499999f);
+    EXPECT_EQ(values.size(), data.size());
+    for(int i = 0; i < values.size(); ++i)
+    {
+        EXPECT_FLOAT_EQ(values[i], data[i]);
+    }
+
+    EXPECT_FLOAT_EQ(score.sum(), 0.51211536f);
 }
 
 TEST(BasicScoreCorrectButMixedWithLessLengthParallel, BasicAssertions)
@@ -251,11 +261,11 @@ TEST(BasicScoreCorrectButMixedWithLessLengthParallel, BasicAssertions)
 
     organisation::compute compute;
     
-    organisation::point value_position(0,0,0);
+    organisation::point value_position(0,1,0);
     for(auto &it: value_strings)
     {
         compute.value.push_back(std::tuple<std::string, organisation::point>(it, value_position));
-        value_position.x += 1;
+        value_position.y += 1;
     }
 
     organisation::statistics::data statistics(settings.max_collisions);
@@ -275,11 +285,15 @@ TEST(BasicScoreCorrectButMixedWithLessLengthParallel, BasicAssertions)
         values.push_back(score.get(i));
     }
 
-    std::vector<float> data = { 0.125f, 0.375f, 0.625f, 0.875f, 0.875f,
-                                0.625f, 0.0f, 0.0f, 1.0f, 0.75f };
+    std::vector<float> data = { 0.9f, 0.8f, 0.639445f, 0.5f, 0.35968757f,
+                                0.218975f, 0.0f, 0.0f, 1.0f, 0.75f };
                                 
-    EXPECT_EQ(values, data);
-    EXPECT_FLOAT_EQ(score.sum(), 0.52499998f);
+    EXPECT_EQ(values.size(), data.size());
+    for(int i = 0; i < values.size(); ++i)
+    {
+        EXPECT_FLOAT_EQ(values[i], data[i]);
+    }
+    EXPECT_FLOAT_EQ(score.sum(), 0.51681077f);
 }
 
 TEST(BasicScoreAllInCorrectButWithSameLengthParallel, BasicAssertions)
@@ -306,11 +320,11 @@ TEST(BasicScoreAllInCorrectButWithSameLengthParallel, BasicAssertions)
 
     organisation::compute compute;
     
-    organisation::point value_position(0,0,0);
+    organisation::point value_position(0,1,0);
     for(auto &it: value_strings)
     {
         compute.value.push_back(std::tuple<std::string, organisation::point>(it, value_position));
-        value_position.x += 1;
+        value_position.y += 1;
     }
 
     organisation::statistics::data statistics(settings.max_collisions);

@@ -14,14 +14,17 @@ namespace organisation
         class settings
         {
             static const int MAX_COLLISIONS = 10;
+            static const int MAX_DISTANCE = 10;
 
         public:         
             int max_collisions;
+            int max_distance;
 
         public:
-            settings(int _max_collisions = MAX_COLLISIONS)
+            settings(int _max_collisions = MAX_COLLISIONS, int _max_distance = MAX_DISTANCE)
             {                
                 max_collisions = _max_collisions;
+                max_distance = _max_distance;
             }
         };
 

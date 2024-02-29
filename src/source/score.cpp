@@ -63,14 +63,14 @@ bool organisation::scores::score::compute(organisation::compute value, std::unor
 		}
 		else
 		{
-			const float maximum_distance = (float)value.expected.size();
+			const float maximum_distance = (float)params.max_distance;
 			float minimum_distance = maximum_distance;
 
 			point a = std::get<1>(candidate);
 
-			if(positions.find(std::get<0>(candidate)) != positions.end())
+			if(positions.find(expected) != positions.end())
 			{				
-				for(auto &it : positions[std::get<0>(candidate)])
+				for(auto &it : positions[expected])
 				{
 					point b = it;
 

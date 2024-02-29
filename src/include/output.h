@@ -25,6 +25,12 @@ namespace organisation
                 index = _index;
                 position = _position;
             }
+
+        public:
+            bool operator==(const data &src) const
+            {
+                return value == src.value && client == src.client && index == src.index && position == src.position;
+            }
         };
 
         class output
@@ -36,6 +42,12 @@ namespace organisation
             void clear()
             {
                 values.clear();
+            }
+
+        public:
+            bool operator==(const output &src) const
+            {
+                return values == src.values;
             }
         };
     };

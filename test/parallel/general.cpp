@@ -1536,3 +1536,93 @@ TEST(BasicProgramAllDirectionsParallel, BasicAssertions)
         if(it != NULL) delete it;
    }
 }
+
+TEST(BasicProgramMovementAndCollisionPositionOutputParallel, BasicAssertions)
+{    
+    GTEST_SKIP();
+
+    const int width = 20, height = 20, depth = 20;
+    organisation::point starting(width / 2, height / 2, depth / 2);
+
+    std::string dictionary("daisy give me");
+    std::string input1("daisy");
+   
+    std::vector<std::string> strings = organisation::split(dictionary);
+    organisation::data mappings(strings);
+
+	::parallel::device device(0);
+	::parallel::queue queue(device);
+
+    organisation::parameters parameters(width, height, depth);
+    parameters.mappings = mappings;
+    parameters.dim_clients = organisation::point(1,1,1);
+    parameters.iterations = 30;
+    parameters.output_stationary_only = true;
+
+    organisation::inputs::epoch epoch1(input1);
+    parameters.input.push_back(epoch1);
+
+    parallel::mapper::configuration mapper;
+    mapper.origin = organisation::point(width / 2, height / 2, depth / 2);
+    
+    organisation::parallel::program program(device, &queue, mapper, parameters);
+    
+    EXPECT_TRUE(program.initalised());
+    
+    organisation::schema s1(parameters);
+
+    organisation::genetic::insert insert;
+    insert.values = { 1,2,3 };    
+
+    organisation::vector up(0, 1, 0);
+    organisation::vector rebound(1, 0, 0);
+
+    organisation::genetic::movement movement;
+    movement.directions = { up };
+
+    organisation::genetic::cache cache(parameters);
+
+    cache.set(organisation::point(0,-1,-1), organisation::point(starting.x,starting.y + 2, starting.z));
+    cache.set(organisation::point(0,-1,-1), organisation::point(starting.x + 1,starting.y + 4, starting.z));
+    cache.set(organisation::point(2,-1,-1), organisation::point(starting.x + 2,starting.y + 6, starting.z));
+    cache.set(organisation::point(1,-1,-1), organisation::point(starting.x + 3,starting.y + 8, starting.z));
+
+    organisation::genetic::collisions collisions(parameters);
+
+    int offset = 0;
+    for(int i = 0; i < parameters.mappings.maximum(); ++i)
+    {        
+        collisions.set(rebound.encode(), offset + up.encode());
+        offset += parameters.max_collisions;
+    }
+
+    s1.prog.set(cache);
+    s1.prog.set(insert);
+    s1.prog.set(movement);
+    s1.prog.set(collisions);
+    // ***
+
+    std::vector<organisation::schema*> source = { &s1 };
+    
+    program.copy(source.data(), source.size());
+    program.set(mappings, parameters.input);
+
+    program.run(mappings);
+
+    std::vector<organisation::outputs::output> results = program.get(mappings);
+    
+    std::vector<organisation::outputs::data> data = {
+        organisation::outputs::data(std::string("daisy"), 0, 4, organisation::point(10,12,10)),
+        organisation::outputs::data(std::string("daisy"), 0, 8, organisation::point(11,14,10)),
+        organisation::outputs::data(std::string("me")   , 0,12, organisation::point(12,16,10)),
+        organisation::outputs::data(std::string("give") , 0,16, organisation::point(13,18,10)),
+    };
+
+    std::vector<organisation::outputs::output> expected;
+    organisation::outputs::output output;
+    output.values = data;
+
+    expected.push_back(output);
+
+    EXPECT_EQ(results, expected);
+}

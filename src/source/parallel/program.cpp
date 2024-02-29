@@ -766,6 +766,7 @@ void organisation::parallel::program::outputting(int epoch, int iteration)
         auto _values = deviceValues;
         auto _positions = devicePositions;           
         auto _oldPositions = deviceOldPositions;
+        auto _nextPositions = deviceNextPositions;
         auto _collisionCounts = deviceCollisionCounts;
         auto _client = deviceClient;        
         auto _nextCollisionKeys = deviceNextCollisionKeys;
@@ -843,7 +844,7 @@ void organisation::parallel::program::outputting(int epoch, int iteration)
                         _outputValues[idx] = value;
                         _outputIndex[idx] = _iteration;
                         _outputClient[idx] = _client[i];  
-                        _outputPosition[idx] = _positions[i];                      
+                        _outputPosition[idx] = _nextPositions[i];                      
                     }
                 }  
             }
