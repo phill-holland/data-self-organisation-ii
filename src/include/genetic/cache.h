@@ -19,8 +19,12 @@ namespace organisation
 
             int _width, _height, _depth;
 
+            int _max_cache;
+            int _max_values;
+            int _max_cache_dimension;
+
         public:
-            std::vector<std::tuple<int,point>> values;
+            std::vector<std::tuple<point,point>> values;
             std::unordered_map<int,point> points;
 
         public:
@@ -29,6 +33,10 @@ namespace organisation
                 _width = settings.width;
                 _height = settings.height;
                 _depth = settings.depth;
+
+                _max_cache = settings.max_cache;
+                _max_values = settings.max_values;
+                _max_cache_dimension = settings.max_cache_dimension;
             }
 
         public:
@@ -44,7 +52,7 @@ namespace organisation
                 return values.empty() || points.empty();
             }
 
-            bool set(int value, point position);
+            bool set(point value, point position);
 
             std::string serialise();
             void deserialise(std::string source);

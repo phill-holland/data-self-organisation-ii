@@ -202,7 +202,7 @@ std::vector<organisation::parallel::value> organisation::parallel::inserts::get(
             {
                 value temp;
 
-                temp.value = values[i];
+                temp.data = values[i];
                 temp.client = clients[i].w();
                 temp.position = point(positions[i].x(), positions[i].y(), positions[i].z());
 
@@ -234,7 +234,7 @@ void organisation::parallel::inserts::copy(::organisation::schema **source, int 
             hostInserts[i_count + (index * settings.max_inserts)] = it;
 
             ++i_count;
-            if(i_count > settings.max_inserts) break;
+            if(i_count >= settings.max_inserts) break;
         }
 
         ++index;

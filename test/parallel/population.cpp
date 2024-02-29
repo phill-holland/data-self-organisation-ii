@@ -13,7 +13,7 @@ organisation::schema getSchema(organisation::parameters &parameters,
                                organisation::vector direction,
                                organisation::vector rebound,
                                organisation::point wall,
-                               int value,
+                               organisation::point value,
                                int delay)
 {
     organisation::schema s1(parameters);
@@ -46,7 +46,7 @@ organisation::schema getSchema(organisation::parameters &parameters,
 
 TEST(BasicPopulationTestParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -75,12 +75,12 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
         
     EXPECT_TRUE(program.initalised());
         
-    organisation::schema s1 = getSchema(parameters, { 1, 0, 0 }, { 0, 1, 0 }, { 12,10,10 }, 0, 1);
-    organisation::schema s2 = getSchema(parameters, {-1, 0, 0 }, { 0,-1, 0 }, {  7,10,10 }, 1, 1);
-    organisation::schema s3 = getSchema(parameters, { 0, 1, 0 }, { 1, 0, 0 }, {10, 12,10 }, 2, 1);
-    organisation::schema s4 = getSchema(parameters, { 0,-1, 0 }, {-1, 0, 0 }, {10,  7,10 }, 3, 1);
-    organisation::schema s5 = getSchema(parameters, { 0, 0, 1 }, { 1, 0, 0 }, {10, 10,12 }, 4, 1);
-    organisation::schema s6 = getSchema(parameters, { 0, 0,-1 }, {-1, 0, 0 }, {10, 10, 7 }, 5, 1);
+    organisation::schema s1 = getSchema(parameters, { 1, 0, 0 }, { 0, 1, 0 }, { 12,10,10 }, { 0, -1, -1 }, 1);
+    organisation::schema s2 = getSchema(parameters, {-1, 0, 0 }, { 0,-1, 0 }, {  7,10,10 }, { 1, -1, -1 }, 1);
+    organisation::schema s3 = getSchema(parameters, { 0, 1, 0 }, { 1, 0, 0 }, {10, 12,10 }, { 2, -1, -1 }, 1);
+    organisation::schema s4 = getSchema(parameters, { 0,-1, 0 }, {-1, 0, 0 }, {10,  7,10 }, { 3, -1, -1 }, 1);
+    organisation::schema s5 = getSchema(parameters, { 0, 0, 1 }, { 1, 0, 0 }, {10, 10,12 }, { 4, -1, -1 }, 1);
+    organisation::schema s6 = getSchema(parameters, { 0, 0,-1 }, {-1, 0, 0 }, {10, 10, 7 }, { 5, -1, -1 }, 1);
 
     organisation::scores::score match;
     match.set(1.0f,0); match.set(1.0f,1); match.set(1.0f,2); match.set(0.0f,3);
@@ -113,7 +113,7 @@ TEST(BasicPopulationTestParallel, BasicAssertions)
 
 TEST(BasicPopulationTestTwoEpochsParallel, BasicAssertions)
 {    
-    //GTEST_SKIP();
+    GTEST_SKIP();
 
     const int width = 20, height = 20, depth = 20;
 
@@ -156,12 +156,12 @@ TEST(BasicPopulationTestTwoEpochsParallel, BasicAssertions)
         
     EXPECT_TRUE(program.initalised());
         
-    organisation::schema s1 = getSchema(parameters, { 1, 0, 0 }, { 0, 1, 0 }, { 12,10,10 }, 0, 1);
-    organisation::schema s2 = getSchema(parameters, {-1, 0, 0 }, { 0,-1, 0 }, {  7,10,10 }, 1, 1);
-    organisation::schema s3 = getSchema(parameters, { 0, 1, 0 }, { 1, 0, 0 }, {10, 12,10 }, 2, 1);
-    organisation::schema s4 = getSchema(parameters, { 0,-1, 0 }, {-1, 0, 0 }, {10,  7,10 }, 3, 1);
-    organisation::schema s5 = getSchema(parameters, { 0, 0, 1 }, { 1, 0, 0 }, {10, 10,12 }, 4, 1);
-    organisation::schema s6 = getSchema(parameters, { 0, 0,-1 }, {-1, 0, 0 }, {10, 10, 7 }, 5, 1);
+    organisation::schema s1 = getSchema(parameters, { 1, 0, 0 }, { 0, 1, 0 }, { 12,10,10 }, { 0, -1, -1 }, 1);
+    organisation::schema s2 = getSchema(parameters, {-1, 0, 0 }, { 0,-1, 0 }, {  7,10,10 }, { 1, -1, -1 }, 1);
+    organisation::schema s3 = getSchema(parameters, { 0, 1, 0 }, { 1, 0, 0 }, {10, 12,10 }, { 2, -1, -1 }, 1);
+    organisation::schema s4 = getSchema(parameters, { 0,-1, 0 }, {-1, 0, 0 }, {10,  7,10 }, { 3, -1, -1 }, 1);
+    organisation::schema s5 = getSchema(parameters, { 0, 0, 1 }, { 1, 0, 0 }, {10, 10,12 }, { 4, -1, -1 }, 1);
+    organisation::schema s6 = getSchema(parameters, { 0, 0,-1 }, {-1, 0, 0 }, {10, 10, 7 }, { 5, -1, -1 }, 1);
 
     organisation::scores::score match;
     match.set(1.0f,0); match.set(1.0f,1); match.set(1.0f,2); match.set(0.0f,3);

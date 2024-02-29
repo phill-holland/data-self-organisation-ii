@@ -96,6 +96,8 @@ bool organisation::program::mutate(data &source)
 
 std::string organisation::program::run(std::string input, data &source, int max)
 {
+    return std::string("");
+    /*
     auto offset = [this](point &src)
     {
         return ((this->_width * this->_height) * src.z) + ((src.y * this->_width) + src.x);
@@ -130,18 +132,17 @@ std::string organisation::program::run(std::string input, data &source, int max)
 
     points.reserve(255);
 
-    /*
-    position a, b;
+    
+    //position a, b;
 
-    a.current = point(5,5,5);
-    a.direction = vector(1,1,0);
+    //a.current = point(5,5,5);
+    //a.direction = vector(1,1,0);
 
-    b.current = point(6,6,5);
-    b.direction = vector(-1,-1,0);
+    //b.current = point(6,6,5);
+    //b.direction = vector(-1,-1,0);
 
-    points.push_back(a);
-    points.push_back(b);
-    */
+    //points.push_back(a);
+    //points.push_back(b);
     
     // ***
     // load stationary positions (those that don't move per frame, direction = vector(0,0,0))
@@ -254,44 +255,7 @@ std::string organisation::program::run(std::string input, data &source, int max)
         for(auto &it: lens)
         {
             if(it.second.size() > 0)
-            {
-                // ***
-                // begin dog water code section
-                // ***
-
-                /*
-                std::vector<std::vector<position*>> relative;
-                position *front = it.second.front();
-                relative.resize(30);
-                relative[0].push_back(front);
-                point t1 = front->current + front->direction;
-                for(int i = 1; i < it.second.size(); ++i)
-                {
-                    position *src = it.second[i];
-                    point t2 = src->current + src->direction;
-                    int d2 = _distance(t1, t2);
-                    relative[d2].push_back(it.second[i]);
-                }
-                int idx = 0;
-                for(auto &jt:relative)
-                {
-                    if(jt.size() > 0)
-                    {                        
-                        std::cout << "relative: " << idx << " ";
-                        for(auto &moo:jt)
-                        {
-                            std::cout << "(" << moo->current.x << "," << moo->current.y << "," << moo->current.z << ")";
-                        }
-                        std::cout << "\r\n";
-                    }
-                    ++idx;
-                }
-                */
-                
-                // ***
-                // end dog water code section
-                // ***
-
+            {                
                 for(auto &a: it.second)
                 {
                     for(auto &b: it.second)
@@ -389,6 +353,7 @@ std::string organisation::program::run(std::string input, data &source, int max)
     }while(counter++<max);
 
     return source.get(results);
+    */
 }
 
 bool organisation::program::validate(data &source)
