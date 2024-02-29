@@ -36,10 +36,11 @@ organisation::parameters get_parameters(organisation::data &mappings)
 
     parameters.population = 4000;//16000;//8000;//4000;//parameters.clients() * 2;
     //parameters.population = parameters.clients() * 2;
-    parameters.max_collisions = 8;
+    //parameters.max_collisions = 8;
 
     parameters.output_stationary_only = true;
-    
+    parameters.max_cache_dimension = 1;//2;//2;
+
     parameters.width = width;
     parameters.height = height;
     parameters.depth = depth;
@@ -47,7 +48,7 @@ organisation::parameters get_parameters(organisation::data &mappings)
         
     parameters.scores.max_collisions = 2;//4;//2;
     //parameters.scores.max_words = 8;//8;
-    parameters.max_cache_dimension = 2;//2;
+    
         
 // limit MAX_DATA_VALUES parameter (from 3 to 1)
 
