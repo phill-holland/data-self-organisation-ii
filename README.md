@@ -2,7 +2,7 @@
 
 This application demonstrates celluar automata, genetic algorithms and paralllel programming using Sycl and Intel's OneApi toolkit.
 
-This is a work in progress to investigate how a data storage solution may self organise into efficient data storage and retrieval system, with the aim of identifying data patterns of storage for arbitrary sentence structures (i.e. sequential data).
+This is a work in progress to investigate how a data storage solution may self organise into efficient data structures, for storage and retrieval of data, with the aim of identifying data patterns for arbitrary sentence structures (i.e. sequential data).
 
 The underlying principal is to test if a fundamentally chaotic system can self-organise into a stable data storage and retrieval system.
 
