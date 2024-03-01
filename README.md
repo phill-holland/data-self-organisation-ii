@@ -41,7 +41,7 @@ These input words are tokenised into integers and stored within an internal dict
 
 # Scoring
 
-This system implements a unique method for comparing sentences, base on their relative position to each other, rather than just by their fixed
+This system implements a unique method for comparing sentences, based on their relative position to each other, rather than just by their fixed
 index within a goal sentence.
 
 For instance if we take the goal sentence of;
