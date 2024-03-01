@@ -104,7 +104,7 @@ There are still drawbacks to this usage process though, the key in it's current 
 
 There's an outside chance given more work this drawback can be overcome, but it may currently be technically improbable (?)
 
-# Building Running (see requirements below)
+# Building & Running (see requirements below)
 
 - Project comes with VSCode pre-configured launch and build tasks, however to manually build;
 
