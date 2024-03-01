@@ -104,8 +104,10 @@ bool organisation::scores::score::compute(organisation::compute value, settings 
 		return result;
 	};
 
+	clear();
+
 	std::vector<std::tuple<std::string,int>> alphabet = _split(value.expected);
-	
+		
 	int score_len = (alphabet.size() * 2) + 1;
 	for(int i = 0; i < score_len + 1; ++i) set(0.0f, i);
 
@@ -116,9 +118,16 @@ bool organisation::scores::score::compute(organisation::compute value, settings 
 
 	bool valid = true;
 	
-	int collisions = value.stats.collisions;
-	if(collisions > MAX_COLLISIONS) collisions = MAX_COLLISIONS;
-	if(!set(((float)collisions) / ((float)MAX_COLLISIONS), score_len)) valid = false;
+	if(MAX_COLLISIONS == 0) 
+	{
+		if(!set(1.0f, score_len)) valid = false;
+	}
+	else
+	{
+		int collisions = value.stats.collisions;
+		if(collisions > MAX_COLLISIONS) collisions = MAX_COLLISIONS;
+		if(!set(((float)collisions) / ((float)MAX_COLLISIONS), score_len)) valid = false;
+	}
  	
 	const int alphabet_len = alphabet.size();		
 	float max = (float)MAX_WORDS;

@@ -21,38 +21,38 @@ using namespace std;
 
 const organisation::dictionary dictionary;
 
-const int width = 7, height = 7, depth = 7;
+const int width = 6, height = 6, depth = 6;
 const int device_idx = 0;
-const int generations = 800;//200;
+const int generations = 500;
 
 organisation::parameters get_parameters(organisation::data &mappings)
 {
     organisation::parameters parameters(width, height, depth);
 
     parameters.dim_clients = organisation::point(10,10,10);
-    parameters.iterations = 30;//30;
-    parameters.max_values = 60;//50;//40;//500;//40;
-    parameters.max_cache = parameters.max_values;// / 2;
+    parameters.iterations = 30;
+    parameters.max_values = 100;
+    parameters.max_cache = parameters.max_values;
+    parameters.max_cache_dimension = 3;
 
-    parameters.population = 4000;//16000;//8000;//4000;//parameters.clients() * 2;
-    //parameters.population = parameters.clients() * 2;
-    parameters.max_collisions = 8;
+    parameters.population = parameters.clients() * 4;
 
     parameters.output_stationary_only = true;
     
     parameters.width = width;
     parameters.height = height;
     parameters.depth = depth;
-    parameters.mappings = mappings;
-        
-    parameters.scores.max_collisions = 2;//4;//2;
-    //parameters.scores.max_words = 8;//8;
-    parameters.max_cache_dimension = 2;//2;
-        
-// limit MAX_DATA_VALUES parameter (from 3 to 1)
+    parameters.mappings = mappings;        
 
-    std::string input1("daisy daisy give me your answer do");// give me your answer do .");
-    std::string expected1("I'm half crazy for the");// the love of you");// crazy for the love of you .");
+    // ***    
+    parameters.scores.max_collisions = 1;
+    // ***
+
+    //std::string input1("daisy daisy give me your answer do");
+    //std::string expected1("I'm half crazy for the love of you");
+            
+    std::string input1("daisy daisy");
+    std::string expected1("I'm half crazy for the love of");
         
     organisation::inputs::epoch epoch1(input1, expected1);
     
