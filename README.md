@@ -110,6 +110,7 @@ There's an outside chance given more work this drawback can be overcome, but it 
 
 ```
 source /opt/intel/oneapi/setvars.sh --include-intel-llvm --force
+mkdir build
 cd build
 cmake -DCMAKE_CXX_FLAGS="-O0 -g" -DBUILD_FOR_CUDA=true ../
 cmake --build .
