@@ -245,10 +245,10 @@ void organisation::parallel::inserts::copy(::organisation::schema **source, int 
 
             events.push_back(qt.memcpy(&deviceInserts[dest_index * settings.max_inserts], hostInserts, sizeof(int) * settings.max_inserts * index));
 
-            memset(hostInserts, -1, sizeof(int) * settings.max_inserts * settings.host_buffer);
-
             sycl::event::wait(events);
-
+            
+            memset(hostInserts, -1, sizeof(int) * settings.max_inserts * settings.host_buffer);
+            
             dest_index += settings.host_buffer;
             index = 0;            
         }
